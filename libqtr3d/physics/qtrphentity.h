@@ -1,7 +1,7 @@
 #ifndef QTRPHENTITY_H
 #define QTRPHENTITY_H
 
-#include <QPointF>;
+#include <QPointF>
 
 class QtrPhEntity
 {

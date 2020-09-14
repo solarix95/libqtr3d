@@ -5,8 +5,9 @@
 #include <QTime>
 #include <QObject>
 
-class QtrPhTimeLoop
+class QtrPhTimeLoop : public QObject
 {
+    Q_OBJECT
 public:
     QtrPhTimeLoop();
 

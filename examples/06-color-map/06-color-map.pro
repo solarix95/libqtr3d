@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 04-factory-showroom
+TARGET = 06-color-map
 
 INCLUDEPATH += .
 QT += core gui widgets

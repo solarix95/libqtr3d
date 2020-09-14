@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>colormap.png</file>
-        <file>silvan.jpg</file>
         <file>planet.jpg</file>
     </qresource>
 </RCC>

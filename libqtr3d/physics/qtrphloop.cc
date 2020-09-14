@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------------------------------------
 QtrPhTimeLoop::QtrPhTimeLoop()
 {
-    connect(&mTimer, &QTimer::timeout, this, &process);
+    connect(&mTimer, &QTimer::timeout, this, &QtrPhTimeLoop::process);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ void QtrPhTimeLoop::setSpeed(int procent)
 void QtrPhTimeLoop::process()
 {
     if (mStopWatch.isNull()) {
-        mStopWatch = mStopWatch.start();
+        mStopWatch.start();
         return;
     }
     int elapsedMs = mStopWatch.elapsed();

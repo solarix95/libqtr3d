@@ -13,15 +13,13 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
         qDebug() << "OpenGL ready";
 
-        Qtr3dGeometryBuffer *buffer = w.createTexturedQuad(QImage(":/lba.jpg"));
+        Qtr3dGeometryBuffer *buffer = w.createTexturedQuad(":/texture.jpg");
 
         w.createBufferState(buffer)->move({0,0,-5},  {0,0,0});     // front
         w.createBufferState(buffer)->move({0,2,-5},  {-45,0,0});   // top
         w.createBufferState(buffer)->move({0,-2,-5}, {45,0,0});    // bottom
         w.createBufferState(buffer)->move({2,0,-5},  {0,45,0});    // right
         w.createBufferState(buffer)->move({-2,0,-5}, {0,-45,0});   // left
-
-
     });
 
     w.show();

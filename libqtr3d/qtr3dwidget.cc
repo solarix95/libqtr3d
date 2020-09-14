@@ -1,5 +1,7 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
+#include <QResizeEvent>
+
 #include "qtr3dwidget.h"
 #include "qtr3dshader.h"
 #include "qtr3dcamera.h"

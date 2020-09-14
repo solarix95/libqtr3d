@@ -1,5 +1,6 @@
 
 INCLUDEPATH += libqtr3d $$LIBQTR3D_PATH
+CONFIG += c++11
 
 HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtypes.h \

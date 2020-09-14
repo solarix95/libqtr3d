@@ -21,15 +21,11 @@ int main(int argc, char *argv[])
 
         // Sphere
         mesh = w.createVertexMesh();
-        // Qtr3dModelFactory::meshBySphere(*mesh,200,QImage(":/colormap.png"));
-        // Qtr3dModelFactory::meshBySphere(*mesh,200,QImage(":/silvan.jpg"));
         Qtr3dModelFactory::meshBySphere(*mesh,600,QImage(":/planet.jpg"));
 
         state = w.createBufferState(mesh);
         state->setFlat(false);
         state->setState({0,0,0},{-90,0,0},{2,2,2});
-        // state->setState(showRoomPos,{0,0,0});
-
 
         // Sky
         mesh = w.createVertexMesh();
