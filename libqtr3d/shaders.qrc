@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="textquad_flat.frag">shaders/textquad_flat.frag</file>
+        <file alias="textquad_flat.vert">shaders/textquad_flat.vert</file>
+        <file alias="vertexmesh_flat.frag">shaders/vertexmesh_flat.frag</file>
+        <file alias="vertexmesh_flat.vert">shaders/vertexmesh_flat.vert</file>
+        <file alias="textquad_phong.frag">shaders/textquad_phong.frag</file>
+        <file alias="textquad_phong.vert">shaders/textquad_phong.vert</file>
+        <file alias="vertexmesh_phong.frag">shaders/vertexmesh_phong.frag</file>
+        <file alias="vertexmesh_phong.vert">shaders/vertexmesh_phong.vert</file>
+    </qresource>
+</RCC>
