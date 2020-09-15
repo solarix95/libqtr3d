@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
         w.createBufferState(mesh);
 
-        new Qtr3dCameraCycler(w.camera(),30,1,{0,1,1},{0,0,0});
+        new Qtr3dCameraCycler(w.camera(),30,1,{0,8,6},{0,0,0});
         // w.camera()->lookAt({1,1,1}, {0,0,0},{0,1,0});
         // new Qtr3dFreeCameraController(&w);
     });

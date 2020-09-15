@@ -13,7 +13,11 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
         qDebug() << "OpenGL ready";
 
-        Qtr3dGeometryBuffer *buffer = w.createTexturedQuad(":/texture.jpg");
+        Qtr3dTexturedQuad *buffer = w.createTexturedQuad(":/texture.jpg");
+
+        buffer->startMesh();
+        buffer->addQuad({  1.0,  1.0,  0.0 },{ -1.0,  1.0,  0.0 },{ -1.0, -1.0,  0.0 },{  1.0, -1.0,  0.0 });
+        buffer->endMesh();
 
         w.createBufferState(buffer)->move({0,0,-5},  {0,0,0});     // front
         w.createBufferState(buffer)->move({0,2,-5},  {-45,0,0});   // top

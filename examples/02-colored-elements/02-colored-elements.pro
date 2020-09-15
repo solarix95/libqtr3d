@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 02-cube-scene
+TARGET = 02-colored-elements
 INCLUDEPATH += .
 QT += core gui widgets
 
