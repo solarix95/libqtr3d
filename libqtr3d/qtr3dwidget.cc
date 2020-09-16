@@ -1,6 +1,7 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
 #include <QResizeEvent>
+#include <QSurfaceFormat>
 
 #include "qtr3dwidget.h"
 #include "qtr3dshader.h"
@@ -11,12 +12,15 @@
 #include "qtr3dtexturefactory.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dWidget::Qtr3dWidget()
-    : mCamera(nullptr)
+Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
+    : QOpenGLWidget(parent)
+    , mOptions(ops)
+    , mCamera(nullptr)
     , mTextures(nullptr)
     , mTexturedQuadShader(nullptr)
     , mClearColor("#000000") // black
 {
+    initializeMultisampleAntiAliasing();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -77,6 +81,7 @@ void Qtr3dWidget::initializeGL()
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->initializeOpenGLFunctions();
 
+    // f->glEnable(GL_MULTISAMPLE); IMHO obsolete..
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LEQUAL) ;
     f->glEnable(GL_CULL_FACE) ;
@@ -127,4 +132,23 @@ Qtr3dCamera *Qtr3dWidget::createCamera()
 Qtr3dTextureFactory *Qtr3dWidget::createTextureFactory()
 {
     return new Qtr3dTextureFactory();
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                    PRIVATE
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::initializeMultisampleAntiAliasing()
+{
+    int samples = 0;
+    if (mOptions.testFlag(MSAA4))
+        samples = 4;
+    else if (mOptions.testFlag(MSAA16))
+        samples = 16;
+
+    if (samples > 0) {
+            QSurfaceFormat currentFormat = format();
+            currentFormat.setSamples(samples);
+            setFormat(currentFormat);
+    }
+
 }

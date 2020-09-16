@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QSurfaceFormat>
 #include <QDebug>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dvertexmesh.h>
@@ -10,7 +11,8 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);
 
-    Qtr3dWidget w;
+    Qtr3dWidget w(Qtr3dWidget::MSAA16);
+
     w.setGeometry(10,10,500,500);
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {

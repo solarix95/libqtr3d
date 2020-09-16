@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QDebug>
+#include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dvertexmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
@@ -8,10 +9,17 @@
 
 int main(int argc, char *argv[])
 {
+    QSurfaceFormat fmt;
+    fmt.setSamples(16);
+    QSurfaceFormat::setDefaultFormat(fmt);
+
+
     QApplication app(argc,argv);
 
     Qtr3dWidget w;
     w.setGeometry(10,10,500,500);
+
+
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
         qDebug() << "OpenGL ready";

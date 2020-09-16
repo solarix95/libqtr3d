@@ -17,7 +17,16 @@ class Qtr3dWidget : public QOpenGLWidget
 {
     Q_OBJECT
 public:
-    Qtr3dWidget();
+
+    enum Option {
+        NoOption,
+        MSAA4   = 0x0001,
+        MSAA16  = 0x0002,
+    };
+    Q_DECLARE_FLAGS(Options, Option)
+
+    Qtr3dWidget(Options ops = NoOption, QWidget *parent = NULL);
+
 
     Qtr3dCamera         *camera();
     Qtr3dTextureFactory *textures();
@@ -44,6 +53,9 @@ signals:
     void initialized();
 
 private:
+    void initializeMultisampleAntiAliasing();
+
+    Options                  mOptions;
     Qtr3dCamera             *mCamera;
     Qtr3dTextureFactory     *mTextures;
 
