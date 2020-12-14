@@ -31,7 +31,9 @@ public:
     void addVertex(const QVector3D &v, const QVector3D &n);
     void addVertex(const QVector3D &v, const QVector3D &n, const QColor &c);
     void addVertex(const Qtr3dColoredVertex &v);
-    void addIndex(int i);
+
+    void addNormal(const QVector3D &n);
+    void addIndex(int vi,int ti = -1, int ni = -1);
 
     void calculateNormals();
 
@@ -49,6 +51,8 @@ private:
     Type                        mMeshType;
     QVector<Qtr3dColoredVertex> mVertexes;
     QVector<GLuint>             mIndexes;
+
+    QList<QVector3D>            mNormals;
 };
 
 

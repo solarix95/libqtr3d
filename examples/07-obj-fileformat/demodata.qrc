@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>NASA3D-Z2-Spacesuit.obj</file>
+    </qresource>
+</RCC>

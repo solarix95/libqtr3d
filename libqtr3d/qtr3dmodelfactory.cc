@@ -8,6 +8,7 @@
 #include "qtr3dmodelfactory.h"
 #include "qtr3dvertexmesh.h"
 #include "qtr3dtexturedquad.h"
+#include "loader/qtr3dobjloader.h"
 
 //-------------------------------------------------------------------------------------------------
 static QVariant sLoadJson(const QString &filename) {
@@ -409,4 +410,12 @@ bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &jso
     mesh.endMesh();
     return true; // TODO: Validation?
 
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelFactory::meshByFile(Qtr3dVertexMesh &mesh, const QString &filename)
+{
+    if (Qtr3dObjLoader::supportsFile(filename))
+        return Qtr3dObjLoader::loadFile(mesh,filename);
+    return false;
 }

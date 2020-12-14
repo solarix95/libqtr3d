@@ -22,7 +22,9 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphspace.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphentity.h \
-    $$LIBQTR3D_PATH/libqtr3d/physics/qtrphtimeloop.h
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtrphtimeloop.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -43,7 +45,9 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphspace.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphentity.cc \
-    $$LIBQTR3D_PATH/libqtr3d/physics/qtrphloop.cc
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtrphloop.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 

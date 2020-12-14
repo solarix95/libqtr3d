@@ -24,6 +24,7 @@ void Qtr3dVertexMesh::reset()
     mElementBufferId = 0;
     mVertexes.clear();
     mIndexes.clear();
+    mNormals.clear();
 
     mDefaultColor    = QColor();
     startMesh(Unknown);
@@ -51,6 +52,7 @@ void Qtr3dVertexMesh::endMesh()
         }
     }
 
+    mNormals.clear();
     mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(),mIndexes.count() * sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER);
 }
 
@@ -94,9 +96,18 @@ void Qtr3dVertexMesh::addVertex(const Qtr3dColoredVertex &v)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMesh::addIndex(int i)
+void Qtr3dVertexMesh::addNormal(const QVector3D &n)
 {
-    mIndexes << (GLuint)i; // TODO...
+    mNormals << n;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMesh::addIndex(int vi,int ti, int ni)
+{
+    mIndexes << (GLuint)vi;
+
+    if (vi < mVertexes.count() && ni >= 0 && ni < mNormals.count())
+        mVertexes[vi].n = mNormals[ni];
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -8,6 +8,7 @@ class Qtr3dTexturedQuad;
 
 namespace Qtr3dModelFactory {
 
+bool meshByFile(Qtr3dVertexMesh &mesh, const QString &filename);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QString &filename);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json);
 
