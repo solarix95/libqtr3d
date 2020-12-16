@@ -90,18 +90,11 @@ void Qtr3dWidget::initializeGL()
     mVertexMeshShader   = new Qtr3dVertexMeshShader("vertexmesh");
     mTexturedQuadShader = new Qtr3dTexturedQuadShader("textquad");
     emit initialized();
-
-    /*
-    QTimer *t = new QTimer(this);
-    connect(t, SIGNAL(timeout()), this, SLOT(update()));
-    t->start(1000/30);
-    */
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintGL()
 {
-    // qDebug() << "begin paint GL";
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -110,7 +103,6 @@ void Qtr3dWidget::paintGL()
 
     mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix());
     mTexturedQuadShader->render(camera()->projection(),camera()->worldMatrix());
-    // qDebug() << "end paint GL";
 
     f->glDisable(GL_CULL_FACE); // otherwise: can't see 2D Paintings..
 }

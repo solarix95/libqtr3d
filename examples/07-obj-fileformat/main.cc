@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
         // OBJ-File
         mesh = w.createVertexMesh();
         mesh->setDefaultColor(Qt::white);
+        // OBJ Model by https://github.com/nasa/NASA-3D-Resources/
         Qtr3dModelFactory::meshByFile(*mesh,":/NASA3D-Z2-Spacesuit.obj");
 
         state = w.createBufferState(mesh);

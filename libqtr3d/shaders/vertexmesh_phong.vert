@@ -11,6 +11,7 @@ attribute vec3 vcolor;
 uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat4 normalview;
+uniform vec3 lightPos;
 
 // Parameters passed to the fragment shader.
 varying vec3 color;
@@ -19,7 +20,8 @@ varying vec3 light;
 varying vec3 normal;
 
 void main() {
-        vec3 lightPos = (vec4( -1000.0, 1000.0, 0.0, 1.0 ) * modelview).xyz;
+        // vec3 lightPos = (vec4( -1000.0, 1000.0, 0.0, 1.0 ) * modelview).xyz;
+        vec3 relLightPos = (vec4( lightPos.x, lightPos.y, lightPos.z, 1.0 ) * modelview).xyz;
 
         // Texture coordinates are passed through
         color = vcolor;
@@ -29,8 +31,8 @@ void main() {
 	viewVertex = vertex * modelview;
 
 	// Calculate lighting parameters for the fragment shader
-	eye = normalize( viewVertex.xyz );
-	light = normalize( lightPos - viewVertex.xyz );
+        eye    = normalize( viewVertex.xyz );
+        light  = normalize( relLightPos - viewVertex.xyz );
 	normal = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
 	
 	// Project and send to the fragment shader

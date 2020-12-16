@@ -48,8 +48,11 @@ void Qtr3dVertexMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix
     modelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
     normalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
     projectionMatrix = mShaderProgramLight->uniformLocation("projection" );
+    lightPos         = mShaderProgramLight->uniformLocation("lightPos" );
+
 
     mShaderProgramLight->setUniformValue(projectionMatrix,perspectiveMatrix);
+    mShaderProgramLight->setUniformValue(lightPos,QVector3D(100,100,100));
 
     foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();

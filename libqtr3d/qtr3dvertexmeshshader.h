@@ -27,6 +27,7 @@ private:
     GLuint vertexPosition;
     GLuint vertexNormal;
     GLuint vertexColor;
+    GLuint lightPos;
 
     Qtr3dVertexMeshes     mGeometryBuffers;
 };
