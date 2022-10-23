@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>planet.jpg</file>
-        <file>demodata.json</file>
-    </qresource>
-</RCC>

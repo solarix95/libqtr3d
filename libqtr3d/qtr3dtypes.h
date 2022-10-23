@@ -15,7 +15,8 @@ typedef struct Qtr3dVector_t
     Qtr3dVector_t() : x(0.f), y(0.f), z(0.f) {}
     Qtr3dVector_t(float f1, float f2, float f3) : x(f1), y(f2), z(f3) {}
     Qtr3dVector_t(const QVector3D &v) : x(v.x()), y(v.y()), z(v.z()) {}
-    QVector3D toQVector() const { return QVector3D(x,y,z); }
+    inline QVector3D toQVector() const { return QVector3D(x,y,z); }
+    inline bool      isNull() const    { return qFuzzyIsNull(x * y * z);}
 } Qtr3dVector;
 
 inline bool operator==(const Qtr3dVector &v1, const QVector3D &v2)

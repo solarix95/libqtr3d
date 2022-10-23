@@ -17,15 +17,23 @@ public:
         Quad
     };
 
+    enum VertexOrientation {
+        CounterClockWise,
+        ClockWise
+    };
+
     Qtr3dVertexMesh(Type meshType = Unknown);
     virtual ~Qtr3dVertexMesh();
 
-    Type meshType() const;
+    Type              meshType() const;
+    VertexOrientation vertexOrientation() const;
+
     void reset();
-    Qtr3dVertexMesh *startMesh(Type meshType);
+    Qtr3dVertexMesh *startMesh(Type meshType, VertexOrientation orientation = CounterClockWise);
     void endMesh();
 
     void setDefaultColor(const QColor &c);
+    void setVertexOrientation(VertexOrientation orientation);
     void addVertex(const QVector3D &v); // .. and use "defaultColor"
     void addVertex(const QVector3D &v, const QColor &c);
     void addVertex(const QVector3D &v, const QVector3D &n);
@@ -41,8 +49,6 @@ public:
     QVector3D center() const;
     double    radius() const;
 
-    void calculateNormals();
-
     // Shader Interface
     inline GLuint vertexBufferId() const  { return mVertexBufferId;  }
     inline GLuint elementBufferId() const { return mElementBufferId; }
@@ -51,11 +57,14 @@ public:
 
 private:
     void analyze(const QVector3D &v);
+    void calculateNormal(int vertexIndex);
+
     GLuint mVertexBufferId;
     GLuint mElementBufferId;
 
     QColor                      mDefaultColor;
     Type                        mMeshType;
+    VertexOrientation           mVertexOrientation;
     QVector<Qtr3dColoredVertex> mVertexes;
     QVector<GLuint>             mIndexes;
     QVector3D                   mMin;

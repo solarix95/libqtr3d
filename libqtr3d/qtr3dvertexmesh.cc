@@ -32,9 +32,10 @@ void Qtr3dVertexMesh::reset()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dVertexMesh *Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType)
+Qtr3dVertexMesh *Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType, VertexOrientation orientation)
 {
-    mMeshType        = meshType;
+    mMeshType          = meshType;
+    mVertexOrientation = orientation;
     mMin = QVector3D( std::numeric_limits<double>::max(),
                       std::numeric_limits<double>::max(),
                       std::numeric_limits<double>::max() );
@@ -50,6 +51,15 @@ void Qtr3dVertexMesh::endMesh()
     if (mMeshType == Unknown || mVertexes.isEmpty())
         return;
 
+    if (mMeshType == Triangle || mMeshType == Quad) {
+        for (int i=0; i<mVertexes.count(); i++) {
+            if (mVertexes.at(i).n.isNull()) {
+                calculateNormal(i);
+            }
+        }
+    }
+
+
     // Transfer Modeldata to Graphic-Memory
     mVertexBufferId = Qtr3dShader::makeBO(mVertexes.data(),mVertexes.count() * sizeof(Qtr3dColoredVertex));
 
@@ -60,6 +70,7 @@ void Qtr3dVertexMesh::endMesh()
         }
     }
 
+
     mNormals.clear();
     mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(),mIndexes.count() * sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER);
 }
@@ -68,6 +79,12 @@ void Qtr3dVertexMesh::endMesh()
 void Qtr3dVertexMesh::setDefaultColor(const QColor &c)
 {
     mDefaultColor = c;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMesh::setVertexOrientation(VertexOrientation orientation)
+{
+    mVertexOrientation = orientation;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -184,7 +201,39 @@ void Qtr3dVertexMesh::analyze(const QVector3D &v)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
+{
+    Q_ASSERT(mMeshType == Triangle || mMeshType == Quad);
+
+    int shapeVertexCount = mMeshType == Triangle ? 3 : 4;
+
+    // int relativIndex = vertexIndex % shapeVertexCount;
+    int shapeIndex   = vertexIndex / shapeVertexCount;
+
+
+    QVector3D v01(mVertexes.at(shapeIndex+1).p.toQVector() -
+                  mVertexes.at(shapeIndex+0).p.toQVector());
+
+    QVector3D v02(mVertexes.at(shapeIndex+2).p.toQVector() -
+                  mVertexes.at(shapeIndex+0).p.toQVector());
+
+    QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
+
+    double l1 = mVertexes.at(shapeIndex+0).p.toQVector().distanceToPoint(center());
+    double l2 = (mVertexes.at(shapeIndex+0).p.toQVector() + normal).distanceToPoint(center());
+
+    mVertexes[vertexIndex].n = (l2 > l1) ? normal : -normal;
+
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dVertexMesh::Type Qtr3dVertexMesh::meshType() const
 {
     return mMeshType;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dVertexMesh::VertexOrientation Qtr3dVertexMesh::vertexOrientation() const
+{
+    return mVertexOrientation;
 }
