@@ -1,6 +1,8 @@
 
 INCLUDEPATH += libqtr3d $$LIBQTR3D_PATH
 CONFIG += c++11
+QT     += core gui widgets
+INCLUDEPATH += $$LIBQTR3D_PATH
 
 HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtypes.h \
@@ -24,7 +26,10 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphentity.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphtimeloop.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.h \
-    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h \
+    $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.h  \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -47,7 +52,10 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphentity.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphloop.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.cc \
-    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 

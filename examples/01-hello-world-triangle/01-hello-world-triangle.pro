@@ -3,10 +3,8 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 04-factory-showroom
-
+TARGET = 01-hello-world-triangle
 INCLUDEPATH += .
-QT += core gui widgets
 
 LIBQTR3D_PATH = ../../
 
@@ -24,12 +22,5 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-SOURCES += main.cc \
-    solarsystem.cc
-
-RESOURCES += \
-    demodata.qrc
-
-HEADERS += \
-    solarsystem.h
+SOURCES += main.cc
 

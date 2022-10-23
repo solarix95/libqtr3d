@@ -10,7 +10,7 @@ QtrPhTimeLoop::QtrPhTimeLoop()
 void QtrPhTimeLoop::init(int fps)
 {
     Q_ASSERT(fps > 0);
-    mStopWatch = QTime();
+    mStopWatch.invalidate();
     mSpeed     = 100;
     mTimer.start(1000/fps);
 }
@@ -24,7 +24,7 @@ void QtrPhTimeLoop::setSpeed(int procent)
 //-------------------------------------------------------------------------------------------------
 void QtrPhTimeLoop::process()
 {
-    if (mStopWatch.isNull()) {
+    if (mStopWatch.isValid()) {
         mStopWatch.start();
         return;
     }

@@ -3,9 +3,11 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = example1-textured-cube
-INCLUDEPATH += .
+TARGET = 3dviewer
+
+INCLUDEPATH += . ../../
 QT += core gui widgets
+CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 
@@ -23,7 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-SOURCES += main.cc
+SOURCES += main.cc \
+    viewerform.cc
 
-RESOURCES += \
-    demodata.qrc
+FORMS += \
+    viewerform.ui
+
+HEADERS += \
+    viewerform.h
+

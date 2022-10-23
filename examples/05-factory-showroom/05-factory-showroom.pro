@@ -3,7 +3,8 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 02-colored-elements
+TARGET = 05-factory-showroom
+
 INCLUDEPATH += .
 QT += core gui widgets
 
@@ -23,5 +24,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-SOURCES += main.cc
+SOURCES += main.cc \
+    solarsystem.cc
+
+RESOURCES += \
+    demodata.qrc
+
+HEADERS += \
+    solarsystem.h
 

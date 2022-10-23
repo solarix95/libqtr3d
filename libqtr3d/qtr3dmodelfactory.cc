@@ -9,6 +9,8 @@
 #include "qtr3dvertexmesh.h"
 #include "qtr3dtexturedquad.h"
 #include "loader/qtr3dobjloader.h"
+#include "loader/qtr3dstlloader.h"
+#include "utils/qtr3dutils.h"
 
 //-------------------------------------------------------------------------------------------------
 static QVariant sLoadJson(const QString &filename) {
@@ -77,9 +79,9 @@ bool Qtr3dModelFactory::meshByStarsky(Qtr3dVertexMesh &mesh, float radius, int s
     mesh.startMesh(Qtr3dVertexMesh::Dot);
 
     for (int i=0; i<starCount; i++) {
-        QVector3D v((float)(-10000 + (qrand()%20000)),
-                    (float)(-10000 + (qrand()%20000)),
-                    (float)(-10000 + (qrand()%20000)));
+        QVector3D v((float)(-10000 + (Qtr3d::qrand()%20000)),
+                    (float)(-10000 + (Qtr3d::qrand()%20000)),
+                    (float)(-10000 + (Qtr3d::qrand()%20000)));
         v.normalize();
         v = v * radius;
         mesh.addVertex(v);
@@ -112,7 +114,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
         float r = sin(angleZ) * radius;
         float z = cos(angleZ);
 
-        for (unsigned s=0; s<sectors; s++) {
+        for (int s=0; s<sectors; s++) {
 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
@@ -126,12 +128,12 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
         }
     }
 
-    for (unsigned ring = 0; ring<sectors-3; ring++) {
+    for (int ring = 0; ring<sectors-3; ring++) {
         // r = sin(PI * ((ring+2)*stepZ)/2) * radius;
         float r = sin((ring+2)*angleZ) * radius;
         float z = cos((ring+2)*angleZ);
 
-        for (unsigned s=0; s<sectors; s++) {
+        for (int s=0; s<sectors; s++) {
 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
@@ -146,8 +148,8 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     mesh.addVertex({cx, cy, cz - radius},
                    QVector3D(0.f,0.f,-1.f), color);
 
-    for (unsigned ring = 0; ring<sectors-3; ring++) {
-        for (unsigned s=0; s<sectors; s++) {
+    for (int ring = 0; ring<sectors-3; ring++) {
+        for (int s=0; s<sectors; s++) {
 
             int first = 1 +(ring*sectors);
 
@@ -164,7 +166,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     }
 
     // Button
-    for (unsigned s=0; s<sectors; s++) {
+    for (int s=0; s<sectors; s++) {
         int first = 1+ ((sectors-3)*sectors);
 
         mesh.addIndex(first + s);
@@ -306,7 +308,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
         float r = sin(angleZ) * radius;
         float z = cos(angleZ);
 
-        for (unsigned s=0; s<sectors; s++) {
+        for (int s=0; s<sectors; s++) {
 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
@@ -321,12 +323,12 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
         }
     }
 
-    for (unsigned ring = 0; ring<sectors-3; ring++) {
+    for (int ring = 0; ring<sectors-3; ring++) {
         // r = sin(PI * ((ring+2)*stepZ)/2) * radius;
         float r = sin((ring+2)*angleZ) * radius;
         float z = cos((ring+2)*angleZ);
 
-        for (unsigned s=0; s<sectors; s++) {
+        for (int s=0; s<sectors; s++) {
 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
@@ -342,8 +344,8 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     mesh.addVertex({cx, cy, cz - radius},
                    QVector3D(0.f,0.f,-1.f), getColor(0.5,1));
 
-    for (unsigned ring = 0; ring<sectors-3; ring++) {
-        for (unsigned s=0; s<sectors; s++) {
+    for (int ring = 0; ring<sectors-3; ring++) {
+        for (int s=0; s<sectors; s++) {
 
             int first = 1 +(ring*sectors);
 
@@ -360,7 +362,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     }
 
     // Button
-    for (unsigned s=0; s<sectors; s++) {
+    for (int s=0; s<sectors; s++) {
         int first = 1+ ((sectors-3)*sectors);
 
         mesh.addIndex(first + s);
@@ -409,7 +411,6 @@ bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &jso
 
     mesh.endMesh();
     return true; // TODO: Validation?
-
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -417,5 +418,7 @@ bool Qtr3dModelFactory::meshByFile(Qtr3dVertexMesh &mesh, const QString &filenam
 {
     if (Qtr3dObjLoader::supportsFile(filename))
         return Qtr3dObjLoader::loadFile(mesh,filename);
+    if (Qtr3dStlLoader::supportsFile(filename))
+        return Qtr3dStlLoader::loadFile(mesh,filename);
     return false;
 }

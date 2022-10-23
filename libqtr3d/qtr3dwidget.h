@@ -26,6 +26,7 @@ public:
     Q_DECLARE_FLAGS(Options, Option)
 
     Qtr3dWidget(Options ops = NoOption, QWidget *parent = NULL);
+    Qtr3dWidget(QWidget *parent);
 
 
     Qtr3dCamera         *camera();

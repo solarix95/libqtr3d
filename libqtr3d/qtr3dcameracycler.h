@@ -7,7 +7,10 @@
 class Qtr3dCameraCycler : public Qtr3dCameraMovement
 {
 public:
-    Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngle,
+    Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngleY,
+                      const QVector3D &startPos,
+                      const QVector3D &lookAt);
+    Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D &deltaAngle,
                       const QVector3D &startPos,
                       const QVector3D &lookAt);
 
@@ -15,8 +18,8 @@ protected:
     virtual void process();
 
 private:
-    float mDeltaAngle;
-    float mCurrentAngle;
+    QVector3D mDeltaAngle;
+    QVector3D mCurrentAngle;
 
     QVector3D mStartPos;
     QVector3D mLookAt;

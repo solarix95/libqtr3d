@@ -11,6 +11,9 @@ Qtr3dVertexMeshShader::Qtr3dVertexMeshShader(const QString &eglFile)
 void Qtr3dVertexMeshShader::registerBuffer(Qtr3dVertexMesh &buffer)
 {
     mGeometryBuffers << &buffer;
+    connect(&buffer, &Qtr3dVertexMesh::destroyed, this, [&](QObject *obj) {
+        mGeometryBuffers.removeAll((Qtr3dVertexMesh*)obj);
+    });
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -52,7 +55,7 @@ void Qtr3dVertexMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix
 
 
     mShaderProgramLight->setUniformValue(projectionMatrix,perspectiveMatrix);
-    mShaderProgramLight->setUniformValue(lightPos,QVector3D(100,100,100));
+    mShaderProgramLight->setUniformValue(lightPos,QVector3D(2000,2000,2000));
 
     foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();

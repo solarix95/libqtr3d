@@ -1,6 +1,7 @@
 #ifndef QTR3DSHADER_H
 #define QTR3DSHADER_H
 
+#include <QObject>
 #include <QOpenGLFunctions>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
@@ -8,7 +9,7 @@
 
 
 //-------------------------------------------------------------------------------------------------
-class Qtr3dShader
+class Qtr3dShader : public QObject
 {
 public:
     Qtr3dShader(const QString &eglFile);

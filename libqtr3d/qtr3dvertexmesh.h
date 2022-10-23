@@ -22,7 +22,7 @@ public:
 
     Type meshType() const;
     void reset();
-    void startMesh(Type meshType);
+    Qtr3dVertexMesh *startMesh(Type meshType);
     void endMesh();
 
     void setDefaultColor(const QColor &c);
@@ -35,6 +35,12 @@ public:
     void addNormal(const QVector3D &n);
     void addIndex(int vi,int ti = -1, int ni = -1);
 
+    // Metadata for generic viewers:
+    QVector3D minValues() const; // lowest xyz
+    QVector3D maxValues() const; // max xyz
+    QVector3D center() const;
+    double    radius() const;
+
     void calculateNormals();
 
     // Shader Interface
@@ -44,6 +50,7 @@ public:
     GLenum        bufferType() const;
 
 private:
+    void analyze(const QVector3D &v);
     GLuint mVertexBufferId;
     GLuint mElementBufferId;
 
@@ -51,6 +58,8 @@ private:
     Type                        mMeshType;
     QVector<Qtr3dColoredVertex> mVertexes;
     QVector<GLuint>             mIndexes;
+    QVector3D                   mMin;
+    QVector3D                   mMax;
 
     QList<QVector3D>            mNormals;
 };

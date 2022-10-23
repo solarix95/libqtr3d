@@ -2,7 +2,7 @@
 #define QTRPHTIMELOOP_H
 
 #include <QTimer>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QObject>
 
 class QtrPhTimeLoop : public QObject
@@ -21,9 +21,9 @@ private slots:
     void process();
 
 private:
-    QTimer mTimer;
-    QTime  mStopWatch;
-    int    mSpeed;
+    QTimer         mTimer;
+    QElapsedTimer  mStopWatch;
+    int            mSpeed;
 };
 
 #endif // QTRPHTIMELOOP_H

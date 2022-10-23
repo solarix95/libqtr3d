@@ -3,9 +3,8 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 03-vertex-factory
+TARGET = 02-flat-cube
 INCLUDEPATH += .
-QT += core gui widgets
 
 LIBQTR3D_PATH = ../../
 
@@ -24,7 +23,4 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # Input
 SOURCES += main.cc
-
-RESOURCES += \
-    demodata.qrc
 

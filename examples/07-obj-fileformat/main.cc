@@ -7,6 +7,7 @@
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
 
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);

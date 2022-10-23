@@ -24,6 +24,18 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dWidget::Qtr3dWidget(QWidget *parent)
+    : QOpenGLWidget(parent)
+    , mOptions(NoOption)
+    , mCamera(nullptr)
+    , mTextures(nullptr)
+    , mTexturedQuadShader(nullptr)
+    , mClearColor("#000000") // black
+{
+    initializeMultisampleAntiAliasing();
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dCamera *Qtr3dWidget::camera()
 {
     if (!mCamera) {

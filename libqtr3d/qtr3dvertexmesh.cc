@@ -1,5 +1,6 @@
 #include "qtr3dvertexmesh.h"
 #include "qtr3dshader.h"
+#include <QVector4D>
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dVertexMesh::Qtr3dVertexMesh(Type meshType)
@@ -31,9 +32,16 @@ void Qtr3dVertexMesh::reset()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType)
+Qtr3dVertexMesh *Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType)
 {
     mMeshType        = meshType;
+    mMin = QVector3D( std::numeric_limits<double>::max(),
+                      std::numeric_limits<double>::max(),
+                      std::numeric_limits<double>::max() );
+    mMax = QVector3D( std::numeric_limits<double>::min(),
+                      std::numeric_limits<double>::min(),
+                      std::numeric_limits<double>::min());
+    return this;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -73,6 +81,7 @@ void Qtr3dVertexMesh::addVertex(const QVector3D &v, const QColor &c)
 {
     Q_ASSERT(mVertexBufferId == 0);
     mVertexes << Qtr3dColoredVertex(v,c);
+    analyze(v);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -86,6 +95,7 @@ void Qtr3dVertexMesh::addVertex(const QVector3D &v, const QVector3D &n, const QC
 {
     Q_ASSERT(mVertexBufferId == 0);
     mVertexes << Qtr3dColoredVertex(v,n.normalized(),c);
+    analyze(v);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -93,6 +103,7 @@ void Qtr3dVertexMesh::addVertex(const Qtr3dColoredVertex &v)
 {
     Q_ASSERT(mVertexBufferId == 0);
     mVertexes << v;
+    analyze(QVector3D(v.p.x, v.p.y, v.p.z));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -110,6 +121,32 @@ void Qtr3dVertexMesh::addIndex(int vi,int ti, int ni)
         mVertexes[vi].n = mNormals[ni];
 }
 
+QVector3D Qtr3dVertexMesh::minValues() const
+{
+    return mMin;
+}
+
+QVector3D Qtr3dVertexMesh::maxValues() const
+{
+    return mMax;
+}
+
+//-------------------------------------------------------------------------------------------------
+QVector3D Qtr3dVertexMesh::center() const
+{
+    return QVector3D(
+                (mMax.x() + mMin.x())/2,
+                (mMax.y() + mMin.y())/2,
+                (mMax.z() + mMin.z())/2
+                );
+}
+
+//-------------------------------------------------------------------------------------------------
+double Qtr3dVertexMesh::radius() const
+{
+    return qMax(mMax.x() - mMin.x(),qMax(mMax.y() - mMin.y(),mMax.z() - mMin.z()));
+}
+
 //-------------------------------------------------------------------------------------------------
 GLenum Qtr3dVertexMesh::bufferType() const
 {
@@ -122,6 +159,28 @@ GLenum Qtr3dVertexMesh::bufferType() const
     }
     Q_ASSERT(0);
     return 0;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMesh::analyze(const QVector3D &v)
+{
+    if (v.x() > mMax.x())
+        mMax.setX(v.x());
+
+    if (v.y() > mMax.y())
+        mMax.setY(v.y());
+
+    if (v.z() > mMax.z())
+        mMax.setZ(v.z());
+
+    if (v.x() < mMin.x())
+        mMin.setX(v.x());
+
+    if (v.y() < mMin.y())
+        mMin.setY(v.y());
+
+    if (v.z() < mMin.z())
+        mMin.setZ(v.z());
 }
 
 //-------------------------------------------------------------------------------------------------

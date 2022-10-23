@@ -2,7 +2,7 @@
 #define QTR3DOBJLOADER_H
 
 #include <QString>
-
+#include <QStringList>
 #include "qtr3dmodelloader.h"
 
 class Qtr3dObjLoader : public Qtr3dModelLoader
