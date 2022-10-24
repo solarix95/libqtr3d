@@ -218,11 +218,14 @@ void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
                   mVertexes.at(shapeIndex+0).p.toQVector());
 
     QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
+    mVertexes[vertexIndex].n = normal;
 
+    /*
     double l1 = mVertexes.at(shapeIndex+0).p.toQVector().distanceToPoint(center());
     double l2 = (mVertexes.at(shapeIndex+0).p.toQVector() + normal).distanceToPoint(center());
 
     mVertexes[vertexIndex].n = (l2 > l1) ? normal : -normal;
+    */
 
 }
 

@@ -22,10 +22,7 @@ Qtr3dStlLoader::Qtr3dStlLoader()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dStlLoader::~Qtr3dStlLoader()
-{
-
-}
+Qtr3dStlLoader::~Qtr3dStlLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dStlLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
@@ -176,11 +173,13 @@ bool Qtr3dStlLoader::fromBinary(Qtr3dVertexMesh &mesh, QFile &f)
         mMesh->addVertex(v1,normal);
         mMesh->addVertex(v2,normal);
         mMesh->addVertex(v3,normal);
-        quint16 attributSize = reader.readUint16();
-        reader.skip(attributSize);
+        reader.skip(2);
+        // quint16 attributSize = reader.readUint16();
+        //reader.skip(attributSize);
         numOfTriangles--;
     }
 
+    qDebug() << reader.size() << reader.pos() << reader.atEnd() << reader.error();
     mMesh->endMesh();
     return true;
 }

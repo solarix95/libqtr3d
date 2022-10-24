@@ -18,10 +18,13 @@ public:
     void move(float dx, float dy, float dz);
     void setFov(float angle);
     void setGeometry(float width, float height);
+    QVector3D pos() const;
+    QVector3D lookAtCenter() const;
 
     // Camera Modes
     void lookAt(const QVector3D &toCenter, const QVector3D &up);
     void lookAt(const QVector3D &pos, const QVector3D &toCenter, const QVector3D &up);
+    void lookAtTurn(float dxAngle, float dyAngle);
     void rotate(float xAngle, float yAngle, float zAngle);
 
     // Shader/Renderer-Interface

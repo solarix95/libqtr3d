@@ -4,12 +4,13 @@
 #include <QCursor>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QCoreApplication>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dvertexmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
-
+#include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
 
@@ -26,6 +27,14 @@ ViewerForm::ViewerForm(QWidget *parent)
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
         ui->btnLoad->setEnabled(true);
+        new Qtr3dFreeCameraController(ui->viewer);
+        for (auto arg: qApp->arguments()) {
+            if (arg.startsWith("--load=")) {
+                auto parts = arg.split("=");
+                if (parts.count() == 2)
+                    loadFile(parts[1]);
+            }
+        }
     });
 
     connect(ui->btnLoad, &QPushButton::clicked, this, &ViewerForm::load);
@@ -50,6 +59,20 @@ void ViewerForm::load()
     if (fileName.isEmpty())
         return;
 
+    loadFile(fileName);
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::updateVertexOrientation()
+{
+    if (!mModel)
+        return;
+    mModel->setVertexOrientation(ui->btnCCW->isChecked() ? Qtr3dVertexMesh::CounterClockWise : Qtr3dVertexMesh::ClockWise);
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::loadFile(const QString &filename)
+{
     if (mModel) {
         mModel->deleteLater();
         mModelState->deleteLater();
@@ -59,7 +82,7 @@ void ViewerForm::load()
 
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    Qtr3dModelFactory::meshByFile(*mModel,fileName);
+    Qtr3dModelFactory::meshByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
     if (mModel->vertexCount() <= 0) {
         delete mModel;
@@ -70,15 +93,5 @@ void ViewerForm::load()
     mModelState =  ui->viewer->createBufferState(mModel);
     mModelState->setFlat(false);
 
-    if (mCameraMove)
-        mCameraMove->deleteLater();
-    mCameraMove = new Qtr3dCameraCycler(ui->viewer->camera(),30,0.3,{0,(float)(mModel->radius()),(float)(1.3*mModel->radius())},mModel->center());
-}
-
-//-------------------------------------------------------------------------------------------------
-void ViewerForm::updateVertexOrientation()
-{
-    if (!mModel)
-        return;
-    mModel->setVertexOrientation(ui->btnCCW->isChecked() ? Qtr3dVertexMesh::CounterClockWise : Qtr3dVertexMesh::ClockWise);
+    ui->viewer->camera()->lookAt({0,0,-(float)(1.3*mModel->radius())}, mModel->center(), {0,1,0});
 }

@@ -24,7 +24,7 @@ private slots:
     void updateVertexOrientation();
 
 private:
-
+    void loadFile(const QString &filename);
     Ui::ViewerForm *ui;
 
     Qtr3dVertexMesh          *mModel;

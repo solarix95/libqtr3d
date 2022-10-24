@@ -10,6 +10,7 @@
 #include "qtr3dtexturedquad.h"
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
+#include "loader/qtr3d3dsloader.h"
 #include "utils/qtr3dutils.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -420,5 +421,7 @@ bool Qtr3dModelFactory::meshByFile(Qtr3dVertexMesh &mesh, const QString &filenam
         return Qtr3dObjLoader::loadFile(mesh,filename);
     if (Qtr3dStlLoader::supportsFile(filename))
         return Qtr3dStlLoader::loadFile(mesh,filename);
+    if (Qtr3d3dsLoader::supportsFile(filename))
+        return Qtr3d3dsLoader::loadFile(mesh,filename);
     return false;
 }

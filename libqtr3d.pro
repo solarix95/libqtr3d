@@ -29,7 +29,8 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.h  \
-    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.h
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -55,7 +56,8 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.cc \
-    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.cc
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 

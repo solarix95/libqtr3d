@@ -12,7 +12,9 @@ public:
     Qtr3dFreeCameraController(Qtr3dWidget *parent);
 
 protected:
-    virtual void parentKeyPress(QKeyEvent *e);
+    virtual void parentKeyPress(QKeyEvent *e) override;
+    virtual void parentMouseWheel(float delta) override;
+    virtual void parentDraggingRel(QPointF delta) override;
 
 private:
     Qtr3dCamera *mCamera;

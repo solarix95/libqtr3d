@@ -1,3 +1,5 @@
+#include <QByteArray>
+#include <QString>
 #include "qtr3dbinreader.h"
 
 #define ERROR(c) if (!c) { mError = true; return 0; }
@@ -63,7 +65,7 @@ bool Qtr3dBinReader::read(void *destPtr, int size)
 //-------------------------------------------------------------------------------------------
 qint8 Qtr3dBinReader::readInt8()
 {
-    qint8 ret;
+    qint8 ret = 0;
     bool done = read(&ret,1);
     ERROR(done);
     return ret;
@@ -106,12 +108,31 @@ quint32 Qtr3dBinReader::readUint32()
 }
 
 //-------------------------------------------------------------------------------------------
+qint32 Qtr3dBinReader::readInt32()
+{
+    qint32 ret;
+    bool done = read(&ret,4);
+    ERROR(done);
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------
 float Qtr3dBinReader::readFloat()
 {
     float ret;
     bool done = read(&ret,4);
     ERROR(done);
     return ret;
+}
+
+//-------------------------------------------------------------------------------------------
+QString Qtr3dBinReader::readAsciiZ()
+{
+    char nextChar;
+    QByteArray asciiString;
+    while ((nextChar = (char)readInt8()) != 0)
+        asciiString.append(nextChar);
+    return QString::fromLatin1(asciiString);
 }
 
 //-------------------------------------------------------------------------------------------
@@ -131,8 +152,10 @@ quint32 Qtr3dBinReader::getUint32(int pos) const
 //-------------------------------------------------------------------------------------------
 bool Qtr3dBinReader::skip(int size)
 {
-    if ((mCursor + size) > tail())
+    if ((mCursor + size) > tail()) {
+        mError = true;
         return false;
+    }
     mCursor += size;
     return true;
 }

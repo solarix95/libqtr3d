@@ -53,6 +53,18 @@ void Qtr3dCamera::setGeometry(float width, float height)
 }
 
 //-------------------------------------------------------------------------------------------------
+QVector3D Qtr3dCamera::pos() const
+{
+    return mPos;
+}
+
+//-------------------------------------------------------------------------------------------------
+QVector3D Qtr3dCamera::lookAtCenter() const
+{
+    return mLookAt;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dCamera::lookAt(const QVector3D &toCenter, const QVector3D &up)
 {
     mLookAt = toCenter;
@@ -68,6 +80,24 @@ void Qtr3dCamera::lookAt(const QVector3D &pos, const QVector3D &toCenter, const 
     mLookAt = toCenter;
     mUp     = up;
     mMode   = LookAt;
+    updatePerspectiveMatrix();
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dCamera::lookAtTurn(float dxAngle, float dyAngle)
+{
+    if (mMode != LookAt)
+        return;
+
+    QVector3D vpos = mPos - mLookAt;
+
+    QMatrix4x4 turnMatrix;
+
+    turnMatrix.rotate(-dyAngle, QVector3D::crossProduct(vpos,mUp));
+    turnMatrix.rotate(dxAngle, mUp);
+
+    vpos = vpos * turnMatrix;
+    mPos = mLookAt + vpos;
     updatePerspectiveMatrix();
 }
 

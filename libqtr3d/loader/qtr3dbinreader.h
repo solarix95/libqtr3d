@@ -2,6 +2,7 @@
 #define BINARYREADER_H
 
 #include <QByteArray>
+#include <QString>
 
 class Qtr3dBinReader
 {
@@ -22,7 +23,9 @@ public:
     qint16 readInt16();
     quint16 readUint16();
     quint32 readUint32();
+    qint32  readInt32();
     float   readFloat();
+    QString readAsciiZ();
 
     qint32  getInt32(int pos) const;
     quint32 getUint32(int pos) const;
