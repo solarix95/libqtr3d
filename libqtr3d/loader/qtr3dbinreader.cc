@@ -6,7 +6,9 @@
 
 //-------------------------------------------------------------------------------------------
 Qtr3dBinReader::Qtr3dBinReader(const QByteArray &buffer)
- : mCursor(NULL), mError(false)
+ : mCursor(NULL)
+ , mParsedBytes(0)
+ , mError(false)
 {
     if (!buffer.isEmpty())
         setBuffer(buffer);
@@ -17,12 +19,14 @@ void Qtr3dBinReader::setBuffer(const QByteArray &buffer)
 {
     mBuffer = buffer;
     mCursor = (quint8*)buffer.constData();
+    mParsedBytes = 0;
 }
 
 //-------------------------------------------------------------------------------------------
 void Qtr3dBinReader::clear()
 {
     mCursor = NULL;
+    mParsedBytes = 0;
     mBuffer.clear();
 }
 
@@ -32,6 +36,12 @@ int Qtr3dBinReader::pos() const
     if (!mCursor)
         return -1;
     return mCursor - (quint8*)mBuffer.constData();
+}
+
+//-------------------------------------------------------------------------------------------
+int Qtr3dBinReader::parsedBytes() const
+{
+    return mParsedBytes;
 }
 
 //-------------------------------------------------------------------------------------------
@@ -58,7 +68,8 @@ bool Qtr3dBinReader::read(void *destPtr, int size)
     if ((mCursor + size) > tail())
         return false;
     memcpy(destPtr,mCursor,size);
-    mCursor += size;
+    mCursor      += size;
+    mParsedBytes += size;
     return true;
 }
 
@@ -152,11 +163,16 @@ quint32 Qtr3dBinReader::getUint32(int pos) const
 //-------------------------------------------------------------------------------------------
 bool Qtr3dBinReader::skip(int size)
 {
+    Q_ASSERT(size >= 0);
+    if (size == 0)
+        return true;
+
     if ((mCursor + size) > tail()) {
         mError = true;
         return false;
     }
-    mCursor += size;
+    mCursor      += size;
+    mParsedBytes += size;
     return true;
 }
 

@@ -12,6 +12,7 @@ public:
     void setBuffer(const QByteArray &buffer);
     void clear();
     int  pos()  const;
+    int  parsedBytes() const;
     int  size() const;
     bool atEnd() const;
     bool error() const;
@@ -40,6 +41,7 @@ private:
 
     QByteArray    mBuffer;
     const quint8 *mCursor;
+    int           mParsedBytes;
     bool          mError;
 };
 

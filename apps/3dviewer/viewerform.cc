@@ -54,7 +54,7 @@ void ViewerForm::load()
     static QString fileName = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
 
     fileName = QFileDialog::getOpenFileName(this,
-        tr("Open Image"), fileName, tr("3D Files (*.stl *.obj)"));
+        tr("Open Image"), fileName, tr("3D Files (*.stl *.obj *.3ds)"));
 
     if (fileName.isEmpty())
         return;

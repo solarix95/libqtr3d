@@ -1,10 +1,12 @@
 #ifndef QTR3D3DSLOADER_H
 #define QTR3D3DSLOADER_H
 
+#include <functional>
 #include <QString>
 #include <QFile>
 #include <QStringList>
 #include <QList>
+#include <QMap>
 #include "qtr3dmodelloader.h"
 
 class Qtr3dBinReader;
@@ -23,14 +25,25 @@ public:
 protected:
 
 private:
-    QList<quint16> processJunk(Qtr3dBinReader &reader, const QList<quint16> &contexts);
+    qint32 processNextJunk(Qtr3dBinReader &reader, const QString &parentURL);
+    void processNextJunks(Qtr3dBinReader &reader, const QString &parentURL, int junkSizes);
+    void processObjectJunk(Qtr3dBinReader &reader,  const QString &parentURL, int junkSizes);       // Junk 0x4000
+    void processMaterialNameJunk(Qtr3dBinReader &reader);                                           // Junk 0xAFFF-A000
+    void processVerticesJunk(Qtr3dBinReader &reader);                                               // Junk 0x4110
+    void processFacesJunk(Qtr3dBinReader &reader, const QString &parentURL, int junkSizes);         // Junk 0x4120
+    void processMaterialJunk(Qtr3dBinReader &reader);                                               // Junk 0x4130
+    void processMappingCoordJunk(Qtr3dBinReader &reader);                                           // Junk 0x4140
 
-    void processMainJunk(Qtr3dBinReader &reader);       // Junk 0x4D4D
-    void processEditorJunk(Qtr3dBinReader &reader);     // Junk 0x3D3D
-    void processObjectJunk(Qtr3dBinReader &reader);     // Junk 0x4000
-    void processMeshJunk(Qtr3dBinReader &reader);       // Junk 0x4100
-    void processVerticesJunk(Qtr3dBinReader &reader);   // Junk 0x4110
-    bool toJunk(quint16 junkIdent, Qtr3dBinReader &reader);
+    QMap<QString,std::function<void(const QString &, int)> > mParserHooks;
+
+    void setupMesh();
+    Qtr3dVertexMesh           *mMesh;
+    QList<QVector3D>           mObjectVertices;
+    QList<QList<int> >         mObjectFaces;
+    QList<QString>             mMaterialNames;
+
+    QList<QPointF>             mTextureMappings; // List< UV >
+    QList<int>                 mTextureFaces;
 };
 
 #endif // QTR3D3DSLOADER_H

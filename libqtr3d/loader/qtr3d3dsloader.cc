@@ -20,6 +20,7 @@ bool Qtr3d3dsLoader::loadFile(Qtr3dVertexMesh &mesh, const QString &filename)
 
 //-------------------------------------------------------------------------------------------------}
 Qtr3d3dsLoader::Qtr3d3dsLoader()
+ : mMesh(nullptr)
 {
 }
 
@@ -33,89 +34,168 @@ bool Qtr3d3dsLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
+    mMesh = &mesh;
+    mMesh->startMesh(Qtr3dVertexMesh::Triangle);
     Qtr3dBinReader reader(f.readAll());
 
-    QList<quint16> junkContext;
-    junkContext << reader.readUint16();
+    mParserHooks["4D4D"] = [&](const QString &url, int junkSize){
+        processNextJunks(reader,url,junkSize);
+    };
+    mParserHooks["4D4D-3D3D"] = [&](const QString &url, int junkSize){
+        processNextJunks(reader,url,junkSize);
+    };
+    mParserHooks["4D4D-3D3D-AFFF"] = [&](const QString &url, int junkSize){
+        processNextJunks(reader,url,junkSize);
+    };
+    mParserHooks["4D4D-3D3D-AFFF-A000"] = [&](const QString &url, int junkSize){
+        processMaterialNameJunk(reader);
+    };
+    mParserHooks["4D4D-3D3D-4000"] = [&](const QString &url, int junkSize){
+        processObjectJunk(reader,url,junkSize);
+    };
+    mParserHooks["4D4D-3D3D-4000-4100"] = [&](const QString &url, int junkSize){
+       processNextJunks(reader,url,junkSize);
+    };
+    mParserHooks["4D4D-3D3D-4000-4100-4110"] = [&](const QString &, int){               // TRI_VERTEXL
+        processVerticesJunk(reader);
+    };
+    mParserHooks["4D4D-3D3D-4000-4100-4120"] = [&](const QString &url, int junkSize){   // TRI_FACEL1
+        processFacesJunk(reader, url, junkSize);
+    };
+    mParserHooks["4D4D-3D3D-4000-4100-4120-4130"] = [&](const QString &, int){          // TRI_MATERIAL
+        processMaterialJunk(reader);
+    };
+    mParserHooks["4D4D-3D3D-4000-4100-4140"] = [&](const QString &, int){               // TRI_MAPPINGCOORS
+        processMappingCoordJunk(reader);
+    };
 
-    if (junkContext.first() == 0x4D4D)
-        processMainJunk(reader);
-
+    processNextJunk(reader,"");
+    mMesh->endMesh();
     return true;
 }
 
 //-------------------------------------------------------------------------------------------------}
-QList<quint16> Qtr3d3dsLoader::processJunk(Qtr3dBinReader &reader, const QList<quint16> &contexts)
+qint32 Qtr3d3dsLoader::processNextJunk(Qtr3dBinReader &reader, const QString &parentURL)
 {
-    qint32 junkSize = reader.readInt32();
+    qint32  enterPos   = reader.parsedBytes();
+    quint16 nextJunk   = reader.readUint16();
+    qint32  junkSize   = reader.readInt32();
+    QString junkUrl    = QString("%1%2%3")
+                            .arg(parentURL)
+                            .arg(parentURL.isEmpty() ? "":"-")
+                            .arg(nextJunk,4,16,QChar('0')).toUpper();
 
+    if (mParserHooks.contains(junkUrl))
+        mParserHooks[junkUrl](junkUrl,junkSize-6);
+
+    reader.skip(junkSize - (reader.parsedBytes() - enterPos));
+    return junkSize;
 }
 
 //-------------------------------------------------------------------------------------------------}
-void Qtr3d3dsLoader::processMainJunk(Qtr3dBinReader &reader)
+void Qtr3d3dsLoader::processNextJunks(Qtr3dBinReader &reader, const QString &parentURL, int junkSizes)
 {
-    /* qint32 junkSize = */ reader.readInt32();
-    if (!toJunk(0x3D3D, reader))
-        return;
-    processEditorJunk(reader);
-}
-
-//-------------------------------------------------------------------------------------------------}
-void Qtr3d3dsLoader::processEditorJunk(Qtr3dBinReader &reader)
-{
-    /* qint32 junkSize = */ reader.readInt32();
-    while (true) {
-        if (!toJunk(0x4000, reader))
-            return;
-        processObjectJunk(reader);
+    while (junkSizes > 0) {
+        junkSizes -= processNextJunk(reader,parentURL);
     }
+    Q_ASSERT(junkSizes == 0);
 }
 
 //-------------------------------------------------------------------------------------------------}
-void Qtr3d3dsLoader::processObjectJunk(Qtr3dBinReader &reader)
+void Qtr3d3dsLoader::processObjectJunk(Qtr3dBinReader &reader, const QString &parentURL, int junkSizes)
 {
     // http://paulbourke.net/dataformats/3ds/
-    /* qint32 junkSize = */ reader.readInt32();
-    /* QString header  = */ reader.readAsciiZ();
-    if (!toJunk(0x4100, reader))
-        return;
-    processMeshJunk(reader);
+    qint32  enterPos   = reader.parsedBytes();
+    QString header     = reader.readAsciiZ();
+
+    mObjectVertices.clear();
+    mObjectFaces.clear();
+    mTextureMappings.clear();
+    mTextureFaces.clear();
+    mMaterialNames.clear();
+
+    processNextJunks(reader,parentURL,junkSizes-(reader.parsedBytes()-enterPos));
+
+    setupMesh();
 }
 
 //-------------------------------------------------------------------------------------------------}
-void Qtr3d3dsLoader::processMeshJunk(Qtr3dBinReader &reader)
+void Qtr3d3dsLoader::processMaterialNameJunk(Qtr3dBinReader &reader)
 {
-    /* qint32 junkSize = */ reader.readInt32();
-    if (!toJunk(0x4110, reader))
-        return;
-    processVerticesJunk(reader);
+    QString matName     = reader.readAsciiZ();
+    mMaterialNames << matName;
 }
 
 //-------------------------------------------------------------------------------------------------}
 void Qtr3d3dsLoader::processVerticesJunk(Qtr3dBinReader &reader)
 {
-    /* qint32 junkSize = */ reader.readInt32();
     quint16 numVertices = reader.readUint16();
     while (numVertices > 0) {
-        qDebug() << reader.readFloat() << reader.readFloat() << reader.readFloat();
+        mObjectVertices << QVector3D(reader.readFloat(),reader.readFloat(),reader.readFloat());
         numVertices--;
     }
 }
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3d3dsLoader::toJunk(quint16 junkIdent, Qtr3dBinReader &reader)
+void Qtr3d3dsLoader::processFacesJunk(Qtr3dBinReader &reader, const QString &parentURL, int junkSizes)
 {
-    quint16 nextJunk;
-    qint32  nextSize;
-    while ((nextJunk = reader.readUint16()) != junkIdent && !reader.error()) {
-        std::cout << "Skipping: " << std::hex << nextJunk;
-        reader.skip((nextSize = (reader.readInt32()-6)));
-        std::cout << " of size: " << std::dec << nextSize << std::endl;
+    qint32  enterPos   = reader.parsedBytes();
+    quint16 numFaces   = reader.readUint16();
+    while (numFaces > 0) {
+        QList<int> face;
+        face << reader.readUint16(); // A
+        face << reader.readUint16(); // B
+        face << reader.readUint16(); // C
+        mObjectFaces << face;
+        reader.readUint16(); // skip Face Info
+        numFaces--;
     }
-    if (!reader.error())
-        std::cout << "Entering: " << std::hex << junkIdent << std::endl;
-    return !reader.error();
+
+    int subJunksSize = junkSizes - (reader.parsedBytes() - enterPos);
+    processNextJunks(reader,parentURL,subJunksSize);
 }
+
+//-------------------------------------------------------------------------------------------------}
+void Qtr3d3dsLoader::processMaterialJunk(Qtr3dBinReader &reader)
+{
+    QString materialName = reader.readAsciiZ();
+    quint16  numFaces    = reader.readUint16();
+
+    qDebug() << "HANDLE MATERIAL" << materialName;
+    while (numFaces > 0) {
+        mTextureFaces << reader.readUint16();
+        numFaces--;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------}
+void Qtr3d3dsLoader::processMappingCoordJunk(Qtr3dBinReader &reader)
+{
+    quint16 numVertices = reader.readUint16();
+    while (numVertices > 0) {
+        float  uvalue      = reader.readFloat();
+        float  vvalue      = reader.readFloat();
+        mTextureMappings << QPointF(uvalue,vvalue);
+        numVertices--;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------}
+void Qtr3d3dsLoader::setupMesh()
+{
+    Q_ASSERT(mMesh);
+
+    for (auto face : mObjectFaces) {
+        QVector3D normal = QVector3D::crossProduct(mObjectVertices[face[1]]-mObjectVertices[face[0]],mObjectVertices[face[2]]-mObjectVertices[face[1]]).normalized();
+        mMesh->addVertex(mObjectVertices[face[0]],normal);
+        mMesh->addVertex(mObjectVertices[face[1]],normal);
+        mMesh->addVertex(mObjectVertices[face[2]],normal);
+
+        // qDebug() << mObjectVertices[face[0]] << mObjectVertices[face[1]] << mObjectVertices[face[2]];
+    }
+}
+
+
 
 
 
