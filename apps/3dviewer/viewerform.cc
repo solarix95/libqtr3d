@@ -6,7 +6,7 @@
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dvertexmesh.h>
+#include <libqtr3d/qtr3dmodel.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
@@ -67,7 +67,7 @@ void ViewerForm::updateVertexOrientation()
 {
     if (!mModel)
         return;
-    mModel->setVertexOrientation(ui->btnCCW->isChecked() ? Qtr3dVertexMesh::CounterClockWise : Qtr3dVertexMesh::ClockWise);
+    // mModel->setVertexOrientation(ui->btnCCW->isChecked() ? Qtr3dVertexMesh::CounterClockWise : Qtr3dVertexMesh::ClockWise);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -77,17 +77,20 @@ void ViewerForm::loadFile(const QString &filename)
         mModel->deleteLater();
         mModelState->deleteLater();
     }
-    mModel = ui->viewer->createVertexMesh();
-    mModel->setDefaultColor(Qt::white);
+    mModel = ui->viewer->createModel();
+    // mModel->setDefaultColor(Qt::white);
 
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    Qtr3dModelFactory::meshByFile(*mModel,filename);
+    Qtr3dModelFactory::modelByFile(*mModel,filename, *ui->viewer->factory());
     QApplication::restoreOverrideCursor();
+
+/*
     if (mModel->vertexCount() <= 0) {
         delete mModel;
         mModel = nullptr;
     }
+    */
 
     updateVertexOrientation();
     mModelState =  ui->viewer->createBufferState(mModel);

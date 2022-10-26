@@ -37,6 +37,17 @@ GLuint Qtr3dShader::makeBO(void *data, GLsizei size, GLenum type)
 
 }
 
+// Simple helper to make a single buffer object.
+GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlags ) {
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    GLuint bo;
+    f->glGenBuffers( 1, &bo );
+    f->glBindBuffer( type, bo );
+    f->glBufferData( type, size, data, accessFlags );
+    return( bo );
+}
+
+
 //-------------------------------------------------------------------------------------------------
 void Qtr3dShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {

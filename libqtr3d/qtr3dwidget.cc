@@ -7,17 +7,19 @@
 #include "qtr3dshader.h"
 #include "qtr3dcamera.h"
 #include "qtr3dtexturedquad.h"
-#include "qtr3dtexturedquadshader.h"
+#include "qtr3dtexturedmeshshader.h"
 #include "qtr3dvertexmeshshader.h"
 #include "qtr3dtexturefactory.h"
+#include "qtr3dgeometrybufferfactory.h"
+#include "qtr3dmodel.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     : QOpenGLWidget(parent)
     , mOptions(ops)
     , mCamera(nullptr)
-    , mTextures(nullptr)
-    , mTexturedQuadShader(nullptr)
+    , mFactory(nullptr)
+    , mTexturedMeshShader(nullptr)
     , mClearColor("#000000") // black
 {
     initializeMultisampleAntiAliasing();
@@ -28,8 +30,8 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     : QOpenGLWidget(parent)
     , mOptions(NoOption)
     , mCamera(nullptr)
-    , mTextures(nullptr)
-    , mTexturedQuadShader(nullptr)
+    , mFactory(nullptr)
+    , mTexturedMeshShader(nullptr)
     , mClearColor("#000000") // black
 {
     initializeMultisampleAntiAliasing();
@@ -46,30 +48,30 @@ Qtr3dCamera *Qtr3dWidget::camera()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTextureFactory *Qtr3dWidget::textures()
+Qtr3dGeometryBufferFactory *Qtr3dWidget::factory()
 {
-    if (!mTextures) {
-        mTextures = createTextureFactory();
-    }
-    return mTextures;
+    return mFactory;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedQuad *Qtr3dWidget::createTexturedQuad(const QString &textureName)
+Qtr3dTexturedMesh *Qtr3dWidget::createTexturedMesh(const QString &textureName)
 {
     makeCurrent();
-    Qtr3dTexturedQuad *geometryBuffer = new Qtr3dTexturedQuad(textures(),textureName);
-    mTexturedQuadShader->registerBuffer(*geometryBuffer);
-    return geometryBuffer;
+    return factory()->createTexturedMesh(textureName);
 }
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dVertexMesh *Qtr3dWidget::createVertexMesh()
 {
     makeCurrent();
-    Qtr3dVertexMesh *mesh = new Qtr3dVertexMesh();
-    mVertexMeshShader->registerBuffer(*mesh);
-    return mesh;
+    return factory()->createVertexMesh();
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dModel *Qtr3dWidget::createModel()
+{
+    makeCurrent();
+    return factory()->createModel();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -98,7 +100,12 @@ void Qtr3dWidget::initializeGL()
     f->glDepthFunc(GL_LESS);
 
     mVertexMeshShader   = new Qtr3dVertexMeshShader("vertexmesh");
-    mTexturedQuadShader = new Qtr3dTexturedQuadShader("textquad");
+    mTexturedMeshShader = new Qtr3dTexturedMeshShader("textquad");
+    mTextures           = new Qtr3dTextureFactory();
+    mFactory            = new Qtr3dGeometryBufferFactory();
+
+    mFactory->init(mVertexMeshShader,mTexturedMeshShader,mTextures);
+
     emit initialized();
 }
 
@@ -113,7 +120,7 @@ void Qtr3dWidget::paintGL()
     f->glCullFace(GL_BACK);
 
     mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix());
-    mTexturedQuadShader->render(camera()->projection(),camera()->worldMatrix());
+    mTexturedMeshShader->render(camera()->projection(),camera()->worldMatrix());
 
     f->glDisable(GL_CULL_FACE); // otherwise: can't see 2D Paintings..
 }

@@ -51,7 +51,7 @@ void Qtr3dVertexMesh::endMesh()
     if (mMeshType == Unknown || mVertexes.isEmpty())
         return;
 
-    if (mMeshType == Triangle || mMeshType == Quad) {
+    if (mMeshType == Triangle) {
         for (int i=0; i<mVertexes.count(); i++) {
             if (mVertexes.at(i).n.isNull()) {
                 calculateNormal(i);
@@ -149,22 +149,6 @@ QVector3D Qtr3dVertexMesh::maxValues() const
 }
 
 //-------------------------------------------------------------------------------------------------
-QVector3D Qtr3dVertexMesh::center() const
-{
-    return QVector3D(
-                (mMax.x() + mMin.x())/2,
-                (mMax.y() + mMin.y())/2,
-                (mMax.z() + mMin.z())/2
-                );
-}
-
-//-------------------------------------------------------------------------------------------------
-double Qtr3dVertexMesh::radius() const
-{
-    return qMax(mMax.x() - mMin.x(),qMax(mMax.y() - mMin.y(),mMax.z() - mMin.z()));
-}
-
-//-------------------------------------------------------------------------------------------------
 GLenum Qtr3dVertexMesh::bufferType() const
 {
     switch (mMeshType) {
@@ -172,7 +156,6 @@ GLenum Qtr3dVertexMesh::bufferType() const
     case Dot:      return GL_POINTS;    break;
     case Line:     return GL_LINES;     break;
     case Triangle: return GL_TRIANGLES; break;
-    case Quad:     return GL_QUADS;     break;
     }
     Q_ASSERT(0);
     return 0;
@@ -203,7 +186,7 @@ void Qtr3dVertexMesh::analyze(const QVector3D &v)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
 {
-    Q_ASSERT(mMeshType == Triangle || mMeshType == Quad);
+    Q_ASSERT(mMeshType == Triangle);
 
     int shapeVertexCount = mMeshType == Triangle ? 3 : 4;
 

@@ -12,10 +12,22 @@ class Qtr3dGeometryBuffer : public QObject
 {
     Q_OBJECT
 public:
+    enum Type {
+        Unknown,
+        Dot,
+        Line,
+        Triangle
+    };
+
     Qtr3dGeometryBuffer();
 
+    virtual QVector3D minValues() const; // lowest xyz
+    virtual QVector3D maxValues() const; // max xyz
+    virtual QVector3D center() const;
+    virtual double    radius() const;
+
     // BufferState Iteration
-    void registerBufferState(Qtr3dGeometryBufferState *s);
+    virtual void registerBufferState(Qtr3dGeometryBufferState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
 
 private slots:

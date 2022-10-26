@@ -2,21 +2,26 @@
 #define QTR3DMODEL_H
 
 #include <QObject>
-#include "qtr3dgeometrybufferstate.h"
+#include "qtr3dgeometrybuffer.h"
 
-class Qtr3dModel : public Qtr3dGeometryBufferState
+class Qtr3dTextureFactory;
+class Qtr3dModel : public Qtr3dGeometryBuffer
 {
     Q_OBJECT
 public:
-    explicit Qtr3dModel();
+    explicit Qtr3dModel(Qtr3dTextureFactory *textures);
 
-    void addState(Qtr3dGeometryBufferState *state);
+    virtual void addGeometry(Qtr3dGeometryBuffer *buffer);
+    virtual void registerBufferState(Qtr3dGeometryBufferState *s);
 
-protected:
-    Qtr3dGeometryBufferStates &states();
+    QVector3D center() const;
+    double    radius() const;
+
+    Qtr3dTextureFactory *texturesFactory();
 
 private:
-    Qtr3dGeometryBufferStates mStates;
+    QList<Qtr3dGeometryBuffer*> mModelBuffers;
+    Qtr3dTextureFactory        *mTexturesFactory;
 };
 
 #endif // QTR3DMODEL_H

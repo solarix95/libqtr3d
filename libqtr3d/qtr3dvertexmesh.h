@@ -9,14 +9,6 @@
 class Qtr3dVertexMesh : public Qtr3dGeometryBuffer
 {
 public:
-    enum Type {
-        Unknown,
-        Dot,
-        Line,
-        Triangle,
-        Quad
-    };
-
     enum VertexOrientation {
         CounterClockWise,
         ClockWise
@@ -44,10 +36,8 @@ public:
     void addIndex(int vi,int ti = -1, int ni = -1);
 
     // Metadata for generic viewers:
-    QVector3D minValues() const; // lowest xyz
-    QVector3D maxValues() const; // max xyz
-    QVector3D center() const;
-    double    radius() const;
+    virtual QVector3D minValues() const; // lowest xyz
+    virtual QVector3D maxValues() const; // max xyz
 
     // Shader Interface
     inline GLuint vertexBufferId() const  { return mVertexBufferId;  }

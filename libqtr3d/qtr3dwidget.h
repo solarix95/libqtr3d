@@ -3,14 +3,16 @@
 
 #include <QOpenGLWidget>
 
-class Qtr3dTexturedQuad;
-class Qtr3dTexturedQuadShader;
+class Qtr3dTexturedMesh;
+class Qtr3dTexturedMeshShader;
 class Qtr3dVertexMesh;
 class Qtr3dVertexMeshShader;
 class Qtr3dGeometryBuffer;
 class Qtr3dGeometryBufferState;
 class Qtr3dTextureFactory;
 class Qtr3dCamera;
+class Qtr3dModel;
+class Qtr3dGeometryBufferFactory;
 
 //-------------------------------------------------------------------------------------------------
 class Qtr3dWidget : public QOpenGLWidget
@@ -28,14 +30,15 @@ public:
     Qtr3dWidget(Options ops = NoOption, QWidget *parent = NULL);
     Qtr3dWidget(QWidget *parent);
 
-
     Qtr3dCamera         *camera();
     Qtr3dTextureFactory *textures();
+    Qtr3dGeometryBufferFactory *factory();
 
     // Factories
 
-    virtual Qtr3dTexturedQuad        *createTexturedQuad(const QString &textureName="");
+    virtual Qtr3dTexturedMesh        *createTexturedMesh(const QString &textureName="");
     virtual Qtr3dVertexMesh          *createVertexMesh();
+    virtual Qtr3dModel               *createModel();
     virtual Qtr3dGeometryBufferState *createBufferState(Qtr3dGeometryBuffer *buffer, bool isFlat = true);
 
 public slots:
@@ -59,9 +62,10 @@ private:
     Options                  mOptions;
     Qtr3dCamera             *mCamera;
     Qtr3dTextureFactory     *mTextures;
+    Qtr3dGeometryBufferFactory *mFactory;
 
     Qtr3dVertexMeshShader   *mVertexMeshShader;
-    Qtr3dTexturedQuadShader *mTexturedQuadShader;
+    Qtr3dTexturedMeshShader *mTexturedMeshShader;
 
     QColor                   mClearColor;
 };

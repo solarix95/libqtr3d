@@ -5,6 +5,8 @@
 #include <QByteArray>
 #include <QString>
 #include "../qtr3dvertexmesh.h"
+#include "../qtr3dmodel.h"
+#include "../qtr3dgeometrybufferfactory.h"
 
 class Qtr3dModelLoader : public QObject
 {

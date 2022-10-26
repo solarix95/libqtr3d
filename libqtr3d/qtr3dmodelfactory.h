@@ -5,10 +5,13 @@
 
 class Qtr3dVertexMesh;
 class Qtr3dTexturedQuad;
+class Qtr3dGeometryBufferFactory;
+class Qtr3dModel;
 
 namespace Qtr3dModelFactory {
 
 bool meshByFile(Qtr3dVertexMesh &mesh, const QString &filename);
+bool modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QString &filename);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json);
 

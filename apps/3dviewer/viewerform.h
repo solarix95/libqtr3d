@@ -7,7 +7,7 @@ namespace Ui {
 class ViewerForm;
 }
 
-class Qtr3dVertexMesh;
+class Qtr3dModel;
 class Qtr3dGeometryBufferState;
 class Qtr3dCameraMovement;
 
@@ -27,7 +27,7 @@ private:
     void loadFile(const QString &filename);
     Ui::ViewerForm *ui;
 
-    Qtr3dVertexMesh          *mModel;
+    Qtr3dModel               *mModel;
     Qtr3dGeometryBufferState *mModelState;
     Qtr3dCameraMovement      *mCameraMove;
 };

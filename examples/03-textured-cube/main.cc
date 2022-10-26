@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dtexturedquad.h>
+#include <libqtr3d/qtr3dtexturedmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 
@@ -15,12 +15,15 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *buffer = w.createTexturedQuad(":/texture.jpg");
+        auto *buffer = w.createTexturedMesh(":/texture.jpg");
 
         buffer->startMesh();
 
         buffer->addQuad({-1, 1,  1}, { 1, 1, 1}, { 1, 1,-1}, {-1, 1,-1});  // Top
         buffer->addQuad({-1, 1, -1}, { 1, 1,-1}, { 1,-1,-1}, {-1,-1,-1});  // Front
+
+        buffer->addQuad({-1, 1, -1},{ 1, 1,-1},{ 1,-1,-1},{-1,-1,-1});     // Front
+
         buffer->addQuad({ 1,-1,  1}, { 1,-1,-1}, { 1, 1,-1}, { 1, 1, 1});  // Left
         buffer->addQuad({-1, 1,  1}, {-1, 1,-1}, {-1,-1,-1}, {-1,-1, 1});  // Right
         buffer->addQuad({-1,-1,  1}, { 1,-1, 1}, { 1, 1, 1}, {-1, 1, 1});  // Back
