@@ -1,6 +1,9 @@
 #include <QFile>
 #include <QFileInfo>
+#include <QDir>
 #include <QTextStream>
+
+#include "../qtr3dtexturedmesh.h"
 #include "qtr3dobjloader.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -23,54 +26,7 @@ Qtr3dObjLoader::Qtr3dObjLoader()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dObjLoader::~Qtr3dObjLoader()
-{
-
-}
-
-//-------------------------------------------------------------------------------------------------
-bool Qtr3dObjLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
-{
-    QFile f(filename);
-    if (!f.open(QIODevice::ReadOnly))
-        return false;
-    QTextStream in(&f);
-    mMesh = &mesh;
-
-    QString     line;
-    QString     cmd;
-    QStringList parts;
-    mMesh->startMesh(Qtr3dVertexMesh::Triangle);
-    while (!in.atEnd())
-    {
-        line = in.readLine().trimmed();
-        if (line.isEmpty() || line.startsWith("#"))
-            continue;
-
-        // process https://en.wikipedia.org/wiki/Wavefront_.obj_file
-        parts = line.split(" ");
-        if (parts.isEmpty())
-            continue;
-        cmd = parts.takeFirst();
-        if (cmd == "v")
-            processVertex(parts);
-        else if (cmd == "vn")
-            processNormal(parts);
-        else if (cmd == "vt")
-            processTextureCoords(parts);
-        else if (cmd == "f")
-            processFace(parts);
-        else if (cmd == "s")
-            processSmoothshading(parts);
-        else if (cmd == "mtllib")
-            processMaterialLib(parts);
-
-    }
-    mMesh->endMesh();
-    mMesh = nullptr;
-
-    return true;
-}
+Qtr3dObjLoader::~Qtr3dObjLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
@@ -87,7 +43,11 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     while (!in.atEnd())
     {
         line = in.readLine().trimmed();
-        if (line.isEmpty() || line.startsWith("#"))
+        int commentPos = line.indexOf('#');
+        if (commentPos >= 0)
+            line = line.mid(0,commentPos).trimmed().simplified();
+
+        if (line.isEmpty())
             continue;
 
         // process https://en.wikipedia.org/wiki/Wavefront_.obj_file
@@ -106,14 +66,11 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
         else if (cmd == "s")
             processSmoothshading(parts);
         else if (cmd == "mtllib")
-            processMaterialLib(parts);
+            processMaterialLib(filename,parts);
 
     }
 
     if (mVertices.isEmpty())
-        return false;
-
-    if (mVertices.count() != mNormals.count())
         return false;
 
     if (!mTextureName.isEmpty() && !mTextureCoords.isEmpty())
@@ -182,6 +139,10 @@ void Qtr3dObjLoader::processFace(const QStringList &args)
     int v2 = i2.at(0).toInt()-1;
     int v3 = i3.at(0).toInt()-1;
 
+    int t1 = i1.count() == 3 ? i1.at(1).toInt()-1 : -1;
+    int t2 = i2.count() == 3 ? i2.at(1).toInt()-1 : -1;
+    int t3 = i3.count() == 3 ? i3.at(1).toInt()-1 : -1;
+
     int n1 = i1.count() == 3 ? i1.at(2).toInt()-1 : -1;
     int n2 = i2.count() == 3 ? i2.at(2).toInt()-1 : -1;
     int n3 = i3.count() == 3 ? i3.at(2).toInt()-1 : -1;
@@ -191,32 +152,32 @@ void Qtr3dObjLoader::processFace(const QStringList &args)
     mFaceVertexIndexes << v2;
     mFaceVertexIndexes << v3;
 
+    mFaceTextureIndexes << t1;
+    mFaceTextureIndexes << t2;
+    mFaceTextureIndexes << t3;
+
     mFaceNormalsIndexes << n1;
     mFaceNormalsIndexes << n2;
     mFaceNormalsIndexes << n3;
-
-    //mMesh->addIndex(v1,-1,n1);
-    //mMesh->addIndex(v2,-1,n2);
-    //mMesh->addIndex(v3,-1,n3);
 
     if (args.count() == 4) {
 
         QStringList i4 = args.at(3).split("/");
         int v4 = i4.at(0).toInt()-1;
-
+        int t4 = i4.count() == 3 ? i4.at(1).toInt()-1 : -1;
         int n4 = i4.count() == 3 ? i4.at(2).toInt()-1 : -1;
 
         mFaceVertexIndexes << v1;
         mFaceVertexIndexes << v3;
         mFaceVertexIndexes << v4;
 
+        mFaceTextureIndexes << t1;
+        mFaceTextureIndexes << t3;
+        mFaceTextureIndexes << t4;
+
         mFaceNormalsIndexes << n1;
         mFaceNormalsIndexes << n3;
         mFaceNormalsIndexes << n4;
-
-        // mMesh->addIndex(v1,-1,n1);
-        // mMesh->addIndex(v3,-1,n3);
-        // mMesh->addIndex(v4,-1,n4);
     }
 }
 
@@ -231,19 +192,20 @@ void Qtr3dObjLoader::processTextureCoords(const QStringList &args)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::processSmoothshading(const QStringList &args)
 {
-
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dObjLoader::processMaterialLib(const QStringList &args)
+void Qtr3dObjLoader::processMaterialLib(const QString &sourcefile, const QStringList &args)
 {
     if (args.count() != 1)
         return;
 
-    if (!QFileInfo::exists(args.first()))
+    QString mathlibFile = addPath(sourcefile,args.first());
+
+    if (!QFileInfo::exists(mathlibFile))
         return;
 
-    QFile f(args.first());
+    QFile f(mathlibFile);
     if (!f.open(QIODevice::ReadOnly))
         return;
 
@@ -264,21 +226,39 @@ void Qtr3dObjLoader::processMaterialLib(const QStringList &args)
         if (parts.isEmpty())
             continue;
         cmd = parts.takeFirst();
-        if (cmd == "map_Kd");
-
-
+        if (cmd == "map_Kd")
+            processMaterialTexture(mathlibFile,parts);
     }
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dObjLoader::processMaterialTexture(const QStringList &args)
+void Qtr3dObjLoader::processMaterialTexture(const QString &matlibFilename, const QStringList &args)
 {
-
+    if (args.count() != 1)
+        return;
+    QString textureName = addPath(matlibFilename,args.first());
+    if (QFileInfo::exists(textureName))
+        mTextureName = textureName;
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::setupTexturedMesh(Qtr3dModel &model,  Qtr3dGeometryBufferFactory &factory)
 {
+    Qtr3dTexturedMesh *mesh = factory.createTexturedMesh(mTextureName);
+
+    mesh->startMesh();
+
+    // Faces
+    for (int i=0; i<mFaceVertexIndexes.count(); i++) {
+        mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)],
+                        mTextureCoords[mFaceTextureIndexes.at(i)].x(),
+                        mTextureCoords[mFaceTextureIndexes.at(i)].y(),
+                        mNormals[mFaceNormalsIndexes.at(i)]);
+
+    }
+
+    mesh->endMesh();
+    model.addGeometry(mesh);
 
 }
 
@@ -309,4 +289,18 @@ void Qtr3dObjLoader::setupSimpleMesh(Qtr3dModel &model, Qtr3dGeometryBufferFacto
 
     mesh->endMesh();
     model.addGeometry(mesh);
+}
+
+//-------------------------------------------------------------------------------------------------
+QString Qtr3dObjLoader::addPath(const QString &sourceFile, const QString &targetFile)
+{
+    QFileInfo targetInfo(targetFile);
+    if (targetInfo.isAbsolute())
+        return targetFile;
+
+    if (QFileInfo::exists(targetFile))
+        return targetFile;
+
+    QFileInfo sourceInfo(sourceFile);
+    return sourceInfo.absoluteDir().absolutePath() + QDir::separator() + targetFile;
 }

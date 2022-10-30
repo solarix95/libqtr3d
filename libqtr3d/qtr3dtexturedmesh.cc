@@ -38,6 +38,7 @@ void Qtr3dTexturedMesh::startMesh(const QString &textureName)
 void Qtr3dTexturedMesh::addVertex(const QVector3D &vertex, Qtr3dScalar u, Qtr3dScalar v, const QVector3D &n)
 {
     mVertices << Qtr3dTexturedVertex(vertex,1.0,n,u,v);
+    analyze(vertex);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -47,9 +48,9 @@ void Qtr3dTexturedMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const 
     addVertex(p2,0,0,n);
     addVertex(p3,0,1,n);
 
-     addVertex(p1,1,0,n);
-     addVertex(p3,0,1,n);
-     addVertex(p4,1,1,n);
+    addVertex(p1,1,0,n);
+    addVertex(p3,0,1,n);
+    addVertex(p4,1,1,n);
 }
 
 //-------------------------------------------------------------------------------------------------

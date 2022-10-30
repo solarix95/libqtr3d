@@ -16,6 +16,7 @@ void Qtr3dTexturedMeshShader::registerBuffer(Qtr3dTexturedMesh &buffer)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMeshShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
+
     // Get locations of attributes and uniforms used inside.
     mVertexPosition   = mShaderProgramFlat->attributeLocation("vertex" );
     mVertexNormal     = mShaderProgramFlat->attributeLocation("vnormal" );
@@ -52,7 +53,7 @@ void Qtr3dTexturedMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatr
     mModelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
     mNormalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
     mProjectionMatrix = mShaderProgramLight->uniformLocation("projection" );
-    mWorldMatrix      = mShaderProgramFlat->uniformLocation("worldview" );
+    mWorldMatrix      = mShaderProgramLight->uniformLocation("worldview" );
 
     mDefaultTexture   = mShaderProgramLight->uniformLocation("texture" );
 
@@ -73,6 +74,16 @@ void Qtr3dTexturedMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatr
 void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QMatrix4x4 &modelView)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    switch (buffer.faceOrientation()) {
+    case Qtr3dGeometryBuffer::ClockWise:
+        f->glFrontFace(GL_CW);
+        break;
+    case Qtr3dGeometryBuffer::CounterClockWise:
+        f->glFrontFace(GL_CCW);
+        break;
+    default: break;
+    }
 
     // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );
@@ -133,6 +144,7 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
 
     // Clean up
     f->glDisableVertexAttribArray( mVertexPosition );
+    f->glDisableVertexAttribArray( mVertexNormal );
     f->glDisableVertexAttribArray( mVertexTexcoords );
 }
 

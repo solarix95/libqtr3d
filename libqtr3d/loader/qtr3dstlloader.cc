@@ -9,10 +9,10 @@ bool Qtr3dStlLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::loadFile(Qtr3dVertexMesh &mesh, const QString &filename)
+bool Qtr3dStlLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
     Qtr3dStlLoader loader;
-    return loader.loadMesh(mesh,filename);
+    return loader.loadModel(model,filename,factory);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ Qtr3dStlLoader::Qtr3dStlLoader()
 Qtr3dStlLoader::~Qtr3dStlLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
+bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
     QByteArray header = fileHeader(filename,100);
     if (header.isEmpty())
@@ -35,10 +35,21 @@ bool Qtr3dStlLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
-    if (header.trimmed().startsWith("solid"))
-        return fromASCII(mesh,f);
+    auto *mesh = factory.createVertexMesh();
 
-    return fromBinary(mesh,f);
+    bool done = false;
+    if (header.trimmed().startsWith("solid"))
+         done = fromASCII(*mesh,f);
+    else
+        done = fromBinary(*mesh,f);
+
+    if (!done) {
+        delete mesh;
+        return false;
+    }
+
+    model.addGeometry(mesh);
+    return true;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -179,8 +190,8 @@ bool Qtr3dStlLoader::fromBinary(Qtr3dVertexMesh &mesh, QFile &f)
         numOfTriangles--;
     }
 
-    qDebug() << reader.size() << reader.pos() << reader.atEnd() << reader.error();
     mMesh->endMesh();
+
     return true;
 }
 

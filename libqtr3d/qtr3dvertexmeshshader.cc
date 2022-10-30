@@ -55,7 +55,7 @@ void Qtr3dVertexMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix
 
 
     mShaderProgramLight->setUniformValue(projectionMatrix,perspectiveMatrix);
-    mShaderProgramLight->setUniformValue(lightPos,QVector3D(10000000,10000000,10000000));
+    mShaderProgramLight->setUniformValue(lightPos,QVector3D(1000,1000,1000));
 
     foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
@@ -72,8 +72,17 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatri
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    f->glFrontFace(buffer.vertexOrientation() == Qtr3dVertexMesh::CounterClockWise ? GL_CCW : GL_CW);
-    // Vertices
+    switch (buffer.faceOrientation()) {
+    case Qtr3dGeometryBuffer::ClockWise:
+        f->glFrontFace(GL_CW);
+        break;
+    case Qtr3dGeometryBuffer::CounterClockWise:
+        f->glFrontFace(GL_CCW);
+        break;
+    default: break;
+    }
+
+   // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );
     f->glVertexAttribPointer(
                 vertexPosition,

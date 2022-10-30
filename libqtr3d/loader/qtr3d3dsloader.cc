@@ -12,10 +12,10 @@ bool Qtr3d3dsLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3d3dsLoader::loadFile(Qtr3dVertexMesh &mesh, const QString &filename)
+bool Qtr3d3dsLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
     Qtr3d3dsLoader loader;
-    return loader.loadMesh(mesh,filename);
+    return loader.loadModel(model,filename, factory);
 }
 
 //-------------------------------------------------------------------------------------------------}
@@ -28,14 +28,16 @@ Qtr3d3dsLoader::Qtr3d3dsLoader()
 Qtr3d3dsLoader::~Qtr3d3dsLoader() = default;
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3d3dsLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
+bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
-    mMesh = &mesh;
+    mMesh = factory.createVertexMesh();
+
     mMesh->startMesh(Qtr3dVertexMesh::Triangle);
+
     Qtr3dBinReader reader(f.readAll());
 
     mParserHooks["4D4D"] = [&](const QString &url, int junkSize){
@@ -71,6 +73,8 @@ bool Qtr3d3dsLoader::loadMesh(Qtr3dVertexMesh &mesh, const QString &filename)
 
     processNextJunk(reader,"");
     mMesh->endMesh();
+
+    model.addGeometry(mMesh);
     return true;
 }
 

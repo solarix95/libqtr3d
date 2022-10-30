@@ -418,17 +418,20 @@ bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &jso
 bool Qtr3dModelFactory::meshByFile(Qtr3dVertexMesh &mesh, const QString &filename)
 {
 
-    if (Qtr3dStlLoader::supportsFile(filename))
-        return Qtr3dStlLoader::loadFile(mesh,filename);
-    if (Qtr3d3dsLoader::supportsFile(filename))
-        return Qtr3d3dsLoader::loadFile(mesh,filename);
+
     return false;
 }
 
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
+    if (Qtr3dStlLoader::supportsFile(filename))
+        return Qtr3dStlLoader::loadFile(model,filename, factory);
+
     if (Qtr3dObjLoader::supportsFile(filename))
         return Qtr3dObjLoader::loadFile(model,filename, factory);
+
+    if (Qtr3d3dsLoader::supportsFile(filename))
+        return Qtr3d3dsLoader::loadFile(model,filename, factory);
     return false;
 }

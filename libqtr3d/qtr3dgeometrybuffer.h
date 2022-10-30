@@ -19,7 +19,19 @@ public:
         Triangle
     };
 
+    enum FaceOrientation {
+        DefaultOrientation,
+        ClockWise,
+        CounterClockWise
+    };
+
     Qtr3dGeometryBuffer();
+    virtual ~Qtr3dGeometryBuffer();
+
+    void    setFaceOrientation(FaceOrientation orientation);
+    FaceOrientation faceOrientation() const;
+    void    setParentBuffer(Qtr3dGeometryBuffer *buffer);
+    Qtr3dGeometryBuffer *parentBuffer() const;
 
     virtual QVector3D minValues() const; // lowest xyz
     virtual QVector3D maxValues() const; // max xyz
@@ -30,11 +42,20 @@ public:
     virtual void registerBufferState(Qtr3dGeometryBufferState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
 
+protected:
+    void analyze(const QVector3D &v);
+
 private slots:
     void stateDestroyed(QObject *state);
 
 private:
-    Qtr3dGeometryBufferStates mBufferStates;
+    FaceOrientation             mFaceOrientation;
+    Qtr3dGeometryBuffer        *mParent;
+    Qtr3dGeometryBufferStates   mBufferStates;
+
+
+    QVector3D                   mMin;
+    QVector3D                   mMax;
 };
 
 typedef QList<Qtr3dGeometryBuffer> Qtr3dGeometryBuffers;

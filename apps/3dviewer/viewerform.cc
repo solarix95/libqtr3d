@@ -10,6 +10,7 @@
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dtexturedmesh.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
@@ -40,6 +41,9 @@ ViewerForm::ViewerForm(QWidget *parent)
     connect(ui->btnLoad, &QPushButton::clicked, this, &ViewerForm::load);
     connect(ui->btnCCW, &QRadioButton::clicked, this, &ViewerForm::updateVertexOrientation);
     connect(ui->btnCW, &QRadioButton::clicked, this, &ViewerForm::updateVertexOrientation);
+
+    connect(ui->btnLightOn, &QRadioButton::clicked, this, &ViewerForm::updateLight);
+    connect(ui->btnLightOff, &QRadioButton::clicked, this, &ViewerForm::updateLight);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -67,7 +71,17 @@ void ViewerForm::updateVertexOrientation()
 {
     if (!mModel)
         return;
-    // mModel->setVertexOrientation(ui->btnCCW->isChecked() ? Qtr3dVertexMesh::CounterClockWise : Qtr3dVertexMesh::ClockWise);
+    mModel->setFaceOrientation(ui->btnCCW->isChecked() ? Qtr3dGeometryBuffer::CounterClockWise : Qtr3dGeometryBuffer::ClockWise);
+    update();
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::updateLight()
+{
+    if (!mModelState)
+        return;
+    mModelState->setFlat(ui->btnLightOff->isChecked());
+    update();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -75,26 +89,18 @@ void ViewerForm::loadFile(const QString &filename)
 {
     if (mModel) {
         mModel->deleteLater();
-        mModelState->deleteLater();
+        mModelState = nullptr;
     }
     mModel = ui->viewer->createModel();
-    // mModel->setDefaultColor(Qt::white);
-
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     Qtr3dModelFactory::modelByFile(*mModel,filename, *ui->viewer->factory());
     QApplication::restoreOverrideCursor();
 
-/*
-    if (mModel->vertexCount() <= 0) {
-        delete mModel;
-        mModel = nullptr;
-    }
-    */
-
-    updateVertexOrientation();
     mModelState =  ui->viewer->createBufferState(mModel);
-    mModelState->setFlat(false);
+    updateLight();
+    updateVertexOrientation();
 
-    ui->viewer->camera()->lookAt({0,0,-(float)(1.3*mModel->radius())}, mModel->center(), {0,1,0});
+    qDebug() << mModel->radius() << mModel->center();
+    ui->viewer->camera()->lookAt({0,0,-(float)(5*mModel->radius())}, mModel->center(), {0,1,0});
 }

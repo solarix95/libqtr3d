@@ -14,8 +14,6 @@ public:
     using QObject::QObject;
     virtual ~Qtr3dModelLoader();
 
-    virtual bool loadMesh(Qtr3dVertexMesh &mesh, const QString &filename) = 0;
-
     static QByteArray fileHeader(const QString &filename, int byteCount = 100);
 };
 

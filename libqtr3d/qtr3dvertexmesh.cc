@@ -7,6 +7,7 @@ Qtr3dVertexMesh::Qtr3dVertexMesh(Type meshType)
     : Qtr3dGeometryBuffer()
     , mVertexBufferId(0)
     , mElementBufferId(0)
+    , mDefaultColor(Qt::white)
 {
     startMesh(meshType);
 }
@@ -32,16 +33,11 @@ void Qtr3dVertexMesh::reset()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dVertexMesh *Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType, VertexOrientation orientation)
+Qtr3dVertexMesh *Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType, Qtr3dGeometryBuffer::FaceOrientation orientation)
 {
     mMeshType          = meshType;
-    mVertexOrientation = orientation;
-    mMin = QVector3D( std::numeric_limits<double>::max(),
-                      std::numeric_limits<double>::max(),
-                      std::numeric_limits<double>::max() );
-    mMax = QVector3D( std::numeric_limits<double>::min(),
-                      std::numeric_limits<double>::min(),
-                      std::numeric_limits<double>::min());
+    setFaceOrientation(orientation);
+
     return this;
 }
 
@@ -79,12 +75,6 @@ void Qtr3dVertexMesh::endMesh()
 void Qtr3dVertexMesh::setDefaultColor(const QColor &c)
 {
     mDefaultColor = c;
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMesh::setVertexOrientation(VertexOrientation orientation)
-{
-    mVertexOrientation = orientation;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -138,16 +128,6 @@ void Qtr3dVertexMesh::addIndex(int vi,int ti, int ni)
         mVertexes[vi].n = mNormals[ni];
 }
 
-QVector3D Qtr3dVertexMesh::minValues() const
-{
-    return mMin;
-}
-
-QVector3D Qtr3dVertexMesh::maxValues() const
-{
-    return mMax;
-}
-
 //-------------------------------------------------------------------------------------------------
 GLenum Qtr3dVertexMesh::bufferType() const
 {
@@ -159,28 +139,6 @@ GLenum Qtr3dVertexMesh::bufferType() const
     }
     Q_ASSERT(0);
     return 0;
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMesh::analyze(const QVector3D &v)
-{
-    if (v.x() > mMax.x())
-        mMax.setX(v.x());
-
-    if (v.y() > mMax.y())
-        mMax.setY(v.y());
-
-    if (v.z() > mMax.z())
-        mMax.setZ(v.z());
-
-    if (v.x() < mMin.x())
-        mMin.setX(v.x());
-
-    if (v.y() < mMin.y())
-        mMin.setY(v.y());
-
-    if (v.z() < mMin.z())
-        mMin.setZ(v.z());
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -218,8 +176,3 @@ Qtr3dVertexMesh::Type Qtr3dVertexMesh::meshType() const
     return mMeshType;
 }
 
-//-------------------------------------------------------------------------------------------------
-Qtr3dVertexMesh::VertexOrientation Qtr3dVertexMesh::vertexOrientation() const
-{
-    return mVertexOrientation;
-}

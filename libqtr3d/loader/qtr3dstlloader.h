@@ -10,12 +10,12 @@ class Qtr3dStlLoader : public Qtr3dModelLoader
 {
 public:
     static bool supportsFile(const QString &filename);
-    static bool loadFile(Qtr3dVertexMesh &mesh, const QString &filename);
+    static bool loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
 
     Qtr3dStlLoader();
     virtual ~Qtr3dStlLoader();
 
-    virtual bool loadMesh(Qtr3dVertexMesh &mesh, const QString &filename);
+    virtual bool loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
 
 protected:
 

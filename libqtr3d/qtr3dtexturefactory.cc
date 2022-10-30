@@ -37,7 +37,7 @@ Qtr3dTexture *Qtr3dTextureFactory::createTexture(const QString &name)
     if (img.isNull())
         return nullptr;
 
-    Qtr3dTexture *tex = new Qtr3dTexture(img);
+    Qtr3dTexture *tex = new Qtr3dTexture(img.mirrored());
     tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     tex->setMagnificationFilter(QOpenGLTexture::Linear);
 

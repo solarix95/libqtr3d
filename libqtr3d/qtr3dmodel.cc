@@ -13,6 +13,7 @@ void Qtr3dModel::addGeometry(Qtr3dGeometryBuffer *buffer)
 {
     Q_ASSERT(buffer);
     mModelBuffers << buffer;
+    buffer->setParentBuffer(this);
 }
 
 //-------------------------------------------------------------------------------------------------

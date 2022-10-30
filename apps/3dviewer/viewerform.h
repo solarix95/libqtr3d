@@ -22,6 +22,8 @@ public:
 private slots:
     void load();
     void updateVertexOrientation();
+    void updateLight();
+
 
 private:
     void loadFile(const QString &filename);
