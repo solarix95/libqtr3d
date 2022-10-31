@@ -26,6 +26,11 @@ inline bool operator==(const Qtr3dVector &v1, const QVector3D &v2)
 
 // Usage: Qtr3dTexturedQuad/Qtr3dTexturedQuadShader
 typedef struct Qtr3dTexturedVertex_t {
+    /*
+      4x Float,
+      3x Float
+      2x Float
+    */
     Qtr3dVector p;    // position
     Qtr3dScalar w;    // "weight", add extra dimension to point for matrix multiplication
     Qtr3dVector n;    // normal vector

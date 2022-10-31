@@ -25,6 +25,18 @@ Qtr3dTexture *Qtr3dTextureFactory::texture(const QString &name)
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dTexture *Qtr3dTextureFactory::texture(const QImage &img, const QString &name)
+{
+    Qtr3dTexture *tex = mTextureDb.value(name,nullptr);
+    if (!tex) {
+        tex = createTexture(img);
+        if (tex)
+            mTextureDb[name] = tex;
+    }
+    return tex;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dTextureFactory::clear()
 {
     qDeleteAll(mTextureDb);
@@ -37,9 +49,14 @@ Qtr3dTexture *Qtr3dTextureFactory::createTexture(const QString &name)
     if (img.isNull())
         return nullptr;
 
+    return createTexture(img);
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dTexture *Qtr3dTextureFactory::createTexture(const QImage &img)
+{
     Qtr3dTexture *tex = new Qtr3dTexture(img.mirrored());
     tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     tex->setMagnificationFilter(QOpenGLTexture::Linear);
-
     return tex;
 }

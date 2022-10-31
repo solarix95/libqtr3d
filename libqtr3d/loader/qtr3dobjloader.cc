@@ -13,10 +13,10 @@ bool Qtr3dObjLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dObjLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dObjLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts)
 {
     Qtr3dObjLoader loader;
-    return loader.loadModel(model,filename, factory);
+    return loader.loadModel(model,filename, factory, opts);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ Qtr3dObjLoader::Qtr3dObjLoader()
 Qtr3dObjLoader::~Qtr3dObjLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts)
 {
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))
@@ -55,7 +55,11 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
         if (parts.isEmpty())
             continue;
         cmd = parts.takeFirst();
-        if (cmd == "v")
+        if (cmd == "o")
+            processObject(parts);
+        if (cmd == "g")
+            processGroup(parts);
+        else if (cmd == "v")
             processVertex(parts);
         else if (cmd == "vn")
             processNormal(parts);
@@ -73,6 +77,11 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     if (mVertices.isEmpty())
         return false;
 
+    if (opts.testFlag(VertexPoints)) {
+        setupVertexDotMesh(model,factory);
+        return true;
+    }
+
     if (!mTextureName.isEmpty() && !mTextureCoords.isEmpty())
         setupTexturedMesh(model, factory);
     else
@@ -82,9 +91,17 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dObjLoader::processObject(const QStringList &)
+void Qtr3dObjLoader::processObject(const QStringList &args)
 {
+    qDebug() << "OBJ, Object: " << args;
 }
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dObjLoader::processGroup(const QStringList &args)
+{
+    qDebug() << "OBJ, Group: " << args;
+}
+
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::processVertex(const QStringList &args)
@@ -139,14 +156,13 @@ void Qtr3dObjLoader::processFace(const QStringList &args)
     int v2 = i2.at(0).toInt()-1;
     int v3 = i3.at(0).toInt()-1;
 
-    int t1 = i1.count() == 3 ? i1.at(1).toInt()-1 : -1;
-    int t2 = i2.count() == 3 ? i2.at(1).toInt()-1 : -1;
-    int t3 = i3.count() == 3 ? i3.at(1).toInt()-1 : -1;
+    int t1 = i1.count() >= 2 ? i1.at(1).toInt()-1 : -1;
+    int t2 = i2.count() >= 2 ? i2.at(1).toInt()-1 : -1;
+    int t3 = i3.count() >= 2 ? i3.at(1).toInt()-1 : -1;
 
     int n1 = i1.count() == 3 ? i1.at(2).toInt()-1 : -1;
     int n2 = i2.count() == 3 ? i2.at(2).toInt()-1 : -1;
     int n3 = i3.count() == 3 ? i3.at(2).toInt()-1 : -1;
-
 
     mFaceVertexIndexes << v1;
     mFaceVertexIndexes << v2;
@@ -160,11 +176,12 @@ void Qtr3dObjLoader::processFace(const QStringList &args)
     mFaceNormalsIndexes << n2;
     mFaceNormalsIndexes << n3;
 
+
     if (args.count() == 4) {
 
         QStringList i4 = args.at(3).split("/");
         int v4 = i4.at(0).toInt()-1;
-        int t4 = i4.count() == 3 ? i4.at(1).toInt()-1 : -1;
+        int t4 = i4.count() >= 2 ? i4.at(1).toInt()-1 : -1;
         int n4 = i4.count() == 3 ? i4.at(2).toInt()-1 : -1;
 
         mFaceVertexIndexes << v1;
@@ -179,6 +196,9 @@ void Qtr3dObjLoader::processFace(const QStringList &args)
         mFaceNormalsIndexes << n3;
         mFaceNormalsIndexes << n4;
     }
+
+    if (args.count() > 4)
+        qDebug() << "WTF";
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -244,6 +264,7 @@ void Qtr3dObjLoader::processMaterialTexture(const QString &matlibFilename, const
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::setupTexturedMesh(Qtr3dModel &model,  Qtr3dGeometryBufferFactory &factory)
 {
+
     Qtr3dTexturedMesh *mesh = factory.createTexturedMesh(mTextureName);
 
     mesh->startMesh();
@@ -256,10 +277,34 @@ void Qtr3dObjLoader::setupTexturedMesh(Qtr3dModel &model,  Qtr3dGeometryBufferFa
                         mNormals[mFaceNormalsIndexes.at(i)]);
 
     }
-
     mesh->endMesh();
     model.addGeometry(mesh);
 
+
+    /*
+
+    // Debug, Pseudo-Texture
+
+    auto *mesh = factory.createVertexMesh();
+    mesh->startMesh(Qtr3dGeometryBuffer::Triangle);
+
+    QImage img(mTextureName);
+    if (img.isNull())
+        return;
+
+    img = img.mirrored();
+
+    // Faces
+    for (int i=0; i<mFaceVertexIndexes.count(); i++) {
+        int x = img.width() * mTextureCoords[mFaceTextureIndexes.at(i)].x();
+        int y = img.width() * mTextureCoords[mFaceTextureIndexes.at(i)].y();
+        // mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)], QColor(128+ (qrand() % 127),128+ (qrand() % 127),128+ (qrand() % 127)));
+        mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)], QColor::fromRgb(img.pixel(x,y)));
+    }
+    mesh->endMesh();
+    model.addGeometry(mesh);
+
+    */
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -286,21 +331,29 @@ void Qtr3dObjLoader::setupSimpleMesh(Qtr3dModel &model, Qtr3dGeometryBufferFacto
     for (int i=0; i<mFaceVertexIndexes.count(); i++)
         mesh->addIndex(mFaceVertexIndexes.at(i),-1,mFaceNormalsIndexes.at(i));
 
-
     mesh->endMesh();
     model.addGeometry(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-QString Qtr3dObjLoader::addPath(const QString &sourceFile, const QString &targetFile)
+void Qtr3dObjLoader::setupVertexDotMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory)
 {
-    QFileInfo targetInfo(targetFile);
-    if (targetInfo.isAbsolute())
-        return targetFile;
+    Qtr3dVertexMesh *mesh = factory.createVertexMesh();
+    mesh->setDefaultColor(Qt::white);
+    mesh->startMesh(Qtr3dVertexMesh::Dot);
 
-    if (QFileInfo::exists(targetFile))
-        return targetFile;
+    bool colored = mVerticesColors.count() == mVertices.count();
 
-    QFileInfo sourceInfo(sourceFile);
-    return sourceInfo.absoluteDir().absolutePath() + QDir::separator() + targetFile;
+    // Vertices
+    for (int i=0; i<mVertices.count(); i++) {
+        if (colored)
+            mesh->addVertex(mVertices.at(i),mVerticesColors.at(i));
+        else
+            mesh->addVertex(mVertices.at(i));
+    }
+
+
+    mesh->endMesh();
+    model.addGeometry(mesh);
 }
+

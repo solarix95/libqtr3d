@@ -15,7 +15,7 @@ public:
     Type              meshType() const;
 
     void reset();
-    Qtr3dVertexMesh *startMesh(Type meshType, FaceOrientation orientation = ClockWise);
+    Qtr3dVertexMesh *startMesh(Type meshType, FaceOrientation orientation = DefaultOrientation);
     void endMesh();
 
     void setDefaultColor(const QColor &c);

@@ -11,6 +11,7 @@
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
 #include "loader/qtr3d3dsloader.h"
+#include "loader/qtr3dglbloader.h"
 #include "utils/qtr3dutils.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -415,23 +416,18 @@ bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &jso
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByFile(Qtr3dVertexMesh &mesh, const QString &filename)
-{
-
-
-    return false;
-}
-
-//-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Qtr3dModelLoader::Options opts)
 {
     if (Qtr3dStlLoader::supportsFile(filename))
         return Qtr3dStlLoader::loadFile(model,filename, factory);
 
     if (Qtr3dObjLoader::supportsFile(filename))
-        return Qtr3dObjLoader::loadFile(model,filename, factory);
+        return Qtr3dObjLoader::loadFile(model,filename, factory, opts);
 
     if (Qtr3d3dsLoader::supportsFile(filename))
         return Qtr3d3dsLoader::loadFile(model,filename, factory);
+
+    if (Qtr3dGlbLoader::supportsFile(filename))
+        return Qtr3dGlbLoader::loadFile(model,filename, factory);
     return false;
 }

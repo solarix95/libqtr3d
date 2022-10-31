@@ -97,7 +97,7 @@ void Qtr3dWidget::initializeGL()
 
     // f->glEnable(GL_MULTISAMPLE); IMHO obsolete..
     f->glEnable(GL_DEPTH_TEST);
-    f->glDepthFunc(GL_LESS);
+    f->glDepthFunc(GL_LEQUAL);
 
     mVertexMeshShader   = new Qtr3dVertexMeshShader("vertexmesh");
     mTexturedMeshShader = new Qtr3dTexturedMeshShader("textquad");

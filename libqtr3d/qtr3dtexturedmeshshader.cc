@@ -85,6 +85,16 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
     default: break;
     }
 
+    //attribute vec4 vertex;
+    //attribute vec3 vnormal;
+    //attribute vec2 texcoords;
+
+    // Same for the whole model or scene: Projection and Modelview matrices
+    //uniform mat4 projection;
+    //uniform mat4 modelview;
+    //uniform mat4 normalview;
+    //uniform mat4 worldview;
+
     // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );
     f->glVertexAttribPointer(
@@ -138,7 +148,7 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
     f->glDrawElements(
                 GL_TRIANGLES,
                 buffer.verticesCount(),
-                GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_INT,
                 (void*)0
                 );
 

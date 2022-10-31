@@ -33,7 +33,8 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmeshshader.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.h
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.h \
+    $$LIBQTR3D_PATH/libqtr3d//loader/qtr3dglbloader.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -63,9 +64,11 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmeshshader.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.cc
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
+RESOURCES += $$LIBQTR3D_PATH/libqtr3d/misc.qrc
 
 #AbstractShape
 # - Line

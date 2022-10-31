@@ -36,14 +36,16 @@ private:
 
     QMap<QString,std::function<void(const QString &, int)> > mParserHooks;
 
-    void setupMesh();
+    void setupMesh(const QString &fname, Qtr3dGeometryBufferFactory &factory);
+    Qtr3dModel                *mModel;
     Qtr3dVertexMesh           *mMesh;
+
     QList<QVector3D>           mObjectVertices;
     QList<QList<int> >         mObjectFaces;
+    QMap<QString,QList<int> >  mFaceIndexesByMaterial;
     QList<QString>             mMaterialNames;
 
     QList<QPointF>             mTextureMappings; // List< UV >
-    QList<int>                 mTextureFaces;
 };
 
 #endif // QTR3D3DSLOADER_H

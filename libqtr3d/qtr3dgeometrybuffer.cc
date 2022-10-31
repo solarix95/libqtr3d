@@ -28,10 +28,15 @@ void Qtr3dGeometryBuffer::setFaceOrientation(FaceOrientation orientation)
 //-------------------------------------------------------------------------------------------------
 Qtr3dGeometryBuffer::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() const
 {
-    if (mFaceOrientation == DefaultOrientation && parentBuffer())
-        return parentBuffer()->faceOrientation();
+    FaceOrientation ret = mFaceOrientation;
 
-    return mFaceOrientation;
+    if (ret == DefaultOrientation && parentBuffer())
+        ret = parentBuffer()->faceOrientation();
+
+    if (ret == DefaultOrientation)
+        ret = ClockWise;
+
+    return ret;
 }
 
 //-------------------------------------------------------------------------------------------------

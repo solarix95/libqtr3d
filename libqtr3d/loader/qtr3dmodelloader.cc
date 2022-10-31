@@ -1,4 +1,6 @@
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
 #include "qtr3dmodelloader.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -15,3 +17,25 @@ QByteArray Qtr3dModelLoader::fileHeader(const QString &filename, int byteCount)
     return f.read(byteCount);
 }
 
+//-------------------------------------------------------------------------------------------------
+QString Qtr3dModelLoader::addPath(const QString &sourceFile, const QString &targetFile)
+{
+    QFileInfo targetInfo(targetFile);
+    if (targetInfo.isAbsolute())
+        return targetFile;
+
+    if (QFileInfo::exists(targetFile))
+        return targetFile;
+
+    QFileInfo sourceInfo(sourceFile);
+    return sourceInfo.absoluteDir().absolutePath() + QDir::separator() + targetFile;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelLoader::isValidExternalTexture(const QString &textureFile)
+{
+    if (!QFileInfo::exists(textureFile))
+        return false;
+    QImage img(textureFile);
+    return img.isNull() ? false : true;
+}

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <QFile>
+#include <libqtr3d/qtr3dtexturedmesh.h>
 #include <libqtr3d/loader/qtr3dbinreader.h>
 #include "qtr3d3dsloader.h"
 
@@ -20,7 +21,8 @@ bool Qtr3d3dsLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dG
 
 //-------------------------------------------------------------------------------------------------}
 Qtr3d3dsLoader::Qtr3d3dsLoader()
- : mMesh(nullptr)
+    : mModel(nullptr)
+    , mMesh(nullptr)
 {
 }
 
@@ -34,11 +36,9 @@ bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
-    mMesh = factory.createVertexMesh();
-
-    mMesh->startMesh(Qtr3dVertexMesh::Triangle);
-
     Qtr3dBinReader reader(f.readAll());
+
+    mModel = &model;
 
     mParserHooks["4D4D"] = [&](const QString &url, int junkSize){
         processNextJunks(reader,url,junkSize);
@@ -56,7 +56,7 @@ bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
         processObjectJunk(reader,url,junkSize);
     };
     mParserHooks["4D4D-3D3D-4000-4100"] = [&](const QString &url, int junkSize){
-       processNextJunks(reader,url,junkSize);
+        processNextJunks(reader,url,junkSize);
     };
     mParserHooks["4D4D-3D3D-4000-4100-4110"] = [&](const QString &, int){               // TRI_VERTEXL
         processVerticesJunk(reader);
@@ -72,9 +72,9 @@ bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     };
 
     processNextJunk(reader,"");
-    mMesh->endMesh();
 
-    model.addGeometry(mMesh);
+    setupMesh(filename,factory);
+
     return true;
 }
 
@@ -85,9 +85,9 @@ qint32 Qtr3d3dsLoader::processNextJunk(Qtr3dBinReader &reader, const QString &pa
     quint16 nextJunk   = reader.readUint16();
     qint32  junkSize   = reader.readInt32();
     QString junkUrl    = QString("%1%2%3")
-                            .arg(parentURL)
-                            .arg(parentURL.isEmpty() ? "":"-")
-                            .arg(nextJunk,4,16,QChar('0')).toUpper();
+            .arg(parentURL)
+            .arg(parentURL.isEmpty() ? "":"-")
+            .arg(nextJunk,4,16,QChar('0')).toUpper();
 
     if (mParserHooks.contains(junkUrl))
         mParserHooks[junkUrl](junkUrl,junkSize-6);
@@ -115,12 +115,10 @@ void Qtr3d3dsLoader::processObjectJunk(Qtr3dBinReader &reader, const QString &pa
     mObjectVertices.clear();
     mObjectFaces.clear();
     mTextureMappings.clear();
-    mTextureFaces.clear();
+    mFaceIndexesByMaterial.clear();
     mMaterialNames.clear();
 
     processNextJunks(reader,parentURL,junkSizes-(reader.parsedBytes()-enterPos));
-
-    setupMesh();
 }
 
 //-------------------------------------------------------------------------------------------------}
@@ -165,9 +163,8 @@ void Qtr3d3dsLoader::processMaterialJunk(Qtr3dBinReader &reader)
     QString materialName = reader.readAsciiZ();
     quint16  numFaces    = reader.readUint16();
 
-    qDebug() << "HANDLE MATERIAL" << materialName;
     while (numFaces > 0) {
-        mTextureFaces << reader.readUint16();
+        mFaceIndexesByMaterial[materialName] << reader.readUint16();
         numFaces--;
     }
 }
@@ -185,18 +182,67 @@ void Qtr3d3dsLoader::processMappingCoordJunk(Qtr3dBinReader &reader)
 }
 
 //-------------------------------------------------------------------------------------------------}
-void Qtr3d3dsLoader::setupMesh()
+void Qtr3d3dsLoader::setupMesh(const QString &fname, Qtr3dGeometryBufferFactory &factory)
 {
-    Q_ASSERT(mMesh);
+    Q_ASSERT(mModel);
 
-    for (auto face : mObjectFaces) {
-        QVector3D normal = QVector3D::crossProduct(mObjectVertices[face[1]]-mObjectVertices[face[0]],mObjectVertices[face[2]]-mObjectVertices[face[1]]).normalized();
-        mMesh->addVertex(mObjectVertices[face[0]],normal);
-        mMesh->addVertex(mObjectVertices[face[1]],normal);
-        mMesh->addVertex(mObjectVertices[face[2]],normal);
+    QList<QString> textureList = mFaceIndexesByMaterial.keys();
+    for(auto textureName : textureList) {
+        auto textureFullPath = addPath(fname,"textures/" + textureName + ".bmp");
+        if (!isValidExternalTexture(textureFullPath))
+            textureFullPath = ":/missing_texture.png";
 
-        // qDebug() << mObjectVertices[face[0]] << mObjectVertices[face[1]] << mObjectVertices[face[2]];
+        auto *mesh = factory.createTexturedMesh(textureFullPath);
+        mesh->startMesh();
+        for (auto faceId : mFaceIndexesByMaterial[textureName]) {
+
+            QVector3D v1 = mObjectVertices[mObjectFaces[faceId][0]];
+            QVector3D v2 = mObjectVertices[mObjectFaces[faceId][1]];
+            QVector3D v3 = mObjectVertices[mObjectFaces[faceId][2]];
+
+            QVector3D normal = QVector3D::crossProduct(v2-v1,v3-v1).normalized();
+            mesh->addVertex(v1,
+                    mTextureMappings[mObjectFaces[faceId][0]].x(),
+                    mTextureMappings[mObjectFaces[faceId][0]].y(),
+                    normal);
+            mesh->addVertex(v2,
+                    mTextureMappings[mObjectFaces[faceId][1]].x(),
+                    mTextureMappings[mObjectFaces[faceId][1]].y(),
+                    normal);
+            mesh->addVertex(v3,
+                    mTextureMappings[mObjectFaces[faceId][2]].x(),
+                    mTextureMappings[mObjectFaces[faceId][2]].y(),
+                    normal);
+        }
+        mesh->endMesh();
+        mModel->addGeometry(mesh);
     }
+
+    /*
+    QList<QString> textureList = mFaceIndexesByMaterial.keys();
+    for(auto textureName : textureList) {
+        auto textureFullPath = addPath(fname,"textures/" + textureName + ".bmp");
+        auto *mesh = factory.createVertexMesh();
+        mesh->startMesh(Qtr3dGeometryBuffer::Triangle);
+        mesh->setDefaultColor(Qt::red);
+
+        for (auto faceId : mFaceIndexesByMaterial[textureName]) {
+
+            QVector3D v1 = mObjectVertices[mObjectFaces[faceId][0]];
+            QVector3D v2 = mObjectVertices[mObjectFaces[faceId][1]];
+            QVector3D v3 = mObjectVertices[mObjectFaces[faceId][2]];
+
+            // QVector3D normal = QVector3D::crossProduct(v2-v1,v3-v1).normalized();
+            mesh->addVertex(v1);
+            mesh->addVertex(v2);
+            mesh->addVertex(v3);
+        }
+        mesh->endMesh();
+        mModel->addGeometry(mesh);
+        return;
+    }
+    */
+
 }
 
 

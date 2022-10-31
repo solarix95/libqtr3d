@@ -2,7 +2,7 @@
 #define QTR3DMODELFACTORY_H
 
 #include <QVariant>
-
+#include <libqtr3d/loader/qtr3dmodelloader.h>
 class Qtr3dVertexMesh;
 class Qtr3dTexturedQuad;
 class Qtr3dGeometryBufferFactory;
@@ -11,7 +11,7 @@ class Qtr3dModel;
 namespace Qtr3dModelFactory {
 
 bool meshByFile(Qtr3dVertexMesh &mesh, const QString &filename);
-bool modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
+bool modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Qtr3dModelLoader::Options opts = Qtr3dModelLoader::DefaultOptions);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QString &filename);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json);
 

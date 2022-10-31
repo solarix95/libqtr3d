@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *mesh = w.createVertexMesh()->startMesh(Qtr3dVertexMesh::Triangle);
+        auto *mesh = w.createVertexMesh()->startMesh(Qtr3dVertexMesh::Triangle, Qtr3dGeometryBuffer::CounterClockWise);
 
         mesh->addVertex({-2,-1,0},Qt::red);
         mesh->addVertex({0,1,0},Qt::green);

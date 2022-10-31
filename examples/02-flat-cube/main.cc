@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *mesh = w.createVertexMesh()->startMesh(Qtr3dVertexMesh::Quad);
+        auto *mesh = w.createVertexMesh()->startMesh(Qtr3dGeometryBuffer::Quad, Qtr3dGeometryBuffer::CounterClockWise);
 
         // roof
         mesh->addVertex({-1,1, 1},Qt::red);

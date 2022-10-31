@@ -54,6 +54,12 @@ void Qtr3dTexturedMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const 
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedMesh::addIndex(int faceIndex)
+{
+    mIndexes << faceIndex;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMesh::endMesh()
 {
     init(mTextureName);
@@ -73,11 +79,12 @@ void Qtr3dTexturedMesh::init(const QString &fname)
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     mVertexBufferId  = Qtr3dShader::makeBO(mVertices.data(),mVertices.count() * sizeof(Qtr3dTexturedVertex),GL_ARRAY_BUFFER,GL_STATIC_DRAW);
 
-    QVector<GLushort> elementOrder;
-    for (int i=0; i<mVertices.count(); i++)
-        elementOrder << i;
+    if (mIndexes.isEmpty()) {
+        for (int i=0; i<mVertices.count(); i++)
+        mIndexes << i;
+    }
 
-    mElementBufferId = Qtr3dShader::makeBO(elementOrder.data(), elementOrder.count() * sizeof( GLushort ), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(), mIndexes.count() * sizeof( GLuint ), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 }
 
 //-------------------------------------------------------------------------------------------------

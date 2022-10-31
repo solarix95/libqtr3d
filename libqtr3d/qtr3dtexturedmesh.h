@@ -27,6 +27,7 @@ public:
 
     void addVertex(const QVector3D &vertex, Qtr3dScalar u, Qtr3dScalar v, const QVector3D &n = QVector3D());
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n = QVector3D());
+    void addIndex(int faceIndex);
 
     void endMesh();
     void reset();
@@ -54,6 +55,7 @@ private:
 
     QString                      mTextureName;
     QVector<Qtr3dTexturedVertex> mVertices;
+    QVector<GLuint>              mIndexes;
 };
 
 typedef QList<Qtr3dTexturedMesh*>  Qtr3dTexturedMeshes;

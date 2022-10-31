@@ -136,6 +136,7 @@ GLenum Qtr3dVertexMesh::bufferType() const
     case Dot:      return GL_POINTS;    break;
     case Line:     return GL_LINES;     break;
     case Triangle: return GL_TRIANGLES; break;
+    case Quad:     return GL_QUADS; break;
     }
     Q_ASSERT(0);
     return 0;

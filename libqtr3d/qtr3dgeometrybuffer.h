@@ -16,7 +16,8 @@ public:
         Unknown,
         Dot,
         Line,
-        Triangle
+        Triangle,
+        Quad
     };
 
     enum FaceOrientation {
