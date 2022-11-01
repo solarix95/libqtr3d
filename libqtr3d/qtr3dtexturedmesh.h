@@ -19,11 +19,11 @@ class Qtr3dTexturedMesh : public Qtr3dGeometryBuffer
 {
     Q_OBJECT
 public:
-    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures);
-    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName);
+    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Type meshType = Triangle);
+    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName, Type meshType = Triangle);
 
-
-    void startMesh(const QString &textureName = "");
+    Type meshType() const;
+    void startMesh(Type meshType = Triangle, const QString &textureName = "");
 
     void addVertex(const QVector3D &vertex, Qtr3dScalar u, Qtr3dScalar v, const QVector3D &n = QVector3D());
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n = QVector3D());
@@ -38,9 +38,10 @@ public:
     inline QSize  texSize() const         { return mTexture ? QSize(mTexture->width(), mTexture->height()) : QSize(); }
     inline float  texRatio() const        { return mTexture && mTexture->height() > 0 ? (mTexture->width()/(float)mTexture->height()) : 0.0f; }
     inline GLuint vertexBufferId()  const { return mVertexBufferId;   }
-    inline GLuint verticesCount() const   { return mVertices.count(); }
+    inline int    vertexCount() const     { return mIndexes.isEmpty() ? mVertices.count() : mIndexes.count();}
     inline GLuint elementBufferId() const { return mElementBufferId;  }
     inline GLuint textureId() const       { return mTexture ? mTexture->textureId():0; }
+    GLenum        bufferType() const;
 
 private:
     void init(const QString &fname);

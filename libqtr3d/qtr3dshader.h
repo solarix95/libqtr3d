@@ -16,8 +16,8 @@ public:
 
     void render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
 
-    static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER);
-    static GLuint makeBO(void* data, GLsizei size, GLenum type, int accessFlags);
+    // static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER);
+    static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER, int accessFlags = GL_STATIC_DRAW);
 
 protected:
     static inline void matrixAsUniform(QOpenGLFunctions *f, GLuint location, QMatrix4x4 m) { f->glUniformMatrix4fv(location,1,GL_TRUE,m.data()); }

@@ -19,9 +19,10 @@ private:
     void drawMesh(const Qtr3dVertexMesh &buffer, const QMatrix4x4 &modelView);
 
     // Shader globals
-    GLuint projectionMatrix;
-    GLuint modelviewMatrix;
-    GLuint normalviewMatrix;
+    GLuint mProjectionMatrix;
+    GLuint mWorldMatrix;
+    GLuint mModelviewMatrix;
+    GLuint mNormalviewMatrix;
 
     // Shader Attributes
     GLuint vertexPosition;

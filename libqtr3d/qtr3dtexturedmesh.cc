@@ -8,8 +8,9 @@
 #include "qtr3dtexturedmesh.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures)
-    : mTextures(textures)
+Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Type meshType)
+    : mType(meshType)
+    , mTextures(textures)
     , mTexture(nullptr)
     , mVertexBufferId(0)
     , mElementBufferId(0)
@@ -17,8 +18,9 @@ Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures)
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName)
-    : mTextures(textures)
+Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName, Type meshType )
+    : mType(meshType)
+    , mTextures(textures)
     , mTexture(nullptr)
     , mVertexBufferId(0)
     , mElementBufferId(0)
@@ -27,17 +29,25 @@ Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QStrin
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMesh::startMesh(const QString &textureName)
+Qtr3dGeometryBuffer::Type Qtr3dTexturedMesh::meshType() const
+{
+    return mType;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedMesh::startMesh(Type meshType, const QString &textureName)
 {
     destroy();
     if (!textureName.isEmpty())
         mTextureName = textureName;
+    if (meshType != Unknown)
+        mType = meshType;
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMesh::addVertex(const QVector3D &vertex, Qtr3dScalar u, Qtr3dScalar v, const QVector3D &n)
 {
-    mVertices << Qtr3dTexturedVertex(vertex,1.0,n,u,v);
+    mVertices << Qtr3dTexturedVertex(vertex,n,u,v);
     analyze(vertex);
 }
 
@@ -79,18 +89,34 @@ void Qtr3dTexturedMesh::init(const QString &fname)
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     mVertexBufferId  = Qtr3dShader::makeBO(mVertices.data(),mVertices.count() * sizeof(Qtr3dTexturedVertex),GL_ARRAY_BUFFER,GL_STATIC_DRAW);
 
+    qDebug() << sizeof(Qtr3dTexturedVertex);
     if (mIndexes.isEmpty()) {
         for (int i=0; i<mVertices.count(); i++)
         mIndexes << i;
     }
 
-    mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(), mIndexes.count() * sizeof( GLuint ), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(),mIndexes.count() * sizeof( GLuint ), GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMesh::destroy()
 {
     releaseGlIds();
+}
+
+//-------------------------------------------------------------------------------------------------
+// FIXME: to GeometryBuffer
+GLenum Qtr3dTexturedMesh::bufferType() const
+{
+    switch (mType) {
+    case Unknown: Q_ASSERT(0); return 0; break;
+    case Dot:      return GL_POINTS;    break;
+    case Line:     return GL_LINES;     break;
+    case Triangle: return GL_TRIANGLES; break;
+    case Quad:     return GL_QUADS; break;
+    }
+    Q_ASSERT(0);
+    return 0;
 }
 
 //-------------------------------------------------------------------------------------------------

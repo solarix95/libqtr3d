@@ -37,6 +37,9 @@ void Qtr3dTexturedMeshShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatri
         foreach(Qtr3dGeometryBufferState *state, states) {
             if (!state->isFlat())
                 continue;
+            QMatrix4x4 normalView = state->modelView().inverted().transposed();
+            mShaderProgramFlat->setUniformValue(mModelviewMatrix,state->modelView());
+            mShaderProgramFlat->setUniformValue(mNormalviewMatrix,normalView);
             drawMesh(*quad,state->modelView());
         }
     }
@@ -65,7 +68,10 @@ void Qtr3dTexturedMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatr
         foreach(Qtr3dGeometryBufferState *state, states) {
             if (state->isFlat())
                 continue;
-            drawMesh(*quad,worldMatrix*state->modelView()); // TODO: to shader..
+            QMatrix4x4 normalView = state->modelView().inverted().transposed();
+            mShaderProgramFlat->setUniformValue(mModelviewMatrix,state->modelView());
+            mShaderProgramFlat->setUniformValue(mNormalviewMatrix,normalView);
+            drawMesh(*quad,worldMatrix*state->modelView());
         }
     }
 }
@@ -102,7 +108,7 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
                 4,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(GLfloat) * 9,
+                sizeof(Qtr3dTexturedVertex),
                 (void*)0
                 );
     f->glEnableVertexAttribArray( mVertexPosition );
@@ -113,7 +119,7 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
                 3,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(GLfloat) * 9,
+                sizeof(Qtr3dTexturedVertex),
                 (void*)(sizeof(GLfloat) * 4)
                 );
     f->glEnableVertexAttribArray( mVertexNormal );
@@ -124,19 +130,19 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
                 2,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(GLfloat) * 9,
+                sizeof(Qtr3dTexturedVertex), // sizeof(GLfloat) * 9
                 (void*)(sizeof(GLfloat) * 7)
                 );
     f->glEnableVertexAttribArray( mVertexTexcoords );
 
-    QMatrix4x4 ratioView = modelView;
-    ratioView.scale(buffer.texRatio(), 1, buffer.texRatio());
+    // QMatrix4x4 ratioView = modelView;
+    // ratioView.scale(buffer.texRatio(), 1, buffer.texRatio());
     // mShaderProgram->setUniformValue(modelviewMatrix,ratioView);
-    matrixAsUniform( f, mModelviewMatrix, ratioView );
+    // matrixAsUniform( f, mModelviewMatrix, ratioView );
 
     // Normal view matrix - inverse transpose of modelview.
-    QMatrix4x4 normalView = modelView.inverted().transposed();
-    matrixAsUniform(f, mNormalviewMatrix, normalView );
+    // QMatrix4x4 normalView = modelView.inverted().transposed();
+    // matrixAsUniform(f, mNormalviewMatrix, normalView );
 
     // Textures
     f->glActiveTexture( GL_TEXTURE0 );
@@ -144,10 +150,11 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer, const QM
     f->glUniform1i( mDefaultTexture, 0 );
 
     // Send element buffer to GPU and draw.
+
     f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.elementBufferId() );
     f->glDrawElements(
-                GL_TRIANGLES,
-                buffer.verticesCount(),
+                buffer.bufferType(),
+                buffer.vertexCount(),
                 GL_UNSIGNED_INT,
                 (void*)0
                 );

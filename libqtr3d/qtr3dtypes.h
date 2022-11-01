@@ -45,9 +45,9 @@ typedef struct Qtr3dTexturedVertex_t {
         t2 = 0.f;
     }
 
-    Qtr3dTexturedVertex_t(const QVector3D &v,Qtr3dScalar weight, const QVector3D &norm, Qtr3dScalar tex1, Qtr3dScalar tex2 ) {
+    Qtr3dTexturedVertex_t(const QVector3D &v,const QVector3D &norm, Qtr3dScalar tex1, Qtr3dScalar tex2 ) {
         p  = { v.x(), v.y(), v.z() };
-        w  = weight;
+        w  = 1.0f;
         n  = { norm.x(), norm.y(), norm.z() };
         t1 = tex1;
         t2 = tex2;

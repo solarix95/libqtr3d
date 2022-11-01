@@ -227,10 +227,11 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
             );
 
 
-     mModel->texturesFactory()->texture(texture,"test");
+#if 1
+     mModel->texturesFactory()->texture(texture.mirrored(),"test");
 
      auto *mesh = mFactory->createTexturedMesh();
-     mesh->startMesh("test");
+     mesh->startMesh(Qtr3dGeometryBuffer::Triangle,"test");
      for (int vi=0; vi < points.count(); vi++)
          mesh->addVertex(points[vi],textureCoords[vi].y(),textureCoords[vi].x());
      for (auto i: faceIndexes)
@@ -238,13 +239,14 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
 
      mesh->endMesh();
      mModel->addGeometry(mesh);
+#else
 
 
-     /*
     auto *mesh = mFactory->createVertexMesh();
     mesh->setDefaultColor(Qt::white);
     mesh->startMesh(Qtr3dGeometryBuffer::Triangle);
 
+    QImage openglTexture = texture.mirrored();
     for (int vi=0; vi < points.count(); vi++) {
         QColor c = QColor::fromRgb(texture.pixel(texture.width() * textureCoords[vi].y(), texture.height() * textureCoords[vi].x()));
         mesh->addVertex(points[vi],c);
@@ -256,7 +258,7 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
         mesh->addIndex(i);
     mesh->endMesh();
     mModel->addGeometry(mesh);
-    */
+#endif
 }
 
 

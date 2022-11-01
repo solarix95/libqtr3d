@@ -5,6 +5,8 @@
 
 //-------------------------------------------------------------------------------------------------
 // Simple helper to make a single buffer object.
+
+/*
 inline GLuint sMakeBO( QOpenGLFunctions *f, GLenum type, void* data, GLsizei size, int accessFlags ) {
     GLuint bo;
     f->glGenBuffers( 1, &bo );
@@ -12,6 +14,7 @@ inline GLuint sMakeBO( QOpenGLFunctions *f, GLenum type, void* data, GLsizei siz
     f->glBufferData( type, size, data, accessFlags );
     return( bo );
 }
+*/
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dShader::Qtr3dShader(const QString &eglFile)
@@ -30,12 +33,14 @@ void Qtr3dShader::render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &
 }
 
 //-------------------------------------------------------------------------------------------------
+/*
 GLuint Qtr3dShader::makeBO(void *data, GLsizei size, GLenum type)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     return sMakeBO(f,type, data, size, GL_STATIC_DRAW);
 
 }
+*/
 
 // Simple helper to make a single buffer object.
 GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlags ) {
@@ -44,6 +49,7 @@ GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlag
     f->glGenBuffers( 1, &bo );
     f->glBindBuffer( type, bo );
     f->glBufferData( type, size, data, accessFlags );
+
     return( bo );
 }
 

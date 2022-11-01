@@ -24,18 +24,29 @@ void Qtr3dVertexMeshShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix,
     vertexNormal     = mShaderProgramFlat->attributeLocation("vnormal" );
     vertexColor      = mShaderProgramFlat->attributeLocation("vcolor" );
 
-    modelviewMatrix  = mShaderProgramFlat->uniformLocation("modelview" );
-    normalviewMatrix = mShaderProgramFlat->uniformLocation("normalview" );
-    projectionMatrix = mShaderProgramFlat->uniformLocation("projection" );
+    mProjectionMatrix = mShaderProgramFlat->uniformLocation("projection" );
+    mWorldMatrix      = mShaderProgramFlat->uniformLocation("worldview" );
+    mModelviewMatrix  = mShaderProgramFlat->uniformLocation("modelview" );
+    mNormalviewMatrix = mShaderProgramFlat->uniformLocation("normalview" );
 
-    mShaderProgramFlat->setUniformValue(projectionMatrix,perspectiveMatrix);
+    mShaderProgramFlat->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    mShaderProgramFlat->setUniformValue(mWorldMatrix,worldMatrix);
 
     foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
         foreach(Qtr3dGeometryBufferState *state, states) {
             if (!state->isFlat())
                 continue;
-            drawMesh(*mesh,worldMatrix*state->modelView()); // TODO: to shader..
+
+            // matrixAsUniform(f, mModelviewMatrix, modelView );
+
+            // Normal view matrix - inverse transpose of modelview.
+            QMatrix4x4 normalView = state->modelView().inverted().transposed();
+             mShaderProgramFlat->setUniformValue(mModelviewMatrix,state->modelView());
+             mShaderProgramFlat->setUniformValue(mNormalviewMatrix,normalView);
+            // matrixAsUniform(f, mNormalviewMatrix, normalView );
+
+            drawMesh(*mesh,state->modelView()); // TODO: to shader..
         }
     }
 }
@@ -48,13 +59,12 @@ void Qtr3dVertexMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix
     vertexNormal     = mShaderProgramLight->attributeLocation("vnormal" );
     vertexColor      = mShaderProgramLight->attributeLocation("vcolor" );
 
-    modelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
-    normalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
-    projectionMatrix = mShaderProgramLight->uniformLocation("projection" );
+    mModelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
+    mNormalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
+    mProjectionMatrix = mShaderProgramLight->uniformLocation("projection" );
     lightPos         = mShaderProgramLight->uniformLocation("lightPos" );
 
-
-    mShaderProgramLight->setUniformValue(projectionMatrix,perspectiveMatrix);
+    mShaderProgramLight->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     mShaderProgramLight->setUniformValue(lightPos,QVector3D(1000,1000,1000));
 
     foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
@@ -89,7 +99,7 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatri
                 4,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(GLfloat) * 10,
+                sizeof(Qtr3dColoredVertex),
                 (void*)0
                 );
     f->glEnableVertexAttribArray( vertexPosition );
@@ -100,7 +110,7 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatri
                 3,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(GLfloat) * 10,
+                sizeof(Qtr3dColoredVertex),
                 (void*)(sizeof(GLfloat) * 4)
                 );
     f->glEnableVertexAttribArray( vertexNormal );
@@ -111,16 +121,10 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatri
                 3,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(GLfloat) * 10,
+                sizeof(Qtr3dColoredVertex),
                 (void*)(sizeof(GLfloat) * 7)
                 );
     f->glEnableVertexAttribArray( vertexColor );
-
-    matrixAsUniform(f, modelviewMatrix, modelView );
-
-    // Normal view matrix - inverse transpose of modelview.
-    QMatrix4x4 normalView = modelView.inverted().transposed();
-    matrixAsUniform(f, normalviewMatrix, normalView );
 
     // Send element buffer to GPU and draw.
     f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.elementBufferId() );

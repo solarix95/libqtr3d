@@ -55,10 +55,10 @@ void Qtr3dTexturedQuad::addQuad(const QVector3D &p1, const QVector3D &p2, const 
     { {  1.0, -1.0,  0.0 }, 1.0, {  0.0,  0.0,  1.0 }, 1.0, 1.0 }
 };
 */
-    mVertices << Qtr3dTexturedVertex(p1,1.0,{0,0,1},1,0);
-    mVertices << Qtr3dTexturedVertex(p2,1.0,{0,0,1},0,0);
-    mVertices << Qtr3dTexturedVertex(p3,1.0,{0,0,1},0,1);
-    mVertices << Qtr3dTexturedVertex(p4,1.0,{0,0,1},1,1);
+    mVertices << Qtr3dTexturedVertex(p1,{0,0,1},1,0);
+    mVertices << Qtr3dTexturedVertex(p2,{0,0,1},0,0);
+    mVertices << Qtr3dTexturedVertex(p3,{0,0,1},0,1);
+    mVertices << Qtr3dTexturedVertex(p4,{0,0,1},1,1);
 }
 
 //-------------------------------------------------------------------------------------------------
