@@ -12,23 +12,28 @@ public:
     void registerBuffer(Qtr3dVertexMesh &buffer);
 
 protected:
-    virtual void drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-    virtual void drawLightBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void onProgramChange();
+
+    void drawBuffer_NoLight(const Qtr3dVertexMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_FlatLight(const Qtr3dVertexMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
 
 private:
-    void drawMesh(const Qtr3dVertexMesh &buffer, const QMatrix4x4 &modelView);
+
+    void drawMesh(const Qtr3dVertexMesh &buffer);
 
     // Shader globals
-    GLuint mProjectionMatrix;
-    GLuint mWorldMatrix;
-    GLuint mModelviewMatrix;
-    GLuint mNormalviewMatrix;
+    int mProjectionMatrix;
+    int mModelviewMatrix; // world * model
+    int mWorldviewMatrix; // world * model
+    int mNormalviewMatrix;
 
     // Shader Attributes
-    GLuint vertexPosition;
-    GLuint vertexNormal;
-    GLuint vertexColor;
-    GLuint lightPos;
+    int mVertexPosition;
+    int mVertexNormal;
+    int mVertexColor;
+    int mLightPos;
 
     Qtr3dVertexMeshes     mGeometryBuffers;
 };

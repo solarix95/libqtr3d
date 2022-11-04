@@ -2,6 +2,7 @@
 #define LIB_QTR3D_WIDGET
 
 #include <QOpenGLWidget>
+#include "qtr3dtypes.h"
 
 class Qtr3dTexturedMesh;
 class Qtr3dTexturedMeshShader;
@@ -39,7 +40,7 @@ public:
     virtual Qtr3dTexturedMesh        *createTexturedMesh(const QString &textureName="");
     virtual Qtr3dVertexMesh          *createVertexMesh();
     virtual Qtr3dModel               *createModel();
-    virtual Qtr3dGeometryBufferState *createBufferState(Qtr3dGeometryBuffer *buffer, bool isFlat = true);
+    virtual Qtr3dGeometryBufferState *createBufferState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::NoLighting);
 
 public slots:
     void updateRequested();

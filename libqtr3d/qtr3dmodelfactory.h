@@ -25,6 +25,7 @@ bool meshByCycle(Qtr3dVertexMesh &mesh, int sectors, const QColor &color);
 bool quadsByJson(Qtr3dTexturedQuad &mesh, const QString &filename);
 bool quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &json);
 
+bool normalMeshByMesh(Qtr3dVertexMesh &mesh, const Qtr3dVertexMesh &sourceMesh, float vectorLenght, QColor color = Qt::red);
 }
 
 #endif // QTR3DMODELFACTORY_H

@@ -5,6 +5,7 @@
 TEMPLATE = app
 TARGET = 02-flat-cube
 INCLUDEPATH += .
+CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 

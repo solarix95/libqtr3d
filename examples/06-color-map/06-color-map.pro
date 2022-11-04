@@ -6,7 +6,8 @@ TEMPLATE = app
 TARGET = 06-color-map
 
 INCLUDEPATH += .
-QT += core gui widgets
+QT     += core gui widgets
+CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 

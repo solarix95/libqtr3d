@@ -75,10 +75,10 @@ Qtr3dModel *Qtr3dWidget::createModel()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState *Qtr3dWidget::createBufferState(Qtr3dGeometryBuffer *buffer, bool isFlat)
+Qtr3dGeometryBufferState *Qtr3dWidget::createBufferState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype)
 {
     Q_ASSERT(buffer);
-    Qtr3dGeometryBufferState *state = new Qtr3dGeometryBufferState(isFlat);
+    Qtr3dGeometryBufferState *state = new Qtr3dGeometryBufferState(ltype);
     buffer->registerBufferState(state);
     return state;
 }
@@ -100,7 +100,7 @@ void Qtr3dWidget::initializeGL()
     f->glDepthFunc(GL_LEQUAL);
 
     mVertexMeshShader   = new Qtr3dVertexMeshShader("vertexmesh");
-    mTexturedMeshShader = new Qtr3dTexturedMeshShader("textquad");
+    mTexturedMeshShader = new Qtr3dTexturedMeshShader("texmesh");
     mTextures           = new Qtr3dTextureFactory();
     mFactory            = new Qtr3dGeometryBufferFactory();
 

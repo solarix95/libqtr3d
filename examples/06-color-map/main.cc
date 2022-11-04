@@ -22,23 +22,25 @@ int main(int argc, char *argv[])
         Qtr3dGeometryBufferState *state;
 
         // Sphere
-        mesh = w.createVertexMesh();
-        Qtr3dModelFactory::meshBySphere(*mesh,600,QImage(":/planet.jpg"));
+        auto *sphere = w.createVertexMesh();
+        Qtr3dModelFactory::meshBySphere(*sphere,600,QImage(":/planet.jpg"));
 
-        state = w.createBufferState(mesh);
+        state = w.createBufferState(sphere);
         state->setFlat(false);
-        state->setState({0,0,0},{-90,0,0},{2,2,2});
+        state->setState({0,0,0},{-90,0,0},{1,1,1});
 
         // Sky
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,1000,Qt::white);
-        w.createBufferState(mesh);
+        w.createBufferState(mesh)->setFlat(true);
 
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
         w.createBufferState(mesh);
 
-        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,2,5},{0,0,0});
+        // new Qtr3dCameraCycler(w.camera(),30,0.3,{0.0f,(float)(1.5*sphere->radius()),0.0f},{0,0,0});
+        qDebug() << sphere->radius();
+        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,0,3*sphere->radius()},{0,0,0});
     });
 
     w.show();

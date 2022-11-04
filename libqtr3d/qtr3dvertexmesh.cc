@@ -47,8 +47,10 @@ void Qtr3dVertexMesh::endMesh()
     if (mMeshType == Unknown || mVertexes.isEmpty())
         return;
 
-    if (mMeshType == Triangle) {
+    if (mMeshType == Triangle || mMeshType == Quad) {
         for (int i=0; i<mVertexes.count(); i++) {
+            if (i != 4)
+                continue;
             if (mVertexes.at(i).n.isNull()) {
                 calculateNormal(i);
             }
@@ -129,6 +131,20 @@ void Qtr3dVertexMesh::addIndex(int vi,int ti, int ni)
 }
 
 //-------------------------------------------------------------------------------------------------
+int Qtr3dVertexMesh::vertexListCount() const
+{
+    return mVertexes.count();
+}
+
+//-------------------------------------------------------------------------------------------------
+const Qtr3dColoredVertex &Qtr3dVertexMesh::vertex(int i) const
+{
+    Q_ASSERT(i >= 0);
+    Q_ASSERT(i < mVertexes.count());
+    return mVertexes[i];
+}
+
+//-------------------------------------------------------------------------------------------------
 GLenum Qtr3dVertexMesh::bufferType() const
 {
     switch (mMeshType) {
@@ -145,11 +161,11 @@ GLenum Qtr3dVertexMesh::bufferType() const
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
 {
-    Q_ASSERT(mMeshType == Triangle);
+    Q_ASSERT(mMeshType == Triangle || mMeshType == Quad);
 
     int shapeVertexCount = mMeshType == Triangle ? 3 : 4;
 
-    // int relativIndex = vertexIndex % shapeVertexCount;
+    int relativIndex = vertexIndex % shapeVertexCount;
     int shapeIndex   = vertexIndex / shapeVertexCount;
 
 
@@ -158,6 +174,17 @@ void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
 
     QVector3D v02(mVertexes.at(shapeIndex+2).p.toQVector() -
                   mVertexes.at(shapeIndex+0).p.toQVector());
+
+    switch(relativIndex) {
+    case 0: {
+        v01 = mVertexes.at(shapeIndex+1).p.toQVector() - mVertexes.at(shapeIndex+0).p.toQVector();
+        v02 = mVertexes.at(shapeIndex+2).p.toQVector() - mVertexes.at(shapeIndex+0).p.toQVector();
+    } break;
+    case 1: {
+        v01 = mVertexes.at(shapeIndex+1).p.toQVector() - mVertexes.at(shapeIndex+0).p.toQVector();
+        v02 = mVertexes.at(shapeIndex+2).p.toQVector() - mVertexes.at(shapeIndex+0).p.toQVector();
+    } break;
+    }
 
     QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
     mVertexes[vertexIndex].n = normal;

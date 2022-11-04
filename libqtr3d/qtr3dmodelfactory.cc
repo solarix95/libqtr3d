@@ -431,3 +431,23 @@ bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, 
         return Qtr3dGlbLoader::loadFile(model,filename, factory);
     return false;
 }
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dVertexMesh &mesh, const Qtr3dVertexMesh &sourceMesh, float vectorLenght, QColor color)
+{
+    mesh.startMesh(Qtr3dGeometryBuffer::Line);
+    mesh.setDefaultColor(color);
+
+    for (int i=0; i<sourceMesh.vertexListCount(); i++) {
+        QVector3D pos           = sourceMesh.vertex(i).p.toQVector();
+        QVector3D nextNormal    = sourceMesh.vertex(i).n.toQVector();
+        if (nextNormal.isNull())
+            continue;
+        nextNormal = vectorLenght * nextNormal.normalized();
+        mesh.addVertex(pos);
+        mesh.addVertex(pos+nextNormal);
+    }
+
+    mesh.endMesh();
+    return true;
+}

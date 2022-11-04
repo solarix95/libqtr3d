@@ -6,6 +6,16 @@
 #include <QColor>
 #include <GL/gl.h>
 
+namespace Qtr3d
+{
+    enum LightingType {
+        DefaultLighting,
+        NoLighting,
+        FlatLighting,
+        PhongLighting
+    };
+}
+
 typedef GLfloat        Qtr3dScalar;
 typedef QOpenGLTexture Qtr3dTexture;
 

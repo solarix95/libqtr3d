@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 01-hello-world-triangle
+TARGET = 02-flat-light-cube
 INCLUDEPATH += .
 CONFIG += debug
 

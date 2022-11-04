@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
         showRoomPos = showRoomRotate * showRoomPos;
 
         // Solar System
-        (new SolarSystem(&w))->setState(showRoomPos,{0,0,0},{0.1,0.1,0.1});
+        SolarSystem *solar = new SolarSystem(w.textures(),&w);
+        w.createBufferState(solar)->setState(showRoomPos,{0,0,0},{0.1,0.1,0.1});
         showRoomPos = showRoomRotate * showRoomPos;
 
         // Sky

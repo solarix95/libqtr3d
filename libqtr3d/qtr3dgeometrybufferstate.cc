@@ -1,8 +1,8 @@
 #include "qtr3dgeometrybufferstate.h"
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(bool isFlat)
- : mIsFlat(isFlat)
+Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3d::LightingType ltype)
+ : mLightingType(ltype)
  , mParent(nullptr)
 {
     setState({0,0,0},{0,0,0},{1,1,1});
@@ -10,7 +10,7 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(bool isFlat)
 
 //------------------------------------------------------------------------------------------------
 Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(const QVector3D &pos, const QVector3D &rotation)
- : mIsFlat(true)
+ : mLightingType(Qtr3d::DefaultLighting)
  , mParent(nullptr)
 {
     setState(pos,rotation,{1,1,1});
@@ -23,9 +23,15 @@ void Qtr3dGeometryBufferState::setParent(Qtr3dGeometryBufferState *state)
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setFlat(bool flat)
+void Qtr3dGeometryBufferState::setLightingType(Qtr3d::LightingType ltype)
 {
-    mIsFlat = flat;
+    mLightingType = ltype;
+}
+
+//------------------------------------------------------------------------------------------------
+Qtr3d::LightingType Qtr3dGeometryBufferState::lightingType() const
+{
+    return mLightingType;
 }
 
 //------------------------------------------------------------------------------------------------

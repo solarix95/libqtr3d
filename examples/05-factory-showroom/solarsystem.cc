@@ -6,12 +6,11 @@
 #include "solarsystem.h"
 
 //-------------------------------------------------------------------------------------------------
-SolarSystem::SolarSystem(Qtr3dWidget *parent)
+SolarSystem::SolarSystem(Qtr3dTextureFactory *textures, Qtr3dWidget *parent)
+ : Qtr3dModel(textures)
 {
     Qtr3dVertexMesh *mesh;
     Qtr3dGeometryBufferState *state;
-
-    setFlat(false);
 
     // Create the sun
     mesh = parent->createVertexMesh();

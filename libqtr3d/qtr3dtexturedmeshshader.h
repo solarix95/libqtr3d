@@ -12,11 +12,19 @@ public:
     void registerBuffer(Qtr3dTexturedMesh &buffer);
 
 protected:
+    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void onProgramChange();
+
+    void drawBuffer_NoLight(const Qtr3dTexturedMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_FlatLight(const Qtr3dTexturedMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+
+
     virtual void drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &mWorldMatrix);
     virtual void drawLightBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &mWorldMatrix);
 
 private:
-    void drawMesh(const Qtr3dTexturedMesh &buffer, const QMatrix4x4 &modelView);
+    void drawMesh(const Qtr3dTexturedMesh &buffer);
 
     // These are variables passed into shaders
     GLuint mVertexPosition;

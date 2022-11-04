@@ -29,6 +29,10 @@ public:
     void addNormal(const QVector3D &n);
     void addIndex(int vi,int ti = -1, int ni = -1);
 
+    // reader
+    int                       vertexListCount() const;
+    const Qtr3dColoredVertex &vertex(int i) const;
+
     // Shader Interface
     inline GLuint vertexBufferId() const  { return mVertexBufferId;  }
     inline GLuint elementBufferId() const { return mElementBufferId; }

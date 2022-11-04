@@ -8,7 +8,7 @@ class SolarSystem : public Qtr3dModel
 {
     Q_OBJECT
 public:
-    SolarSystem(Qtr3dWidget *parent);
+    SolarSystem(Qtr3dTextureFactory *textures, Qtr3dWidget *parent);
 
 private slots:
     void updateSolarSystem();

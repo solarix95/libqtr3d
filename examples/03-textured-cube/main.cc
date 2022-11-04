@@ -15,8 +15,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *buffer = w.createTexturedMesh("/home/roman/source/libqtr3d/examples/03-textured-cube/texture.jpg");//:/texture.jpg");
+        auto *buffer = w.createTexturedMesh(":/texture.jpg");
 
+        buffer->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
         buffer->startMesh();
 
         buffer->addQuad({-1, 1,  1}, { 1, 1, 1}, { 1, 1,-1}, {-1, 1,-1});  // Top

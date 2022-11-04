@@ -18,29 +18,19 @@ inline GLuint sMakeBO( QOpenGLFunctions *f, GLenum type, void* data, GLsizei siz
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dShader::Qtr3dShader(const QString &eglFile)
+ : mCurrentType(Qtr3d::DefaultLighting)
 {
-    initShader(QString("%1_flat").arg(eglFile),mVertexShaderFlat, mFragmentShaderFlat, mShaderProgramFlat);
-    initShader(QString("%1_phong").arg(eglFile),mVertexShaderLight, mFragmentShaderLight, mShaderProgramLight);
+    initShader(Qtr3d::NoLighting,    eglFile);
+    initShader(Qtr3d::FlatLighting,  eglFile);
+    initShader(Qtr3d::PhongLighting, eglFile);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dShader::render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
-    mShaderProgramFlat->bind();
-    drawFlatBuffers(perspectiveMatrix, worldMatrix);
-    mShaderProgramLight->bind();
-    drawLightBuffers(perspectiveMatrix, worldMatrix);
+    setProgram(Qtr3d::DefaultLighting);
+    drawBuffers(perspectiveMatrix,worldMatrix);
 }
-
-//-------------------------------------------------------------------------------------------------
-/*
-GLuint Qtr3dShader::makeBO(void *data, GLsizei size, GLenum type)
-{
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    return sMakeBO(f,type, data, size, GL_STATIC_DRAW);
-
-}
-*/
 
 // Simple helper to make a single buffer object.
 GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlags ) {
@@ -53,33 +43,61 @@ GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlag
     return( bo );
 }
 
-
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dShader::onProgramChange()
 {
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 {
+    if (mCurrentType == lightType)
+        return;
+
+    mCurrentType = lightType;
+    if (!mShaders.contains(mCurrentType))
+        return;
+    currentProgram()->bind();
+    onProgramChange();
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::initShader(const QString &name, QOpenGLShader *&vertex, QOpenGLShader *&fragment, QOpenGLShaderProgram *&program)
+QOpenGLShaderProgram *Qtr3dShader::currentProgram()
 {
-    vertex = new QOpenGLShader(QOpenGLShader::Vertex);
-    vertex->compileSourceFile(QString(":/%1.vert").arg(name));
-    Q_ASSERT(vertex->isCompiled());
+    Q_ASSERT(mShaders.contains(mCurrentType));
+    return mShaders[mCurrentType].program;
+}
 
-    fragment = new QOpenGLShader(QOpenGLShader::Fragment);
-    fragment->compileSourceFile(QString(":/%1.frag").arg(name));
-    Q_ASSERT(fragment->isCompiled());
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::initShader(Qtr3d::LightingType lightType, const QString &eglFile)
+{
+    auto *vertexShader   = new QOpenGLShader(QOpenGLShader::Vertex);
+    auto *fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+    auto *program        = new QOpenGLShaderProgram();
 
-    program = new QOpenGLShaderProgram();
-    program->addShader(vertex);
-    program->addShader(fragment);
+    QString extension;
+    switch(lightType) {
+    case Qtr3d::NoLighting:    extension = "nolight";     break;
+    case Qtr3d::FlatLighting:  extension = "flatlight";   break;
+    case Qtr3d::PhongLighting: extension = "phonglight";  break;
+    default:break;
+    }
+    Q_ASSERT(!extension.isEmpty());
+
+    vertexShader->compileSourceFile(QString(":/%1_%2.vert").arg(eglFile).arg(extension));
+    Q_ASSERT(vertexShader->isCompiled());
+
+    fragmentShader->compileSourceFile(QString(":/%1_%2.frag").arg(eglFile).arg(extension));
+    Q_ASSERT(fragmentShader->isCompiled());
+
+    program->addShader(vertexShader);
+    program->addShader(fragmentShader);
 
     bool done = program->link();
     Q_ASSERT_X(done,"Shader Linker", program->log().toUtf8().data());
+
+    mShaders[lightType].program        = program;
+    mShaders[lightType].vertexShader   = vertexShader;
+    mShaders[lightType].fragmentShader = fragmentShader;
 }
 

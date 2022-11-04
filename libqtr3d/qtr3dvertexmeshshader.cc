@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dVertexMeshShader::Qtr3dVertexMeshShader(const QString &eglFile)
- : Qtr3dShader(eglFile)
+    : Qtr3dShader(eglFile)
 {
 }
 
@@ -17,68 +17,116 @@ void Qtr3dVertexMeshShader::registerBuffer(Qtr3dVertexMesh &buffer)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
-    // Get locations of attributes and uniforms used inside.
-    vertexPosition   = mShaderProgramFlat->attributeLocation("vertex" );
-    vertexNormal     = mShaderProgramFlat->attributeLocation("vnormal" );
-    vertexColor      = mShaderProgramFlat->attributeLocation("vcolor" );
-
-    mProjectionMatrix = mShaderProgramFlat->uniformLocation("projection" );
-    mWorldMatrix      = mShaderProgramFlat->uniformLocation("worldview" );
-    mModelviewMatrix  = mShaderProgramFlat->uniformLocation("modelview" );
-    mNormalviewMatrix = mShaderProgramFlat->uniformLocation("normalview" );
-
-    mShaderProgramFlat->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    mShaderProgramFlat->setUniformValue(mWorldMatrix,worldMatrix);
-
-    foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
+    for(auto *mesh: mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
-        foreach(Qtr3dGeometryBufferState *state, states) {
-            if (!state->isFlat())
-                continue;
+        for(auto *state: states) {
+            auto nextLightingTyp = state->lightingType();
+            if (nextLightingTyp == Qtr3d::DefaultLighting)
+                nextLightingTyp = Qtr3d::NoLighting;
 
-            // matrixAsUniform(f, mModelviewMatrix, modelView );
-
-            // Normal view matrix - inverse transpose of modelview.
-            QMatrix4x4 normalView = state->modelView().inverted().transposed();
-             mShaderProgramFlat->setUniformValue(mModelviewMatrix,state->modelView());
-             mShaderProgramFlat->setUniformValue(mNormalviewMatrix,normalView);
-            // matrixAsUniform(f, mNormalviewMatrix, normalView );
-
-            drawMesh(*mesh,state->modelView()); // TODO: to shader..
+            setProgram(nextLightingTyp);
+            switch(nextLightingTyp) {
+            case Qtr3d::NoLighting:
+                drawBuffer_NoLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                break;
+            case Qtr3d::FlatLighting:
+                drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                break;
+            case Qtr3d::PhongLighting:
+                drawBuffer_PhongLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                break;
+            default:break;
+            }
         }
     }
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::onProgramChange()
 {
     // Get locations of attributes and uniforms used inside.
-    vertexPosition   = mShaderProgramLight->attributeLocation("vertex" );
-    vertexNormal     = mShaderProgramLight->attributeLocation("vnormal" );
-    vertexColor      = mShaderProgramLight->attributeLocation("vcolor" );
+    mVertexPosition   = currentProgram()->attributeLocation("vertex" );
+    mVertexNormal     = currentProgram()->attributeLocation("vnormal" );
+    mVertexColor      = currentProgram()->attributeLocation("vcolor" );
+
+    mProjectionMatrix = currentProgram()->uniformLocation("projection" );
+    mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
+    mWorldviewMatrix  = currentProgram()->uniformLocation("worldview" );
+    mNormalviewMatrix = currentProgram()->uniformLocation("normalview" );
+
+    mLightPos         = currentProgram()->uniformLocation("lightpos" );
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+{
+    // Normal view matrix - inverse transpose of modelview.
+    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
+
+    currentProgram()->setUniformValue(mWorldviewMatrix,worldMatrix.transposed());
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
+
+    drawMesh(mesh);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+{
+    // Normal view matrix - inverse transpose of modelview.
+    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
+    QVector3D lightPos = QVector3D(0,5,0) * modelWorldMatrix;
+
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
+    currentProgram()->setUniformValue(mLightPos,lightPos);
+    drawMesh(mesh);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+{
+#if 0
+    // Get locations of attributes and uniforms used inside.
+    mVertexPosition   = mShaderProgramLight->attributeLocation("vertex" );
+    mVertexNormal     = mShaderProgramLight->attributeLocation("vnormal" );
+    mVertexColor      = mShaderProgramLight->attributeLocation("vcolor" );
 
     mModelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
     mNormalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
     mProjectionMatrix = mShaderProgramLight->uniformLocation("projection" );
-    lightPos         = mShaderProgramLight->uniformLocation("lightPos" );
+    mLightPos         = mShaderProgramLight->uniformLocation("lightPos" );
 
-    mShaderProgramLight->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    mShaderProgramLight->setUniformValue(lightPos,QVector3D(1000,1000,1000));
+    Q_ASSERT(mProjectionMatrix >= 0);
+    mShaderProgramLight->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
+
+    mShaderProgramLight->setUniformValue("worldview",worldMatrix.transposed());
+
+    Q_ASSERT(mLightPos >= 0);
+    mShaderProgramLight->setUniformValue(mLightPos,QVector3D(0,-1000000,0));
 
     foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
         foreach(Qtr3dGeometryBufferState *state, states) {
             if (state->isFlat())
                 continue;
+
+            // Normal view matrix - inverse transpose of modelview.
+            QMatrix4x4 modelWorldMatrix = worldMatrix * state->modelView();
+            QMatrix4x4 normalView       = modelWorldMatrix.inverted();
+
+            mShaderProgramLight->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
+            mShaderProgramLight->setUniformValue(mNormalviewMatrix,normalView.transposed());
             drawMesh(*mesh,worldMatrix*state->modelView()); // TODO: to shader..
         }
     }
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatrix4x4 &modelView)
+void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -92,39 +140,41 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatri
     default: break;
     }
 
-   // Vertices
+    // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );
     f->glVertexAttribPointer(
-                vertexPosition,
+                mVertexPosition,
                 4,
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Qtr3dColoredVertex),
                 (void*)0
                 );
-    f->glEnableVertexAttribArray( vertexPosition );
+    f->glEnableVertexAttribArray( mVertexPosition );
 
-    // Normals
-    f->glVertexAttribPointer(
-                vertexNormal,
-                3,
-                GL_FLOAT,
-                GL_FALSE,
-                sizeof(Qtr3dColoredVertex),
-                (void*)(sizeof(GLfloat) * 4)
-                );
-    f->glEnableVertexAttribArray( vertexNormal );
+    // Normals -> lighting only
+    if (mVertexNormal >= 0) {
+        f->glVertexAttribPointer(
+                    mVertexNormal,
+                    3,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    sizeof(Qtr3dColoredVertex),
+                    (void*)(sizeof(GLfloat) * 4)
+                    );
+        f->glEnableVertexAttribArray( mVertexNormal );
+    }
 
     // Colors
     f->glVertexAttribPointer(
-                vertexColor,
+                mVertexColor,
                 3,
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Qtr3dColoredVertex),
                 (void*)(sizeof(GLfloat) * 7)
                 );
-    f->glEnableVertexAttribArray( vertexColor );
+    f->glEnableVertexAttribArray( mVertexColor );
 
     // Send element buffer to GPU and draw.
     f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.elementBufferId() );
@@ -136,7 +186,8 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer, const QMatri
                 );
 
     // Clean up
-    f->glDisableVertexAttribArray( vertexPosition );
-    f->glDisableVertexAttribArray( vertexNormal );
-    f->glDisableVertexAttribArray( vertexColor );
+    f->glDisableVertexAttribArray( mVertexPosition );
+    if (mVertexNormal >= 0)
+        f->glDisableVertexAttribArray( mVertexNormal );
+    f->glDisableVertexAttribArray( mVertexColor );
 }
