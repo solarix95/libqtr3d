@@ -3,14 +3,15 @@
 #include <QResizeEvent>
 #include <QSurfaceFormat>
 
-#include "qtr3dwidget.h"
-#include "qtr3dshader.h"
-#include "qtr3dcamera.h"
-#include "qtr3dtexturedquad.h"
+#include "qtr3dgeometrybufferfactory.h"
 #include "qtr3dtexturedmeshshader.h"
 #include "qtr3dvertexmeshshader.h"
 #include "qtr3dtexturefactory.h"
-#include "qtr3dgeometrybufferfactory.h"
+#include "qtr3dtexturedquad.h"
+#include "qtr3dlightsource.h"
+#include "qtr3dwidget.h"
+#include "qtr3dshader.h"
+#include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -19,6 +20,7 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     , mOptions(ops)
     , mCamera(nullptr)
     , mFactory(nullptr)
+    , mLightSource(nullptr)
     , mTexturedMeshShader(nullptr)
     , mClearColor("#000000") // black
 {
@@ -31,6 +33,7 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     , mOptions(NoOption)
     , mCamera(nullptr)
     , mFactory(nullptr)
+    , mLightSource(nullptr)
     , mTexturedMeshShader(nullptr)
     , mClearColor("#000000") // black
 {
@@ -51,6 +54,14 @@ Qtr3dCamera *Qtr3dWidget::camera()
 Qtr3dGeometryBufferFactory *Qtr3dWidget::factory()
 {
     return mFactory;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dLightSource *Qtr3dWidget::primaryLightSource()
+{
+    if (!mLightSource)
+        mLightSource = new Qtr3dLightSource({0,0,0},Qt::white);
+    return mLightSource;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -119,8 +130,8 @@ void Qtr3dWidget::paintGL()
     f->glEnable(GL_CULL_FACE) ;
     f->glCullFace(GL_BACK);
 
-    mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix());
-    mTexturedMeshShader->render(camera()->projection(),camera()->worldMatrix());
+    mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix(),  primaryLightSource());
+    mTexturedMeshShader->render(camera()->projection(),camera()->worldMatrix(), primaryLightSource());
 
     f->glDisable(GL_CULL_FACE); // otherwise: can't see 2D Paintings..
 }

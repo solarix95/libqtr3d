@@ -12,31 +12,27 @@ public:
     void registerBuffer(Qtr3dTexturedMesh &buffer);
 
 protected:
-    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
     virtual void onProgramChange();
 
-    void drawBuffer_NoLight(const Qtr3dTexturedMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-    void drawBuffer_FlatLight(const Qtr3dTexturedMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-    void drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-
-
-    virtual void drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &mWorldMatrix);
-    virtual void drawLightBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &mWorldMatrix);
-
 private:
+
+    void drawBuffer_NoLight(const Qtr3dTexturedMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_FlatLight(const Qtr3dTexturedMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
+    void drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
     void drawMesh(const Qtr3dTexturedMesh &buffer);
 
     // These are variables passed into shaders
-    GLuint mVertexPosition;
-    GLuint mVertexNormal;
-    GLuint mVertexTexcoords;
+    int    mVertexPosition;
+    int    mVertexNormal;
+    int    mVertexTexcoords;
 
-    GLuint mModelviewMatrix;
-    GLuint mNormalviewMatrix;
-    GLuint mProjectionMatrix;
-    GLuint mWorldMatrix;
+    int    mModelviewMatrix;
+    int    mNormalviewMatrix;
+    int    mProjectionMatrix;
+    int    mLightPos;
 
-    GLuint mDefaultTexture;
+    int    mDefaultTexture;
 
     Qtr3dTexturedMeshes     mGeometryBuffers;
 };

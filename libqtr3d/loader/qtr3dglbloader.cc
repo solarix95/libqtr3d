@@ -120,6 +120,7 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo)
         int textcoordAccessorIndex= primitiveInfos[i].toMap()["attributes"].toMap()[QString("TEXCOORD_%1").arg(textCoordIndex)].toInt();
         loadMesh(accessorInfo(positionAccessorIndex),
                  accessorInfo(indicesAcsessorIndex),
+                 accessorInfo(normalAccessorIndex),
                  accessorInfo(textcoordAccessorIndex),
                  texture);
         qDebug() << positionAccessorIndex << indicesAcsessorIndex << normalAccessorIndex << textcoordAccessorIndex;
@@ -202,7 +203,7 @@ QVariantMap Qtr3dGlbLoader::accessorInfo(int index) const
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &textCoordInfo, const QImage &texture)
+void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture)
 {
     if (positionInfo.isEmpty() || faceInfo.isEmpty())
         return;
@@ -220,6 +221,12 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
             bufferView(faceInfo["bufferView"].toInt())
             );
 
+    QList<QVector3D> normVectors = loadVectors(
+                normalInfo["componentType"].toInt(),
+            normalInfo["count"].toInt(),
+            bufferView(normalInfo["bufferView"].toInt())
+            );
+
     QList<QPointF> textureCoords = loadTextureCoords(
                 textCoordInfo["componentType"].toInt(),
                 textCoordInfo["count"].toInt(),
@@ -233,7 +240,7 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
      auto *mesh = mFactory->createTexturedMesh();
      mesh->startMesh(Qtr3dGeometryBuffer::Triangle,"test");
      for (int vi=0; vi < points.count(); vi++)
-         mesh->addVertex(points[vi],textureCoords[vi].y(),textureCoords[vi].x());
+         mesh->addVertex(points[vi],textureCoords[vi].y(),textureCoords[vi].x(),normVectors[vi]);
      for (auto i: faceIndexes)
          mesh->addIndex(i);
 

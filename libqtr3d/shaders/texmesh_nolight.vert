@@ -21,5 +21,6 @@ void main() {
 
 	// Project and send to the fragment shader
         // gl_Position = projection * worldview * modelview * vertex; // vec4(vertex.x, vertex.y, vertex.z, 1.0);
-        gl_Position = vertex * modelview * projection;
+        // gl_Position = vertex * modelview * projection;
+        gl_Position = projection * modelview * vertex;
 }

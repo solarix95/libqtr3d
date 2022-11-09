@@ -14,6 +14,21 @@ namespace Qtr3d
         FlatLighting,
         PhongLighting
     };
+
+    struct Material {
+        QVector3D kAmbient;
+        QVector3D kDiffuse;
+        QVector3D kSpecular;
+        float     shininess;
+
+        Material(float a = 0.1, float d=0.5, float s= 0.3, float shine = 0)
+         : kAmbient(a,a,a)
+         , kDiffuse(d,d,d)
+         , kSpecular(s,s,s)
+         , shininess(shine)
+        {}
+        void setup(float ka, float kd, float ks, float s);
+    };
 }
 
 typedef GLfloat        Qtr3dScalar;

@@ -5,6 +5,7 @@
 #include <libqtr3d/qtr3dvertexmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
+#include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
 
 int main(int argc, char *argv[])
@@ -23,23 +24,28 @@ int main(int argc, char *argv[])
 
         // Sphere
         auto *sphere = w.createVertexMesh();
-        Qtr3dModelFactory::meshBySphere(*sphere,600,QImage(":/planet.jpg"));
-
+        Qtr3dModelFactory::meshBySphere(*sphere,60,QImage(":/planet.jpg"));
+        // sphere->setMeshType(Qtr3dGeometryBuffer::Dot);
+        sphere->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
         state = w.createBufferState(sphere);
-        state->setFlat(false);
+        state->setLightingType(Qtr3d::PhongLighting);
         state->setState({0,0,0},{-90,0,0},{1,1,1});
 
         // Sky
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,1000,Qt::white);
-        w.createBufferState(mesh)->setFlat(true);
+        w.createBufferState(mesh)->setLightingType(Qtr3d::NoLighting);
 
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
         w.createBufferState(mesh);
 
-        // new Qtr3dCameraCycler(w.camera(),30,0.3,{0.0f,(float)(1.5*sphere->radius()),0.0f},{0,0,0});
-        qDebug() << sphere->radius();
+        auto *debugMesh = w.createVertexMesh();
+        Qtr3dModelFactory::normalMeshByMesh(*debugMesh,*sphere,1);
+        // auto *debugState = w.createBufferState(debugMesh);
+        // debugState->setState({0,0,0},{0,0,0},{1,1,1});
+
+        w.primaryLightSource()->setPos({5,0,5});
         new Qtr3dCameraCycler(w.camera(),30,0.3,{0,0,3*sphere->radius()},{0,0,0});
     });
 

@@ -1,31 +1,34 @@
-#version 110
+#version 150
 // Simple vertex shader.
 // Transforms and projects vertices and calculates parameters for lighting.
 
 // Attributes: Position, normal, texture coordinates
 attribute vec4 vertex;
 attribute vec3 vnormal;
-attribute vec2 texcoords;
-
-// Only #version 330 core
-// layout(location = 0) in vec4 vertex;
-// layout(location = 1) in vec3 vnormal;
-// layout(location = 2) in vec2 texcoords;
+attribute vec2 vtexcoords;
 
 // Same for the whole model or scene: Projection and Modelview matrices
 uniform mat4 projection;
-uniform mat4 modelview;
-uniform mat4 worldview;
-uniform mat4 normalview;
+uniform mat4 modelview;  // = WorldMatrix * ModelView
+uniform vec3 lightpos;   // = WorldMatrix * LightPosition
 
 // Parameters passed to the fragment shader.
-varying vec2 texcoord;
+varying vec2 fragTexcoords;
+varying vec3 fragNormal;
+varying vec4 fragPos;
+varying vec3 fragLightPos;
 
 void main() {
+        // Lighting
+        fragLightPos = lightpos; // lightpos = modelviewLightpos
 
-	// Texture coordinates are passed through
-	texcoord = texcoords;
+        // "vnormal" is a vector.. we can only transform "points":
+        vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
+        vec4 turnNorm  = modelview * normPoint;
+        fragPos        = modelview * vertex;
+        fragNormal     = vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z );
 
-	// Project and send to the fragment shader
-        gl_Position = projection * worldview * modelview * vertex; // vec4(vertex.x, vertex.y, vertex.z, 1.0);
+        // Standard shader output
+        fragTexcoords = vtexcoords;
+        gl_Position   = projection * modelview * vertex;
 }

@@ -40,7 +40,7 @@ private:
     QByteArray  bufferView(int index) const;
     QVariantMap accessorInfo(int index) const;
 
-    void loadMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &textCoordInfo, const QImage &texture);
+    void loadMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
     QList<QVector3D> loadVectors(int componentType, int count, const QByteArray &buffer) const;
     QList<int>       loadFaceIndexes(int componentType, int count, const QByteArray &buffer) const;
     QList<QPointF>   loadTextureCoords(int componentType, int count, const QByteArray &buffer) const;

@@ -18,5 +18,5 @@ void main() {
         color = vcolor;
 
 	// Project and send to the fragment shader
-        gl_Position = vertex * modelview * projection;
+        gl_Position = projection * modelview * vertex;
 }

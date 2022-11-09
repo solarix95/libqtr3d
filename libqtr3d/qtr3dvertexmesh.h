@@ -12,6 +12,7 @@ public:
     Qtr3dVertexMesh(Type meshType = Unknown);
     virtual ~Qtr3dVertexMesh();
 
+    void              setMeshType(Type t);
     Type              meshType() const;
 
     void reset();

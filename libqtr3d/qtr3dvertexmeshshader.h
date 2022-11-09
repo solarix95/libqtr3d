@@ -12,12 +12,12 @@ public:
     void registerBuffer(Qtr3dVertexMesh &buffer);
 
 protected:
-    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
     virtual void onProgramChange();
 
     void drawBuffer_NoLight(const Qtr3dVertexMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-    void drawBuffer_FlatLight(const Qtr3dVertexMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-    void drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_FlatLight(const Qtr3dVertexMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
+    void drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
 
 private:
 
@@ -26,7 +26,7 @@ private:
     // Shader globals
     int mProjectionMatrix;
     int mModelviewMatrix; // world * model
-    int mWorldviewMatrix; // world * model
+    // int mWorldviewMatrix; // world * model
     int mNormalviewMatrix;
 
     // Shader Attributes

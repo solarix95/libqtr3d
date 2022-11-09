@@ -13,6 +13,7 @@ class Qtr3dGeometryBufferState;
 class Qtr3dTextureFactory;
 class Qtr3dCamera;
 class Qtr3dModel;
+class Qtr3dLightSource;
 class Qtr3dGeometryBufferFactory;
 
 //-------------------------------------------------------------------------------------------------
@@ -31,9 +32,10 @@ public:
     Qtr3dWidget(Options ops = NoOption, QWidget *parent = NULL);
     Qtr3dWidget(QWidget *parent);
 
-    Qtr3dCamera         *camera();
-    Qtr3dTextureFactory *textures();
+    Qtr3dCamera                *camera();
+    Qtr3dTextureFactory        *textures();
     Qtr3dGeometryBufferFactory *factory();
+    Qtr3dLightSource           *primaryLightSource();
 
     // Factories
 
@@ -64,6 +66,7 @@ private:
     Qtr3dCamera             *mCamera;
     Qtr3dTextureFactory     *mTextures;
     Qtr3dGeometryBufferFactory *mFactory;
+    Qtr3dLightSource        *mLightSource;
 
     Qtr3dVertexMeshShader   *mVertexMeshShader;
     Qtr3dTexturedMeshShader *mTexturedMeshShader;

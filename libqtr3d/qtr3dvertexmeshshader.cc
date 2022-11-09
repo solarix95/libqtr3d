@@ -17,7 +17,7 @@ void Qtr3dVertexMeshShader::registerBuffer(Qtr3dVertexMesh &buffer)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
     for(auto *mesh: mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
@@ -32,10 +32,10 @@ void Qtr3dVertexMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, con
                 drawBuffer_NoLight(*mesh, *state, perspectiveMatrix, worldMatrix);
                 break;
             case Qtr3d::FlatLighting:
-                drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
                 break;
             case Qtr3d::PhongLighting:
-                drawBuffer_PhongLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                drawBuffer_PhongLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
                 break;
             default:break;
             }
@@ -53,7 +53,6 @@ void Qtr3dVertexMeshShader::onProgramChange()
 
     mProjectionMatrix = currentProgram()->uniformLocation("projection" );
     mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
-    mWorldviewMatrix  = currentProgram()->uniformLocation("worldview" );
     mNormalviewMatrix = currentProgram()->uniformLocation("normalview" );
 
     mLightPos         = currentProgram()->uniformLocation("lightpos" );
@@ -65,29 +64,41 @@ void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dVertexMesh &mesh, cons
     // Normal view matrix - inverse transpose of modelview.
     QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
 
-    currentProgram()->setUniformValue(mWorldviewMatrix,worldMatrix.transposed());
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
-    // Normal view matrix - inverse transpose of modelview.
     QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-    QVector3D lightPos = QVector3D(0,5,0) * modelWorldMatrix;
+    QVector3D lightPos = worldMatrix * light->pos();
 
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mLightPos,lightPos);
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
+    // Normal view matrix - inverse transpose of modelview.
+    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
+    QVector3D lightPos = worldMatrix  * light->pos();
+
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mLightPos,lightPos);
+
+    QMatrix4x4 normalView       = modelWorldMatrix.inverted();
+    currentProgram()->setUniformValue(mNormalviewMatrix,normalView);
+
+    drawMesh(mesh);
+
+
 #if 0
     // Get locations of attributes and uniforms used inside.
     mVertexPosition   = mShaderProgramLight->attributeLocation("vertex" );

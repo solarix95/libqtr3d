@@ -3,10 +3,10 @@
 // Does texturing and phong shading.
 
 // Parameters from the vertex shader
-varying vec3 color;
-varying vec3 normal;
-varying vec4 fragpos;
-varying vec3 lightPos;
+varying vec3 fragColor;
+varying vec3 fragNormal;
+varying vec4 fragPos;
+varying vec3 fragLightPos;
 
 void main() {
         // easy ambient color calculation
@@ -15,12 +15,11 @@ void main() {
         vec3  ambient = ambientStrength * ambientColor;
 
         // diffuse color
+        vec3  norm     = normalize(fragNormal);
+        vec3  lightDir = normalize(fragLightPos - fragPos.xyz);
+        float diff     = max(dot(norm, lightDir), 0.0);
+        vec3  diffuse  = diff * ambientColor;
 
-        vec3 norm     = normalize(normal);
-        vec3 lightDir = normalize(lightPos - vec3(fragpos.x, fragpos.y, fragpos.z));
-        float diff    = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * ambientColor;
-
-        vec3 result = (ambient + diffuse) * color;
-        gl_FragColor.rgb = vec3( result.x, result.y, result.z );   // = color; // vec3( 0.3, 0.9, 0.9 );
+        // Final output
+        gl_FragColor.rgb = (ambient + diffuse) * fragColor;
 }

@@ -18,6 +18,11 @@ Qtr3dVertexMesh::~Qtr3dVertexMesh()
     reset();
 }
 
+void Qtr3dVertexMesh::setMeshType(Type t)
+{
+    mMeshType = t;
+}
+
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::reset()
 {

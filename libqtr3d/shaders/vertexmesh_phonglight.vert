@@ -9,32 +9,29 @@ attribute vec3 vcolor;
 
 // Same for the whole model or scene: Projection and Modelview matrices
 uniform mat4 projection;
-uniform mat4 worldview;
 uniform mat4 modelview;
 uniform mat4 normalview;
-uniform vec3 lightPos;
+uniform vec3 lightpos;   // = LightPosition * modelview
 
 // Parameters passed to the fragment shader.
-varying vec3 color;
-varying vec3 eye;
-varying vec3 light;
-varying vec3 normal;
+varying vec3 fragColor;
+varying vec3 fragNormal;
+varying vec4 fragPos;
+varying vec3 fragLightPos;
 
 void main() {
-        // vec3 relLightPos = (vec4( -1000.0, 0.0, 0.0, 1.0 ) * modelview).xyz;
-        vec3 relLightPos = lightPos; // (vec4( lightPos.x, lightPos.y, lightPos.z, 1.0 ) * worldview).xyz;
-
-        // Texture coordinates are passed through
-        color = vcolor;
-
 	// Transform the vertex according to modelview
-        vec4 viewVertex = vertex * modelview;
+        fragPos        = modelview * vertex;
+        fragLightPos   = lightpos;
 
-	// Calculate lighting parameters for the fragment shader
-        eye    = normalize( viewVertex.xyz );
-        light  = normalize( relLightPos - viewVertex.xyz );
-        normal = normalize(vec3(vnormal.x,vnormal.y,vnormal.z));// normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
-	
+        // fragNormal   = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
+        vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
+        vec4 turnNorm  = modelview * normPoint;
+        fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
+
+        // fragNormal   = (modelview * vec4(vnormal.x,vnormal.y,vnormal.z,1)).xyz;
+
 	// Project and send to the fragment shader
-        gl_Position = projection * viewVertex;
+        fragColor   = vcolor;
+        gl_Position = projection * modelview * vertex;
 }

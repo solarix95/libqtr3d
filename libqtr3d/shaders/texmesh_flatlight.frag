@@ -1,25 +1,29 @@
-#version 130
-out vec4 FragColor;
-
+#version 110
 // Simple fragment shader.
 // Does texturing and phong shading.
 
 // Parameters from the vertex shader
-varying vec2 texcoord;
+varying vec2 fragTexcoords;
+varying vec3 fragNormal;
+varying vec4 fragPos;
+varying vec3 fragLightPos;
 
 // Textures
 uniform sampler2D texture;
 
 void main() {
+        // easy ambient color calculation
+        vec3  ambientColor = vec3(1,0.6,0);
+        float ambientStrength = 0.3;
+        vec3  ambient = ambientStrength * ambientColor;
+        vec4  materialColor = texture2D( texture, fragTexcoords );
 
-    // vec3 materialColor = texture2D( texture, texcoord ).rgb;
-    // gl_FragColor.rgb = materialColor;
+        // diffuse color
+        vec3  norm     = normalize(fragNormal);
+        vec3  lightDir = normalize(fragLightPos - fragPos.xyz);
+        float diff     = max(dot(norm, lightDir), 0.0);
+        vec3  diffuse  = diff * ambientColor;
 
-    vec4 materialColor = texture2D( texture, texcoord );
-
-    // Alpha-Transparency
-    if(materialColor.a < 0.1)
-            discard;
-
-    FragColor = materialColor;
+        // Final output
+        gl_FragColor.rgb = (ambient + diffuse) * materialColor.xyz;
 }

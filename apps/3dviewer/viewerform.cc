@@ -80,7 +80,7 @@ void ViewerForm::updateLight()
 {
     if (!mModelState)
         return;
-    mModelState->setFlat(ui->btnLightOff->isChecked());
+    mModelState->setLightingType(Qtr3d::FlatLighting);//  setFlat(ui->btnLightOff->isChecked());
     update();
 }
 

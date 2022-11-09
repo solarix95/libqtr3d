@@ -26,10 +26,10 @@ Qtr3dShader::Qtr3dShader(const QString &eglFile)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dShader::render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
     setProgram(Qtr3d::DefaultLighting);
-    drawBuffers(perspectiveMatrix,worldMatrix);
+    drawBuffers(perspectiveMatrix,worldMatrix, light);
 }
 
 // Simple helper to make a single buffer object.

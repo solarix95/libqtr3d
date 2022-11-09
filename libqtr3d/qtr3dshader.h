@@ -9,6 +9,7 @@
 #include <QMap>
 
 #include "qtr3dtypes.h"
+#include "qtr3dlightsource.h"
 
 //-------------------------------------------------------------------------------------------------
 class Qtr3dShader : public QObject
@@ -16,14 +17,14 @@ class Qtr3dShader : public QObject
 public:
     Qtr3dShader(const QString &eglFile);
 
-    void render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
 
     // static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER);
     static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER, int accessFlags = GL_STATIC_DRAW);
 
 protected:
     // static inline void matrixAsUniform(QOpenGLFunctions *f, GLuint location, QMatrix4x4 m) { f->glUniformMatrix4fv(location,1,GL_TRUE,m.data()); }
-    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix) = 0;
+    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light) = 0;
     virtual void onProgramChange();
 
     void setProgram(Qtr3d::LightingType lightType);

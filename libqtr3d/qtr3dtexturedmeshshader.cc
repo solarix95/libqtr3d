@@ -14,7 +14,7 @@ void Qtr3dTexturedMeshShader::registerBuffer(Qtr3dTexturedMesh &buffer)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
     for(auto *mesh: mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
@@ -29,10 +29,10 @@ void Qtr3dTexturedMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, c
                 drawBuffer_NoLight(*mesh, *state, perspectiveMatrix, worldMatrix);
                 break;
             case Qtr3d::FlatLighting:
-                drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
                 break;
             case Qtr3d::PhongLighting:
-                drawBuffer_PhongLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                drawBuffer_PhongLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
                 break;
             default:break;
             }
@@ -45,12 +45,11 @@ void Qtr3dTexturedMeshShader::onProgramChange()
 {
     mVertexPosition   = currentProgram()->attributeLocation("vertex" );
     mVertexNormal     = currentProgram()->attributeLocation("vnormal" );
-    mVertexTexcoords  = currentProgram()->attributeLocation("texcoords" );
+    mVertexTexcoords  = currentProgram()->attributeLocation("vtexcoords" );
 
     mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
-    mNormalviewMatrix = currentProgram()->uniformLocation("normalview" );
     mProjectionMatrix = currentProgram()->uniformLocation("projection" );
-    mWorldMatrix      = currentProgram()->uniformLocation("worldview" );
+    mLightPos         = currentProgram()->uniformLocation("lightpos" );
 
     mDefaultTexture   = currentProgram()->uniformLocation("texture" );
 }
@@ -60,90 +59,27 @@ void Qtr3dTexturedMeshShader::drawBuffer_NoLight(const Qtr3dTexturedMesh &mesh, 
 {
     QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
 
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
+    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
+    QVector3D lightPos = worldMatrix * light->pos();
 
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mLightPos,lightPos);
+    drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
-
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawFlatBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
-{
-#if 0
-
-
-    // Get locations of attributes and uniforms used inside.
-    mVertexPosition   = mShaderProgramFlat->attributeLocation("vertex" );
-    mVertexNormal     = mShaderProgramFlat->attributeLocation("vnormal" );
-    mVertexTexcoords  = mShaderProgramFlat->attributeLocation("texcoords" );
-
-    mModelviewMatrix  = mShaderProgramFlat->uniformLocation("modelview" );
-    mNormalviewMatrix = mShaderProgramFlat->uniformLocation("normalview" );
-    mProjectionMatrix = mShaderProgramFlat->uniformLocation("projection" );
-    mWorldMatrix      = mShaderProgramFlat->uniformLocation("worldview" );
-
-    mDefaultTexture   = mShaderProgramFlat->uniformLocation("texture" );
-
-    mShaderProgramFlat->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    mShaderProgramFlat->setUniformValue(mWorldMatrix,worldMatrix);
-
-    foreach(Qtr3dTexturedMesh *quad, mGeometryBuffers) {
-        const Qtr3dGeometryBufferStates &states = quad->bufferStates();
-        foreach(Qtr3dGeometryBufferState *state, states) {
-            if (!state->isFlat())
-                continue;
-            QMatrix4x4 normalView = state->modelView().inverted().transposed();
-            mShaderProgramFlat->setUniformValue(mModelviewMatrix,state->modelView());
-            mShaderProgramFlat->setUniformValue(mNormalviewMatrix,normalView);
-            drawMesh(*quad,state->modelView());
-        }
-    }
-#endif
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawLightBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
-{
-#if 0
-    // Get locations of attributes and uniforms used inside.
-    mVertexPosition   = mShaderProgramLight->attributeLocation("vertex" );
-    mVertexNormal     = mShaderProgramLight->attributeLocation("vnormal" );
-    mVertexTexcoords  = mShaderProgramLight->attributeLocation("texcoords" );
-
-    mModelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
-    mNormalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
-    mProjectionMatrix = mShaderProgramLight->uniformLocation("projection" );
-    mWorldMatrix      = mShaderProgramLight->uniformLocation("worldview" );
-
-    mDefaultTexture   = mShaderProgramLight->uniformLocation("texture" );
-
-    mShaderProgramLight->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    mShaderProgramLight->setUniformValue(mWorldMatrix,worldMatrix);
-
-    foreach(Qtr3dTexturedMesh *quad, mGeometryBuffers) {
-        const Qtr3dGeometryBufferStates &states = quad->bufferStates();
-        foreach(Qtr3dGeometryBufferState *state, states) {
-            if (state->isFlat())
-                continue;
-            QMatrix4x4 normalView = state->modelView().inverted().transposed();
-            mShaderProgramLight->setUniformValue(mModelviewMatrix,state->modelView());
-            mShaderProgramLight->setUniformValue(mNormalviewMatrix,normalView);
-            drawMesh(*quad,worldMatrix*state->modelView());
-        }
-    }
-#endif
 }
 
 //-------------------------------------------------------------------------------------------------

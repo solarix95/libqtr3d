@@ -26,6 +26,7 @@ public:
         CounterClockWise
     };
 
+
     Qtr3dGeometryBuffer();
     virtual ~Qtr3dGeometryBuffer();
 
