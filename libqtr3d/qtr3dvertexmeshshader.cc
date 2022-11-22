@@ -22,6 +22,8 @@ void Qtr3dVertexMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, con
     for(auto *mesh: mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
         for(auto *state: states) {
+            if (!state->enabled())
+                continue;
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = Qtr3d::NoLighting;
@@ -29,7 +31,7 @@ void Qtr3dVertexMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, con
             setProgram(nextLightingTyp);
             switch(nextLightingTyp) {
             case Qtr3d::NoLighting:
-                drawBuffer_NoLight(*mesh, *state, perspectiveMatrix, worldMatrix);
+                drawBuffer_NoLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
                 break;
             case Qtr3d::FlatLighting:
                 drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
@@ -56,10 +58,13 @@ void Qtr3dVertexMeshShader::onProgramChange()
     mNormalviewMatrix = currentProgram()->uniformLocation("normalview" );
 
     mLightPos         = currentProgram()->uniformLocation("lightpos" );
+    mLightColor       = currentProgram()->uniformLocation("lightcolor" );
+    mLightAmbient     = currentProgram()->uniformLocation("lightambientk" );
+    mLightDiffuse     = currentProgram()->uniformLocation("lightdiffusek" );
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
     // Normal view matrix - inverse transpose of modelview.
     QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
@@ -78,7 +83,10 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, co
 
     currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+
     currentProgram()->setUniformValue(mLightPos,lightPos);
+    currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
+    currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
     drawMesh(mesh);
 }
 
@@ -91,10 +99,13 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
 
     currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mLightPos,lightPos);
 
     QMatrix4x4 normalView       = modelWorldMatrix.inverted();
     currentProgram()->setUniformValue(mNormalviewMatrix,normalView);
+
+    currentProgram()->setUniformValue(mLightPos,lightPos);
+    currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
+    currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
 
     drawMesh(mesh);
 

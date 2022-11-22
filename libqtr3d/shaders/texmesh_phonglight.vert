@@ -5,38 +5,39 @@
 // Attributes: Position, normal, texture coordinates
 attribute vec4 vertex;
 attribute vec3 vnormal;
-attribute vec2 texcoords;
+attribute vec2 vtexcoords;
 
 // Same for the whole model or scene: Projection and Modelview matrices
 uniform mat4 projection;
 uniform mat4 modelview;
-uniform mat4 normalview;
-uniform mat4 worldview;
-uniform vec3 lightPos;
+// uniform mat4 normalview;
+uniform vec3 lightpos;   // = LightPosition * modelview
+uniform vec3 lightambientk;
+uniform vec3 lightdiffusek;
 
 // Parameters passed to the fragment shader.
-varying vec2 texcoord;
-varying vec3 eye;
-varying vec3 light;
-varying vec3 normal;
+varying vec2 fragTexcoord;
+varying vec3 fragNormal;
+varying vec4 fragPos;
+varying vec3 fragLightPos;
+varying vec3 fragLightAmbientk;
+varying vec3 fragLightDiffusek;
 
 void main() {
-        // vec3 lightPos = vec3( 10.0, 10.0, 0.0);
-        vec3 relLightPos = (vec4( lightPos.x, lightPos.y, lightPos.z, 1.0 ) * worldview).xyz;
-        // vec3 lightPos = (vec4( -1000.0, 1000.0, 0.0, 1.0 ) * modelview).xyz;
+        // Transform the vertex according to modelview
+        fragPos           = modelview * vertex;
+        fragLightPos      = lightpos;
+        fragLightAmbientk = lightambientk;
+        fragLightDiffusek = lightdiffusek;
 
-	// Texture coordinates are passed through
-	texcoord = texcoords;
+        // fragNormal   = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
+        vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
+        vec4 turnNorm  = modelview * normPoint;
+        fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
 
-	// Transform the vertex according to modelview
-	vec4 viewVertex;	
-        viewVertex = vertex * modelview;
+        // fragNormal   = (modelview * vec4(vnormal.x,vnormal.y,vnormal.z,1)).xyz;
 
-	// Calculate lighting parameters for the fragment shader
-        eye    = normalize( viewVertex.xyz );
-        light  = normalize( relLightPos - viewVertex.xyz );
-	normal = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
-	
-	// Project and send to the fragment shader
-        gl_Position = viewVertex * projection;
+        // Project and send to the fragment shader
+        fragTexcoord = vtexcoords;
+        gl_Position  = projection * modelview * vertex;
 }

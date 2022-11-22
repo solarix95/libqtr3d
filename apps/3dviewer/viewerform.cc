@@ -72,7 +72,7 @@ void ViewerForm::updateVertexOrientation()
     if (!mModel)
         return;
     mModel->setFaceOrientation(ui->btnCCW->isChecked() ? Qtr3dGeometryBuffer::CounterClockWise : Qtr3dGeometryBuffer::ClockWise);
-    update();
+    ui->viewer->update();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void ViewerForm::updateLight()
     if (!mModelState)
         return;
     mModelState->setLightingType(Qtr3d::FlatLighting);//  setFlat(ui->btnLightOff->isChecked());
-    update();
+    ui->viewer->update();
 }
 
 //-------------------------------------------------------------------------------------------------

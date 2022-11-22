@@ -11,16 +11,22 @@ attribute vec2 vtexcoords;
 uniform mat4 projection;
 uniform mat4 modelview;  // = WorldMatrix * ModelView
 uniform vec3 lightpos;   // = WorldMatrix * LightPosition
+uniform vec3 lightambientk;
+uniform vec3 lightdiffusek;
 
 // Parameters passed to the fragment shader.
 varying vec2 fragTexcoords;
 varying vec3 fragNormal;
 varying vec4 fragPos;
 varying vec3 fragLightPos;
+varying vec3 fragLightAmbientk;
+varying vec3 fragLightDiffusek;
 
 void main() {
         // Lighting
-        fragLightPos = lightpos; // lightpos = modelviewLightpos
+        fragLightPos      = lightpos; // lightpos = modelviewLightpos
+        fragLightAmbientk = lightambientk;
+        fragLightDiffusek = lightdiffusek;
 
         // "vnormal" is a vector.. we can only transform "points":
         vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);

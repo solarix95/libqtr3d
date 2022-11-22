@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
         buffer->endMesh();
 
-        w.createBufferState(buffer);
+        w.createBufferState(buffer)->setLightingType(Qtr3d::NoLighting);
 
         // lets show 2 more instances of the same shape:
         w.createBufferState(buffer)->move({-3,0,0});

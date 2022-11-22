@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pebbles_texture.jpg</file>
+    </qresource>
+</RCC>

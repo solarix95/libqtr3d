@@ -12,17 +12,23 @@ uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat4 normalview;
 uniform vec3 lightpos;   // = LightPosition * modelview
+uniform vec3 lightambientk;
+uniform vec3 lightdiffusek;
 
 // Parameters passed to the fragment shader.
 varying vec3 fragColor;
 varying vec3 fragNormal;
 varying vec4 fragPos;
 varying vec3 fragLightPos;
+varying vec3 fragLightAmbientk;
+varying vec3 fragLightDiffusek;
 
 void main() {
 	// Transform the vertex according to modelview
-        fragPos        = modelview * vertex;
-        fragLightPos   = lightpos;
+        fragPos           = modelview * vertex;
+        fragLightPos      = lightpos;
+        fragLightAmbientk = lightambientk;
+        fragLightDiffusek = lightdiffusek;
 
         // fragNormal   = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
         vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);

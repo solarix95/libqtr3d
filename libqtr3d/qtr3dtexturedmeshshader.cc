@@ -19,6 +19,8 @@ void Qtr3dTexturedMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, c
     for(auto *mesh: mGeometryBuffers) {
         const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
         for(auto *state: states) {
+            if (!state->enabled())
+                continue;
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = Qtr3d::NoLighting;
@@ -50,6 +52,8 @@ void Qtr3dTexturedMeshShader::onProgramChange()
     mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
     mProjectionMatrix = currentProgram()->uniformLocation("projection" );
     mLightPos         = currentProgram()->uniformLocation("lightpos" );
+    mLightAmbient     = currentProgram()->uniformLocation("lightambientk" );
+    mLightDiffuse     = currentProgram()->uniformLocation("lightdiffusek" );
 
     mDefaultTexture   = currentProgram()->uniformLocation("texture" );
 }
@@ -74,12 +78,23 @@ void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh
     currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mLightPos,lightPos);
+    currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
+    currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
+    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
+    QVector3D lightPos = worldMatrix * light->pos();
+
+    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mLightPos,lightPos);
+    currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
+    currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
+    drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -2,7 +2,8 @@
 
 //------------------------------------------------------------------------------------------------
 Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3d::LightingType ltype)
- : mLightingType(ltype)
+ : mEnabled(true)
+ , mLightingType(ltype)
  , mParent(nullptr)
 {
     setState({0,0,0},{0,0,0},{1,1,1});
@@ -10,7 +11,8 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3d::LightingType ltype)
 
 //------------------------------------------------------------------------------------------------
 Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(const QVector3D &pos, const QVector3D &rotation)
- : mLightingType(Qtr3d::DefaultLighting)
+ : mEnabled(true),
+   mLightingType(Qtr3d::DefaultLighting)
  , mParent(nullptr)
 {
     setState(pos,rotation,{1,1,1});
@@ -35,6 +37,19 @@ Qtr3d::LightingType Qtr3dGeometryBufferState::lightingType() const
 }
 
 //------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBufferState::setEnabled(bool enabled)
+{
+    mEnabled = enabled;
+}
+
+//------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBufferState::setPos(const QVector3D &pos)
+{
+    mPos = pos;
+    updateMatrix();
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBufferState::move(const QVector3D &pos)
 {
     mPos = pos;
@@ -54,6 +69,13 @@ void Qtr3dGeometryBufferState::setState(const QVector3D &pos, const QVector3D &r
 {
     mPos = pos;
     mRot = rotation;
+    mScale = scale;
+    updateMatrix();
+}
+
+//------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBufferState::setScale(const QVector3D &scale)
+{
     mScale = scale;
     updateMatrix();
 }

@@ -15,7 +15,7 @@ protected:
     virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
     virtual void onProgramChange();
 
-    void drawBuffer_NoLight(const Qtr3dVertexMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    void drawBuffer_NoLight(const Qtr3dVertexMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *ligh);
     void drawBuffer_FlatLight(const Qtr3dVertexMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
     void drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
 
@@ -23,17 +23,23 @@ private:
 
     void drawMesh(const Qtr3dVertexMesh &buffer);
 
-    // Shader globals
+    // Shader global matrices
     int mProjectionMatrix;
     int mModelviewMatrix; // world * model
-    // int mWorldviewMatrix; // world * model
     int mNormalviewMatrix;
+
+    // Shader global light
+    int mLightPos;
+    int mLightColor;
+    int mLightAmbient;
+    int mLightDiffuse;
 
     // Shader Attributes
     int mVertexPosition;
     int mVertexNormal;
     int mVertexColor;
-    int mLightPos;
+
+
 
     Qtr3dVertexMeshes     mGeometryBuffers;
 };

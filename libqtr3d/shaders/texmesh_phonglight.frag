@@ -3,48 +3,46 @@
 // Does texturing and phong shading.
 
 // Parameters from the vertex shader
-varying vec2 texcoord;
-varying vec3 eye;
-varying vec3 light;
-varying vec3 normal;
+varying vec2 fragTexcoord;
+varying vec3 fragNormal;
+varying vec4 fragPos;
+varying vec3 fragLightPos;
+varying vec3 fragLightAmbientk;
+varying vec3 fragLightDiffusek;
 
 // Textures
 uniform sampler2D texture;
 
 void main() {
-    // vec3 lightAmbient = vec3( 0.2, 0.2, 0.2 );
-    // vec3 lightDiffuse = vec3( 0.5, 0.5, 0.5 );
-    // vec3 lightSpecular = vec3( 0.3, 0.3, 0.3 );
+        vec3 lightSpecular = vec3( 0.3, 0.3, 0.3 );
 
-    vec3 lightAmbient = vec3( 0.1, 0.1, 0.1 );
-    vec3 lightDiffuse = vec3( 0.7, 0.7, 0.7 );
-    vec3 lightSpecular = vec3( 0.3, 0.3, 0.3 );
+        vec3 materialSpecular = vec3( 1.0, 1.0, 1.0 );
+        float materialShinyness = 5.0;
+        // vec3 materialSpecular = vec3( 0.0, 0.0, 0.0 );
+        // float materialShinyness = 0.0;
 
-    vec3 materialColor = texture2D( texture, texcoord ).rgb;
-    vec3 materialSpecular = vec3( 1.0, 1.0, 1.0 );
-    float materialShinyness = 7.0;
+        // Ambient lighting
+        vec3  materialColor = texture2D( texture, fragTexcoord ).rgb;
+        vec3  color    = fragLightAmbientk * materialColor;
+        vec3  lightDir = normalize(fragLightPos - fragPos.xyz);
 
-    // Ambient lighting
-    vec3 color = lightAmbient * materialColor;
+        // Cosine of angle between normal and vector light-vertex
+        float lambertTerm = dot( fragNormal, lightDir );
 
-    // Cosine of angle between normal and vector light-vertex
-    float lambertTerm = dot( normal, light );
+        // Avoid darkening parts and drawing specular highlights wrong
+        if( lambertTerm > 0.0 ) {
 
-    // Avoid darkening parts and drawing specular highlights wrong
-    if( lambertTerm > 0.0 ) {
+                // Diffuse lighting
+                color += fragLightDiffusek * materialColor * lambertTerm;
 
-        // Diffuse lighting
-        color += lightDiffuse * materialColor * lambertTerm;
+                // Specular highlights
+                vec3 specDir = normalize( reflect( lightDir, -fragNormal ) );
+                float specular =
+                        pow( max( 0.0, dot(specDir, normalize(fragPos.xyz)) ), materialShinyness );
+                color += lightSpecular *
+                        materialSpecular *
+                        specular;
+        }; // else { color = vec3(1,0,0); }
 
-        // Specular highlights
-        vec3 specDir = normalize( reflect( light, -normal ) );
-        float specular =
-                pow( max( 0.0, dot(specDir, eye) ), materialShinyness );
-        color += lightSpecular *
-                materialSpecular *
-                specular;
-    }
-
-
-    gl_FragColor.rgb = color;
+        gl_FragColor.rgb = color;
 }

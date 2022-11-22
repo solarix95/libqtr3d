@@ -6,6 +6,7 @@
 #include <libqtr3d/qtr3dvertexmesh.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
+#include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dcamera.h>
 
 int main(int argc, char *argv[])
@@ -71,9 +72,9 @@ int main(int argc, char *argv[])
         auto *state2 = w.createBufferState(mesh2);
         state2->setLightingType(Qtr3d::NoLighting);
 
-        w.camera()->lookAt({0,0,-12},{0,0,0},{0,1,0});
+        w.primaryLightSource()->setPos({0,5,0});
+        w.camera()->lookAt({5,5,-12},{0,0,0},{0,1,0});
         new Qtr3dFreeCameraController(&w);
-        // new Qtr3dCameraCycler(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});
     });
 
     w.show();

@@ -7,11 +7,10 @@ varying vec3 fragColor;
 varying vec3 fragNormal;
 varying vec4 fragPos;
 varying vec3 fragLightPos;
+varying vec3 fragLightAmbientk;
+varying vec3 fragLightDiffusek;
 
 void main() {
-
-        vec3 lightAmbient = vec3( 0.1, 0.1, 0.1 );
-        vec3 lightDiffuse = vec3( 0.5, 0.5, 0.5 );
 
         vec3 lightSpecular = vec3( 0.3, 0.3, 0.3 );
 
@@ -21,7 +20,7 @@ void main() {
         // float materialShinyness = 0.0;
 
 	// Ambient lighting
-        vec3  color    = lightAmbient * fragColor;
+        vec3  color    = fragLightAmbientk * fragColor;
         vec3  lightDir = normalize(fragLightPos - fragPos.xyz);
 
 	// Cosine of angle between normal and vector light-vertex
@@ -31,7 +30,7 @@ void main() {
 	if( lambertTerm > 0.0 ) {
 
 		// Diffuse lighting
-                color += lightDiffuse * fragColor * lambertTerm;
+                color += fragLightDiffusek * fragColor * lambertTerm;
 
 		// Specular highlights
                 vec3 specDir = normalize( reflect( lightDir, -fragNormal ) );
@@ -40,7 +39,7 @@ void main() {
 		color += lightSpecular *
 			materialSpecular *
 			specular;
-        };// else { color = vec3(1,0,0); }
+        }; // else { color = vec3(1,0,0); }
 	
-        gl_FragColor.rgb =  color;
+        gl_FragColor.rgb = color;
 }

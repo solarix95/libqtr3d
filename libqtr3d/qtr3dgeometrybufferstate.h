@@ -19,19 +19,24 @@ public:
     void setParent(Qtr3dGeometryBufferState *state);
     void setLightingType(Qtr3d::LightingType ltype);
     Qtr3d::LightingType lightingType() const;
+    void setEnabled(bool enabled);
 
-    inline const QVector3D &pos() const { return mPos; }
-    inline const QVector3D &rot() const { return mRot; }
+    inline bool             enabled() const { return mEnabled; }
+    inline const QVector3D &pos() const     { return mPos; }
+    inline const QVector3D &rot() const     { return mRot; }
 
+    void setPos(const QVector3D &pos);
     void move(const QVector3D &pos);
     void move(const QVector3D &pos, const QVector3D &rotation);
     void setState(const QVector3D &pos, const QVector3D &rotation, const QVector3D &scale = {1,1,1});
+    void setScale(const QVector3D &scale);
 
     inline const QMatrix4x4 modelView() const { return mParent ? (mParent->modelView() * mModelView) : mModelView; }
 
 private:
     void updateMatrix();
 
+    bool        mEnabled;
     QMatrix4x4  mModelView;
     QVector3D   mPos;
     QVector3D   mRot;

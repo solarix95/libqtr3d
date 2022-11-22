@@ -31,6 +31,8 @@ private:
     int    mNormalviewMatrix;
     int    mProjectionMatrix;
     int    mLightPos;
+    int    mLightAmbient;
+    int    mLightDiffuse;
 
     int    mDefaultTexture;
 
