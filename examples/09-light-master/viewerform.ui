@@ -63,6 +63,9 @@
           <property name="singleStep">
            <double>0.050000000000000</double>
           </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
          </widget>
         </item>
         <item>
@@ -73,10 +76,23 @@
           <property name="singleStep">
            <double>0.050000000000000</double>
           </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="diffuseZ"/>
+         <widget class="QDoubleSpinBox" name="diffuseZ">
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.050000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -201,6 +217,9 @@
           <property name="singleStep">
            <double>0.050000000000000</double>
           </property>
+          <property name="value">
+           <double>0.200000000000000</double>
+          </property>
          </widget>
         </item>
         <item>
@@ -211,10 +230,23 @@
           <property name="singleStep">
            <double>0.050000000000000</double>
           </property>
+          <property name="value">
+           <double>0.200000000000000</double>
+          </property>
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="ambientZ"/>
+         <widget class="QDoubleSpinBox" name="ambientZ">
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.050000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.200000000000000</double>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -260,6 +292,9 @@
           <property name="singleStep">
            <double>0.050000000000000</double>
           </property>
+          <property name="value">
+           <double>0.300000000000000</double>
+          </property>
          </widget>
         </item>
         <item>
@@ -270,10 +305,23 @@
           <property name="singleStep">
            <double>0.050000000000000</double>
           </property>
+          <property name="value">
+           <double>0.300000000000000</double>
+          </property>
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="specularZ"/>
+         <widget class="QDoubleSpinBox" name="specularZ">
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.050000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.300000000000000</double>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

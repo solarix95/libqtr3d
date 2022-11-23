@@ -146,6 +146,14 @@ ViewerForm::ViewerForm(QWidget *parent)
         connect(ui->diffuseZ,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
                 this, &ViewerForm::updateLightAttrib);
 
+        connect(ui->specularX,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
+        connect(ui->specularY,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
+        connect(ui->specularZ,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
+
+
 
     });
 }
@@ -202,6 +210,7 @@ void ViewerForm::updateLightAttrib()
 {
     ui->viewer->primaryLightSource()->setAmbientStrength({float(ui->ambientX->value()), float(ui->ambientY->value()), float(ui->ambientZ->value())});
     ui->viewer->primaryLightSource()->setDiffuseStrength({float(ui->diffuseX->value()), float(ui->diffuseY->value()), float(ui->diffuseZ->value())});
+    ui->viewer->primaryLightSource()->setSpecularStrength({float(ui->specularX->value()), float(ui->specularY->value()), float(ui->specularZ->value())});
     ui->viewer->update();
 }
 

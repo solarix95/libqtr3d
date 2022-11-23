@@ -2,26 +2,27 @@
 // Simple fragment shader.
 // Does texturing and phong shading.
 
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
+uniform Material material;
+uniform vec3     lightpos;   // = WorldMatrix * LightPosition
+
 // Parameters from the vertex shader
 varying vec3 fragColor;
 varying vec3 fragNormal;
 varying vec4 fragPos;
-varying vec3 fragLightPos;
-varying vec3 fragLightAmbientk;
-varying vec3 fragLightDiffusek;
+varying vec3 fragLightColor;
 
 void main() {
 
-        vec3 lightSpecular = vec3( 0.3, 0.3, 0.3 );
-
-        vec3 materialSpecular = vec3( 1.0, 1.0, 1.0 );
-        float materialShinyness = 5.0;
-        // vec3 materialSpecular = vec3( 0.0, 0.0, 0.0 );
-        // float materialShinyness = 0.0;
-
 	// Ambient lighting
-        vec3  color    = fragLightAmbientk * fragColor;
-        vec3  lightDir = normalize(fragLightPos - fragPos.xyz);
+        vec3  color    = material.ambient * fragColor;
+        vec3  lightDir = normalize(lightpos - fragPos.xyz);
 
 	// Cosine of angle between normal and vector light-vertex
         float lambertTerm = dot( fragNormal, lightDir );
@@ -30,15 +31,12 @@ void main() {
 	if( lambertTerm > 0.0 ) {
 
 		// Diffuse lighting
-                color += fragLightDiffusek * fragColor * lambertTerm;
+                color += material.diffuse * fragColor * lambertTerm;
 
 		// Specular highlights
-                vec3 specDir = normalize( reflect( lightDir, -fragNormal ) );
-		float specular =
-                        pow( max( 0.0, dot(specDir, normalize(fragPos.xyz)) ), materialShinyness );
-		color += lightSpecular *
-			materialSpecular *
-			specular;
+                vec3  specDir   = normalize( reflect( lightDir, -fragNormal ) );
+                float specular  = pow( max( 0.0, dot(specDir, normalize(fragPos.xyz)) ), material.shininess );
+                color += material.specular * specular;
         }; // else { color = vec3(1,0,0); }
 	
         gl_FragColor.rgb = color;

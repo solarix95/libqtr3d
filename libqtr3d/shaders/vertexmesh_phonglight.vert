@@ -11,7 +11,7 @@ attribute vec3 vcolor;
 uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat4 normalview;
-uniform vec3 lightpos;   // = LightPosition * modelview
+uniform vec3 lightpos;     // = LightPosition * modelview
 uniform vec3 lightambientk;
 uniform vec3 lightdiffusek;
 

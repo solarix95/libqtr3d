@@ -15,16 +15,15 @@ uniform sampler2D texture;
 
 void main() {
         // easy ambient color calculation
-        vec3  ambientColor = vec3(1,0.6,0);
-        vec3  ambient = fragLightAmbientk * ambientColor;
         vec4  materialColor = texture2D( texture, fragTexcoords );
+        vec3  ambient = fragLightAmbientk * materialColor.xyz;
 
         // diffuse color
         vec3  norm     = normalize(fragNormal);
         vec3  lightDir = normalize(fragLightPos - fragPos.xyz);
         float diff     = max(dot(norm, lightDir), 0.0);
-        vec3  diffuse  = diff * fragLightDiffusek * ambientColor;
+        vec3  diffuse  = diff * fragLightDiffusek * materialColor.xyz;
 
         // Final output
-        gl_FragColor.rgb = (ambient + diffuse) * materialColor.xyz;
+        gl_FragColor.rgb = (ambient + diffuse);
 }

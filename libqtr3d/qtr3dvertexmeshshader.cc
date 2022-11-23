@@ -85,8 +85,9 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, co
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     currentProgram()->setUniformValue(mLightPos,lightPos);
-    currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
-    currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
+
+    currentProgram()->setUniformValue("material.ambient",light->strengthAmbient());
+    currentProgram()->setUniformValue("material.diffuse",light->strengthDiffuse());
     drawMesh(mesh);
 }
 
@@ -106,6 +107,11 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
     currentProgram()->setUniformValue(mLightPos,lightPos);
     currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
     currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
+
+    currentProgram()->setUniformValue("material.ambient", light->strengthAmbient());
+    currentProgram()->setUniformValue("material.diffuse", light->strengthDiffuse());
+    currentProgram()->setUniformValue("material.specular",light->strengthSpecular());
+    currentProgram()->setUniformValue("material.shininess",5.0f);
 
     drawMesh(mesh);
 
