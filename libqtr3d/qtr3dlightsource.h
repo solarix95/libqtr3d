@@ -18,6 +18,7 @@ public:
 
     void      setColor(QColor c);
     QColor    color() const;
+    QVector3D ambientColor() const;
 
     // 7x the same... just for easy use :)
     void      setStrength(float ambient, float diffuse, float specular);

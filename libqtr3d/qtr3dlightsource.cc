@@ -41,6 +41,14 @@ QColor Qtr3dLightSource::color() const
 }
 
 //------------------------------------------------------------------------------------------------
+QVector3D Qtr3dLightSource::ambientColor() const
+{
+    return QVector3D(mColor.redF()   * mAmbientFactor.x(),
+                     mColor.greenF() * mAmbientFactor.y(),
+                     mColor.blueF()  * mAmbientFactor.z());
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dLightSource::setStrength(float ambient, float diffuse, float specular)
 {
     mAmbientFactor  = QVector3D(ambient,ambient,ambient);

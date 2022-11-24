@@ -94,6 +94,13 @@ void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mes
     currentProgram()->setUniformValue(mLightPos,lightPos);
     currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
     currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
+
+    currentProgram()->setUniformValue("material.ambient", light->strengthAmbient());
+    currentProgram()->setUniformValue("material.diffuse", light->strengthDiffuse());
+    currentProgram()->setUniformValue("material.specular",light->strengthSpecular());
+    currentProgram()->setUniformValue("material.shininess",5.0f);
+
+    currentProgram()->setUniformValue("lightambientcolor",light->ambientColor());
     drawMesh(mesh);
 }
 

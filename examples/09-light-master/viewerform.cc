@@ -9,6 +9,7 @@
 #include <QRadioButton>
 #include <QDoubleSpinBox>
 #include <QStandardPaths>
+#include <QColorDialog>
 #include <QCoreApplication>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmodel.h>
@@ -71,6 +72,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         cubeMesh->addVertex({-1,-1, 1},{0,-1,0},Qt::red);
 
         cubeMesh->endMesh();
+        mMeshes << cubeMesh;
 
         mCubeState = ui->viewer->createBufferState(cubeMesh);
         mCubeState->setLightingType(Qtr3d::FlatLighting);
@@ -85,6 +87,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         Qtr3dModelFactory::meshBySphere(*sphereMesh,60,QImage(":/pebbles_texture.jpg"));
         sphereMesh->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
         mSphereState = ui->viewer->createBufferState(sphereMesh);
+        mMeshes << sphereMesh;
 
         // Create Floor
         auto *floor = ui->viewer->createTexturedMesh(":/pebbles_texture.jpg");
@@ -92,6 +95,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         floor->addQuad({-1,0,1},{1,0,1},{1,0,-1},{-1,0,-1},{0,1,0});
         floor->endMesh();
         floor->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+        mMeshes << floor;
 
         mFloorState = ui->viewer->createBufferState(floor);
         mFloorState->setScale({20,1,20});
@@ -112,9 +116,15 @@ ViewerForm::ViewerForm(QWidget *parent)
         connect(ui->btnPhong, &QRadioButton::toggled, this, &ViewerForm::updateLightType);
         connect(ui->btnFlat,  &QRadioButton::toggled, this, &ViewerForm::updateLightType);
 
+        connect(ui->sldLightAmbient, &QSlider::valueChanged, this, [&](){ ui->lightambientTot->setValue(ui->sldLightAmbient->value()/1000.0); });
         connect(ui->sldAmbient, &QSlider::valueChanged, this, [&](){ ui->ambientTot->setValue(ui->sldAmbient->value()/1000.0); });
         connect(ui->sldDiffuse, &QSlider::valueChanged, this, [&](){ ui->diffuseTot->setValue(ui->sldDiffuse->value()/1000.0); });
         connect(ui->sldSpecular,&QSlider::valueChanged, this, [&](){ ui->specularTot->setValue(ui->sldSpecular->value()/1000.0); });
+
+        connect(ui->lightambientTot,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, [&](){ ui->lightambientX->setValue(ui->lightambientTot->value());
+                             ui->lightambientY->setValue(ui->lightambientTot->value());
+                             ui->lightambientZ->setValue(ui->lightambientTot->value());});
 
         connect(ui->ambientTot,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
                 this, [&](){ ui->ambientX->setValue(ui->ambientTot->value());
@@ -130,6 +140,13 @@ ViewerForm::ViewerForm(QWidget *parent)
                 this, [&](){ ui->specularX->setValue(ui->specularTot->value());
                              ui->specularY->setValue(ui->specularTot->value());
                              ui->specularZ->setValue(ui->specularTot->value());});
+
+        connect(ui->lightambientX,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
+        connect(ui->lightambientY,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
+        connect(ui->lightambientZ,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
 
 
         connect(ui->ambientX,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
@@ -153,6 +170,8 @@ ViewerForm::ViewerForm(QWidget *parent)
         connect(ui->specularZ,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
                 this, &ViewerForm::updateLightAttrib);
 
+
+        connect(ui->btnPickColor, &QPushButton::clicked, this, &ViewerForm::selectLightColor);
 
 
     });
@@ -208,9 +227,14 @@ void ViewerForm::updateLightType()
 //-------------------------------------------------------------------------------------------------
 void ViewerForm::updateLightAttrib()
 {
-    ui->viewer->primaryLightSource()->setAmbientStrength({float(ui->ambientX->value()), float(ui->ambientY->value()), float(ui->ambientZ->value())});
-    ui->viewer->primaryLightSource()->setDiffuseStrength({float(ui->diffuseX->value()), float(ui->diffuseY->value()), float(ui->diffuseZ->value())});
-    ui->viewer->primaryLightSource()->setSpecularStrength({float(ui->specularX->value()), float(ui->specularY->value()), float(ui->specularZ->value())});
+    ui->viewer->primaryLightSource()->setAmbientStrength({float(ui->lightambientX->value()), float(ui->lightambientY->value()), float(ui->lightambientZ->value())});
+
+    for (auto *mesh: mMeshes) {
+        mesh->material().kAmbient  = {float(ui->ambientX->value()),  float(ui->ambientY->value()),  float(ui->ambientZ->value())};
+        mesh->material().kDiffuse  = {float(ui->diffuseX->value()),  float(ui->diffuseY->value()),  float(ui->diffuseZ->value())};
+        mesh->material().kSpecular = {float(ui->specularX->value()), float(ui->specularY->value()), float(ui->specularZ->value())};
+    }
+
     ui->viewer->update();
 }
 
@@ -228,6 +252,15 @@ void ViewerForm::updateModelPos()
     mSphereState->setPos(turnMatrix * startPos);
 
     ui->viewer->update();
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::selectLightColor()
+{
+    QColor c = QColorDialog::getColor(ui->viewer->primaryLightSource()->color(), this,"Ambient Color");
+    ui->viewer->primaryLightSource()->setColor(c);
+    ui->viewer->update();
+    ui->edtColorCode->setText(c.name());
 }
 
 //-------------------------------------------------------------------------------------------------

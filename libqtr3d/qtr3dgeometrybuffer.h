@@ -32,6 +32,9 @@ public:
 
     void    setFaceOrientation(FaceOrientation orientation);
     FaceOrientation faceOrientation() const;
+    Qtr3d::Material &material();
+    const Qtr3d::Material &cMaterial() const;
+
     void    setParentBuffer(Qtr3dGeometryBuffer *buffer);
     Qtr3dGeometryBuffer *parentBuffer() const;
 
@@ -54,6 +57,7 @@ private:
     FaceOrientation             mFaceOrientation;
     Qtr3dGeometryBuffer        *mParent;
     Qtr3dGeometryBufferStates   mBufferStates;
+    Qtr3d::Material             mMaterial;
 
 
     QVector3D                   mMin;

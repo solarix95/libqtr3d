@@ -10,18 +10,18 @@ struct Material {
 };
 
 uniform Material material;
-uniform vec3     lightpos;   // = WorldMatrix * LightPosition
+uniform vec3     lightpos;          // = WorldMatrix * LightPosition
+uniform vec3     lightambientcolor; // lightcolor * lightambientk
 
 // Parameters from the vertex shader
 varying vec3 fragColor;
 varying vec3 fragNormal;
 varying vec4 fragPos;
-varying vec3 fragLightColor;
 
 void main() {
 
 	// Ambient lighting
-        vec3  color    = material.ambient * fragColor;
+        vec3  color    = lightambientcolor + (fragColor * material.ambient);
         vec3  lightDir = normalize(lightpos - fragPos.xyz);
 
 	// Cosine of angle between normal and vector light-vertex
@@ -39,5 +39,5 @@ void main() {
                 color += material.specular * specular;
         }; // else { color = vec3(1,0,0); }
 	
-        gl_FragColor.rgb = color;
+        gl_FragColor.rgb = vec3(min(color.x,1.0),min(color.y,1.0),min(color.z,1.0)) ;
 }

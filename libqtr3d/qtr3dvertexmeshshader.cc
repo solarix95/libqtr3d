@@ -105,13 +105,14 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
     currentProgram()->setUniformValue(mNormalviewMatrix,normalView);
 
     currentProgram()->setUniformValue(mLightPos,lightPos);
-    currentProgram()->setUniformValue(mLightAmbient,light->strengthAmbient());
-    currentProgram()->setUniformValue(mLightDiffuse,light->strengthDiffuse());
 
-    currentProgram()->setUniformValue("material.ambient", light->strengthAmbient());
-    currentProgram()->setUniformValue("material.diffuse", light->strengthDiffuse());
-    currentProgram()->setUniformValue("material.specular",light->strengthSpecular());
-    currentProgram()->setUniformValue("material.shininess",5.0f);
+    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
+    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
+    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
+    currentProgram()->setUniformValue("material.shininess",mesh.cMaterial().shininess);
+
+    currentProgram()->setUniformValue("lightambientcolor",light->ambientColor());
+
 
     drawMesh(mesh);
 

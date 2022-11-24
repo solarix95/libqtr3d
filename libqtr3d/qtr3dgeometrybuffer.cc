@@ -40,6 +40,18 @@ Qtr3dGeometryBuffer::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() cons
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3d::Material &Qtr3dGeometryBuffer::material()
+{
+    return mMaterial;
+}
+
+//-------------------------------------------------------------------------------------------------
+const Qtr3d::Material &Qtr3dGeometryBuffer::cMaterial() const
+{
+    return mMaterial;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBuffer::setParentBuffer(Qtr3dGeometryBuffer *buffer)
 {
     mParent = buffer;
