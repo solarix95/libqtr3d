@@ -5,12 +5,19 @@
 struct Material {
     vec3 ambient;
     vec3 diffuse;
-    vec3 specular;
-    float shininess;
+    vec3 specular;    // Phong only
+    float shininess;  // Phong only
+};
+
+struct Light {
+    vec3  pos;        // = WorldMatrix * LightPosition
+    vec3  color;
+    vec3  ambient;
 };
 
 uniform Material material;
-uniform vec3     lightpos;   // = WorldMatrix * LightPosition
+uniform Light    light;
+
 
 // Parameters from the vertex shader
 varying vec3 fragColor;
@@ -19,13 +26,13 @@ varying vec4 fragPos;
 
 void main() {
         // easy ambient color calculation
-        vec3  ambient = material.ambient * fragColor;
+        vec3  ambient  = (light.ambient * light.color * fragColor) + (material.ambient * fragColor);
 
         // diffuse color
         vec3  norm     = normalize(fragNormal);
-        vec3  lightDir = normalize(lightpos - fragPos.xyz);
+        vec3  lightDir = normalize(light.pos - fragPos.xyz);
         float diff     = max(dot(norm, lightDir), 0.0);
-        vec3  diffuse  = diff * material.diffuse * fragColor;
+        vec3  diffuse  = diff * material.diffuse * fragColor * light.color;
 
         // Final output
         gl_FragColor.rgb = (ambient + diffuse);

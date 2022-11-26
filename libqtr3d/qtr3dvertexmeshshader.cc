@@ -86,8 +86,13 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, co
 
     currentProgram()->setUniformValue(mLightPos,lightPos);
 
-    currentProgram()->setUniformValue("material.ambient",light->strengthAmbient());
-    currentProgram()->setUniformValue("material.diffuse",light->strengthDiffuse());
+    currentProgram()->setUniformValue("material.ambient",mesh.cMaterial().kAmbient);
+    currentProgram()->setUniformValue("material.diffuse",mesh.cMaterial().kDiffuse);
+
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light->pos());
+    currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light->colorf());
+
     drawMesh(mesh);
 }
 
@@ -96,7 +101,7 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
 {
     // Normal view matrix - inverse transpose of modelview.
     QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-    QVector3D lightPos = worldMatrix  * light->pos();
+
 
     currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
@@ -104,15 +109,15 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
     QMatrix4x4 normalView       = modelWorldMatrix.inverted();
     currentProgram()->setUniformValue(mNormalviewMatrix,normalView);
 
-    currentProgram()->setUniformValue(mLightPos,lightPos);
 
     currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
     currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
     currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
     currentProgram()->setUniformValue("material.shininess",mesh.cMaterial().shininess);
 
-    currentProgram()->setUniformValue("lightambientcolor",light->ambientColor());
-
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light->pos());
+    currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light->colorf());
 
     drawMesh(mesh);
 

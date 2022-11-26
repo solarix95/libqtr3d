@@ -18,20 +18,12 @@ public:
 
     void      setColor(QColor c);
     QColor    color() const;
+    QVector3D colorf() const;
     QVector3D ambientColor() const;
 
-    // 7x the same... just for easy use :)
-    void      setStrength(float ambient, float diffuse, float specular);
     void      setAmbientStrength(float kAmbient);
-    void      setDiffuseStrength(float kDiffuse);
-    void      setSpecularStrength(float kSpecular);
     void      setAmbientStrength(const QVector3D &ambient);
-    void      setDiffuseStrength(const QVector3D &diffuse);
-    void      setSpecularStrength(const QVector3D &specular);
-
     QVector3D strengthAmbient() const;   // Support: Qtr3d::NoLighting + FlatLighting + PhongLighting
-    QVector3D strengthDiffuse() const;   // Support: Qtr3d::FlatLighting + PhongLighting
-    QVector3D strengthSpecular() const;  // Support: Qtr3d::PhongLighting
 
 signals:
     void changed(Qtr3dLightSource *light);
@@ -41,8 +33,6 @@ private:
     QColor    mColor;
 
     QVector3D mAmbientFactor;
-    QVector3D mDiffuseFactor;
-    QVector3D mSpecularFactor;
 };
 
 #endif // QTR3DLIGHTSOURCE_H

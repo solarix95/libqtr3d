@@ -9,9 +9,14 @@ struct Material {
     float shininess;
 };
 
+struct Light {
+    vec3  pos;       // = WorldMatrix * LightPosition
+    vec3  color;
+    vec3  ambient;
+};
+
 uniform Material material;
-uniform vec3     lightpos;          // = WorldMatrix * LightPosition
-uniform vec3     lightambientcolor; // lightcolor * lightambientk
+uniform Light    light;
 
 // Parameters from the vertex shader
 varying vec3 fragColor;
@@ -21,8 +26,8 @@ varying vec4 fragPos;
 void main() {
 
 	// Ambient lighting
-        vec3  color    = lightambientcolor + (fragColor * material.ambient);
-        vec3  lightDir = normalize(lightpos - fragPos.xyz);
+        vec3  color    = (light.ambient * light.color * fragColor) + (material.ambient * fragColor);
+        vec3  lightDir = normalize(light.pos - fragPos.xyz);
 
 	// Cosine of angle between normal and vector light-vertex
         float lambertTerm = dot( fragNormal, lightDir );
@@ -31,12 +36,12 @@ void main() {
 	if( lambertTerm > 0.0 ) {
 
 		// Diffuse lighting
-                color += material.diffuse * fragColor * lambertTerm;
+                color += material.diffuse * light.color * fragColor * lambertTerm;
 
 		// Specular highlights
                 vec3  specDir   = normalize( reflect( lightDir, -fragNormal ) );
                 float specular  = pow( max( 0.0, dot(specDir, normalize(fragPos.xyz)) ), material.shininess );
-                color += material.specular * specular;
+                color += material.specular * specular * light.color * fragColor;
         }; // else { color = vec3(1,0,0); }
 	
         gl_FragColor.rgb = vec3(min(color.x,1.0),min(color.y,1.0),min(color.z,1.0)) ;

@@ -41,19 +41,17 @@ QColor Qtr3dLightSource::color() const
 }
 
 //------------------------------------------------------------------------------------------------
+QVector3D Qtr3dLightSource::colorf() const
+{
+    return QVector3D(mColor.redF(), mColor.greenF(), mColor.blueF());
+}
+
+//------------------------------------------------------------------------------------------------
 QVector3D Qtr3dLightSource::ambientColor() const
 {
     return QVector3D(mColor.redF()   * mAmbientFactor.x(),
                      mColor.greenF() * mAmbientFactor.y(),
                      mColor.blueF()  * mAmbientFactor.z());
-}
-
-//------------------------------------------------------------------------------------------------
-void Qtr3dLightSource::setStrength(float ambient, float diffuse, float specular)
-{
-    mAmbientFactor  = QVector3D(ambient,ambient,ambient);
-    mDiffuseFactor  = QVector3D(diffuse,diffuse,diffuse);
-    mSpecularFactor = QVector3D(specular,specular,specular);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -63,32 +61,8 @@ void Qtr3dLightSource::setAmbientStrength(const QVector3D &ambient)
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dLightSource::setDiffuseStrength(const QVector3D &diffuse)
-{
-    mDiffuseFactor = diffuse;
-}
-
-//------------------------------------------------------------------------------------------------
-void Qtr3dLightSource::setSpecularStrength(const QVector3D &specular)
-{
-    mSpecularFactor = specular;
-}
-
-//------------------------------------------------------------------------------------------------
 QVector3D Qtr3dLightSource::strengthAmbient() const
 {
     return mAmbientFactor;
-}
-
-//------------------------------------------------------------------------------------------------
-QVector3D Qtr3dLightSource::strengthDiffuse() const
-{
-    return mDiffuseFactor;
-}
-
-//------------------------------------------------------------------------------------------------
-QVector3D Qtr3dLightSource::strengthSpecular() const
-{
-    return mSpecularFactor;
 }
 
