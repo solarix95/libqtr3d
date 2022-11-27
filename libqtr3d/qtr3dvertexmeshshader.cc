@@ -120,43 +120,6 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
     currentProgram()->setUniformValue("light.color",   light->colorf());
 
     drawMesh(mesh);
-
-
-#if 0
-    // Get locations of attributes and uniforms used inside.
-    mVertexPosition   = mShaderProgramLight->attributeLocation("vertex" );
-    mVertexNormal     = mShaderProgramLight->attributeLocation("vnormal" );
-    mVertexColor      = mShaderProgramLight->attributeLocation("vcolor" );
-
-    mModelviewMatrix  = mShaderProgramLight->uniformLocation("modelview" );
-    mNormalviewMatrix = mShaderProgramLight->uniformLocation("normalview" );
-    mProjectionMatrix = mShaderProgramLight->uniformLocation("projection" );
-    mLightPos         = mShaderProgramLight->uniformLocation("lightPos" );
-
-    Q_ASSERT(mProjectionMatrix >= 0);
-    mShaderProgramLight->setUniformValue(mProjectionMatrix,perspectiveMatrix.transposed());
-
-    mShaderProgramLight->setUniformValue("worldview",worldMatrix.transposed());
-
-    Q_ASSERT(mLightPos >= 0);
-    mShaderProgramLight->setUniformValue(mLightPos,QVector3D(0,-1000000,0));
-
-    foreach(Qtr3dVertexMesh *mesh, mGeometryBuffers) {
-        const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
-        foreach(Qtr3dGeometryBufferState *state, states) {
-            if (state->isFlat())
-                continue;
-
-            // Normal view matrix - inverse transpose of modelview.
-            QMatrix4x4 modelWorldMatrix = worldMatrix * state->modelView();
-            QMatrix4x4 normalView       = modelWorldMatrix.inverted();
-
-            mShaderProgramLight->setUniformValue(mModelviewMatrix,modelWorldMatrix.transposed());
-            mShaderProgramLight->setUniformValue(mNormalviewMatrix,normalView.transposed());
-            drawMesh(*mesh,worldMatrix*state->modelView()); // TODO: to shader..
-        }
-    }
-#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -172,6 +135,13 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer)
         f->glFrontFace(GL_CCW);
         break;
     default: break;
+    }
+
+    if (buffer.blending()) {
+        f->glEnable(GL_BLEND);
+        f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        f->glDisable(GL_BLEND);
     }
 
     // Vertices
@@ -202,7 +172,7 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dVertexMesh &buffer)
     // Colors
     f->glVertexAttribPointer(
                 mVertexColor,
-                3,
+                4,
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Qtr3dColoredVertex),

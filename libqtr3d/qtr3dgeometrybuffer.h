@@ -26,14 +26,15 @@ public:
         CounterClockWise
     };
 
-
     Qtr3dGeometryBuffer();
     virtual ~Qtr3dGeometryBuffer();
 
-    void    setFaceOrientation(FaceOrientation orientation);
+    void            setFaceOrientation(FaceOrientation orientation);
     FaceOrientation faceOrientation() const;
     Qtr3d::Material &material();
     const Qtr3d::Material &cMaterial() const;
+    void            setBlendingEnabled(bool enabled);
+    bool            blending() const;
 
     void    setParentBuffer(Qtr3dGeometryBuffer *buffer);
     Qtr3dGeometryBuffer *parentBuffer() const;
@@ -55,6 +56,7 @@ private slots:
 
 private:
     FaceOrientation             mFaceOrientation;
+    bool                        mBlending;
     Qtr3dGeometryBuffer        *mParent;
     Qtr3dGeometryBufferStates   mBufferStates;
     Qtr3d::Material             mMaterial;

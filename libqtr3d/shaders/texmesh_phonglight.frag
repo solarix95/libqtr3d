@@ -28,8 +28,13 @@ uniform sampler2D texture;
 
 void main() {
         // Ambient lighting
-        vec3  materialColor = texture2D( texture, fragTexcoord ).rgb;
-        vec3  color    = (light.ambient * light.color * materialColor) + (material.ambient * materialColor);
+        vec4  materialColor = texture2D( texture, fragTexcoord );
+
+        // Alpha-Transparency
+        if(materialColor.a < 0.1)
+                discard;
+
+        vec3  color    = (light.ambient * light.color * materialColor.rgb) + (material.ambient * materialColor.rgb);
 
         // Cosine of angle between normal and vector light-vertex
         vec3  lightDir      = normalize(light.pos - fragPos.xyz);
@@ -39,12 +44,12 @@ void main() {
         if( lambertTerm > 0.0 ) {
 
                 // Diffuse lighting
-                color += material.diffuse * light.color * materialColor * lambertTerm;
+                color += material.diffuse * light.color * materialColor.rgb * lambertTerm;
 
                 // Specular highlights
                 vec3  specDir   = normalize( reflect( lightDir, -fragNormal ) );
                 float specular  = pow( max( 0.0, dot(specDir, normalize(fragPos.xyz)) ), material.shininess );
-                color += material.specular * specular * light.color * materialColor;
+                color += material.specular * specular * light.color * materialColor.rgb;
         }; // else { color = vec3(1,0,0); }
 
         gl_FragColor.rgb = color;

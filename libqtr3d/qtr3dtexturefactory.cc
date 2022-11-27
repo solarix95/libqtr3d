@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "qtr3dtypes.h"
 #include "qtr3dtexturefactory.h"
 
@@ -58,5 +59,7 @@ Qtr3dTexture *Qtr3dTextureFactory::createTexture(const QImage &img)
     Qtr3dTexture *tex = new Qtr3dTexture(img.mirrored());
     tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     tex->setMagnificationFilter(QOpenGLTexture::Linear);
+
+    qDebug() << tex->format();
     return tex;
 }

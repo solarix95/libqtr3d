@@ -121,6 +121,18 @@ void Qtr3dVertexMesh::addVertex(const Qtr3dColoredVertex &v)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n)
+{
+    addVertex(p1,n);
+    addVertex(p2,n);
+    addVertex(p3,n);
+
+    addVertex(p1,n);
+    addVertex(p3,n);
+    addVertex(p4,n);
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::addNormal(const QVector3D &n)
 {
     mNormals << n;

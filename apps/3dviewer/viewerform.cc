@@ -9,6 +9,7 @@
 #include <libqtr3d/qtr3dmodel.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
+#include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
 #include <libqtr3d/qtr3dtexturedmesh.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
@@ -27,6 +28,8 @@ ViewerForm::ViewerForm(QWidget *parent)
     ui->btnLoad->setEnabled(false);
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
+        ui->viewer->primaryLightSource()->setAmbientStrength(0.7);
+
         ui->btnLoad->setEnabled(true);
         new Qtr3dFreeCameraController(ui->viewer);
         for (auto arg: qApp->arguments()) {

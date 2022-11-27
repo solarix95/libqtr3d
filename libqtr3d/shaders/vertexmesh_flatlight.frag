@@ -20,20 +20,21 @@ uniform Light    light;
 
 
 // Parameters from the vertex shader
-varying vec3 fragColor;
+varying vec4 fragColor;
 varying vec3 fragNormal;
 varying vec4 fragPos;
 
 void main() {
         // easy ambient color calculation
-        vec3  ambient  = (light.ambient * light.color * fragColor) + (material.ambient * fragColor);
+        vec3  ambient  = (light.ambient * light.color * fragColor.rgb) + (material.ambient * fragColor.rgb);
 
         // diffuse color
         vec3  norm     = normalize(fragNormal);
         vec3  lightDir = normalize(light.pos - fragPos.xyz);
         float diff     = max(dot(norm, lightDir), 0.0);
-        vec3  diffuse  = diff * material.diffuse * fragColor * light.color;
+        vec3  diffuse  = diff * material.diffuse * fragColor.rgb * light.color;
 
         // Final output
         gl_FragColor.rgb = (ambient + diffuse);
+        gl_FragColor.a   = fragColor.a;
 }

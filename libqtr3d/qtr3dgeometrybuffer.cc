@@ -3,6 +3,7 @@
 //-------------------------------------------------------------------------------------------------
 Qtr3dGeometryBuffer::Qtr3dGeometryBuffer()
     : mFaceOrientation(DefaultOrientation)
+    , mBlending(false)
     , mParent(nullptr)
 {
     mMin = QVector3D( std::numeric_limits<double>::max(),
@@ -49,6 +50,18 @@ Qtr3d::Material &Qtr3dGeometryBuffer::material()
 const Qtr3d::Material &Qtr3dGeometryBuffer::cMaterial() const
 {
     return mMaterial;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBuffer::setBlendingEnabled(bool enabled)
+{
+    mBlending = enabled;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dGeometryBuffer::blending() const
+{
+    return mBlending;
 }
 
 //-------------------------------------------------------------------------------------------------

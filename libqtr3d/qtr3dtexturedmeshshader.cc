@@ -124,6 +124,13 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer)
     default: break;
     }
 
+    if (buffer.blending()) {
+        f->glEnable(GL_BLEND);
+        f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        f->glDisable(GL_BLEND);
+    }
+
     // Textures
     f->glActiveTexture( GL_TEXTURE0 );
     f->glBindTexture( GL_TEXTURE_2D, buffer.textureId() );

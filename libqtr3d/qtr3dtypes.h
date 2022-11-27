@@ -94,23 +94,27 @@ typedef struct Qtr3dColoredVertex_t {
     Qtr3dScalar w;   // "weight", add extra dimension to point for matrix multiplication
     Qtr3dVector n;   // Normal-Vector
     Qtr3dVector c;   // Color (x -> red, y -> green, z -> blue)
+    float       a;   // Alpha
     Qtr3dColoredVertex_t() {
         p = {0.0f, 0.0f, 0.0f};
         w = 1.0f;
         n = {0.0f, 0.0f, 0.0f};
         c = {0.0f, 0.0f, 0.0f};
+        a = 1.0f;
     }
     Qtr3dColoredVertex_t(const QVector3D &v, const QColor &col) {
         p = { v.x(), v.y(), v.z() };
         w = 1.0f;
         n = {0.0f, 0.0f, 0.0f};
         c = { (float)col.redF(), (float)col.greenF(), (float)col.blueF() };
+        a = col.alphaF();
     }
     Qtr3dColoredVertex_t(const QVector3D &v, const QVector3D &norm, const QColor &col) {
         p = { v.x(), v.y(), v.z() };
         w = 1.0f;
         n = { norm.x(), norm.y(), norm.z() };
         c = { (float)col.redF(), (float)col.greenF(), (float)col.blueF() };
+        a = col.alphaF();
     }
 
 } Qtr3dColoredVertex;

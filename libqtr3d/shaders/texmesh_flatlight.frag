@@ -29,6 +29,11 @@ uniform sampler2D texture;
 void main() {
         // easy ambient color calculation
         vec4  materialColor = texture2D( texture, fragTexcoords );
+
+        // Alpha-Transparency
+        if(materialColor.a < 0.1)
+                discard;
+
         vec3  ambient  = (light.ambient * light.color * materialColor.xyz) + (material.ambient * materialColor.xyz);
 
         // diffuse color

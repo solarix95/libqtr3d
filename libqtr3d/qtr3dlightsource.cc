@@ -55,6 +55,12 @@ QVector3D Qtr3dLightSource::ambientColor() const
 }
 
 //------------------------------------------------------------------------------------------------
+void Qtr3dLightSource::setAmbientStrength(float kAmbient)
+{
+    mAmbientFactor = QVector3D(kAmbient,kAmbient,kAmbient);
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dLightSource::setAmbientStrength(const QVector3D &ambient)
 {
     mAmbientFactor = ambient;

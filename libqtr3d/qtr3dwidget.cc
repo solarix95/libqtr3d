@@ -130,8 +130,8 @@ void Qtr3dWidget::paintGL()
     f->glEnable(GL_CULL_FACE) ;
     f->glCullFace(GL_BACK);
 
-    mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix(),  primaryLightSource());
     mTexturedMeshShader->render(camera()->projection(),camera()->worldMatrix(), primaryLightSource());
+    mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix(),  primaryLightSource());
 
     f->glDisable(GL_CULL_FACE); // otherwise: can't see 2D Paintings..
 }

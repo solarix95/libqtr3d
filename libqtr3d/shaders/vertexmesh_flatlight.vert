@@ -5,7 +5,7 @@
 // Attributes: Position, normal, texture coordinates
 attribute vec4 vertex;
 attribute vec3 vnormal;
-attribute vec3 vcolor;
+attribute vec4 vcolor;
 
 
 // Same for the whole model or scene: Projection and Modelview matrices
@@ -15,7 +15,7 @@ uniform vec3 lightambientk;
 uniform vec3 lightdiffusek;
 
 // Parameters passed to the fragment shader.
-varying vec3 fragColor;
+varying vec4 fragColor;
 varying vec3 fragNormal;
 varying vec4 fragPos;
 varying vec3 fragLightPos;

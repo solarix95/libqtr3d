@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>texture.jpg</file>
+        <file>blending_transparent_window.png</file>
+    </qresource>
+</RCC>
