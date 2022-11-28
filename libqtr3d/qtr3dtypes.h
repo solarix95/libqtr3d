@@ -21,7 +21,7 @@ namespace Qtr3d
         QVector3D kSpecular;
         float     shininess;
 
-        Material(float a = 0.0, float d=0.7, float s= 0.3, float shine = 5.0f)
+        Material(float a = 0.0, float d=0.3, float s= 0.3, float shine = 5.0f)
          : kAmbient(a,a,a)
          , kDiffuse(d,d,d)
          , kSpecular(s,s,s)

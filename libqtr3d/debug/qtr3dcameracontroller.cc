@@ -16,6 +16,8 @@ Qtr3dFreeCameraController::Qtr3dFreeCameraController(Qtr3dWidget *parent)
     Q_ASSERT(mCamera);
 }
 
+Qtr3dFreeCameraController::~Qtr3dFreeCameraController() = default;
+
 //-------------------------------------------------------------------------------------------------
 void Qtr3dFreeCameraController::parentKeyPress(QKeyEvent *e)
 {
@@ -33,10 +35,10 @@ void Qtr3dFreeCameraController::parentKeyPress(QKeyEvent *e)
 void Qtr3dFreeCameraController::parentMouseWheel(float delta)
 {
     float correctionFactor = (360+(-1*delta))/360.0;
-    qDebug() << delta << correctionFactor;
 
     QVector3D vpos = correctionFactor * (mCamera->pos() - mCamera->lookAtCenter());
     mCamera->setPosition(mCamera->lookAtCenter() + vpos);
+    emit positionChanged(mCamera->pos());
 }
 
 //-------------------------------------------------------------------------------------------------

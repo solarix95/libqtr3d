@@ -3,6 +3,8 @@
 //------------------------------------------------------------------------------------------------
 Qtr3dLightSource::Qtr3dLightSource(QObject *parent)
     : QObject(parent)
+    , mPos({0,0,0})
+    , mColor(Qt::white)
 {
 }
 

@@ -46,6 +46,8 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
         int commentPos = line.indexOf('#');
         if (commentPos >= 0)
             line = line.mid(0,commentPos).trimmed().simplified();
+        else
+            line = line.trimmed().simplified();
 
         if (line.isEmpty())
             continue;
@@ -279,39 +281,12 @@ void Qtr3dObjLoader::setupTexturedMesh(Qtr3dModel &model,  Qtr3dGeometryBufferFa
     }
     mesh->endMesh();
     model.addGeometry(mesh);
-
-
-    /*
-
-    // Debug, Pseudo-Texture
-
-    auto *mesh = factory.createVertexMesh();
-    mesh->startMesh(Qtr3dGeometryBuffer::Triangle);
-
-    QImage img(mTextureName);
-    if (img.isNull())
-        return;
-
-    img = img.mirrored();
-
-    // Faces
-    for (int i=0; i<mFaceVertexIndexes.count(); i++) {
-        int x = img.width() * mTextureCoords[mFaceTextureIndexes.at(i)].x();
-        int y = img.width() * mTextureCoords[mFaceTextureIndexes.at(i)].y();
-        // mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)], QColor(128+ (qrand() % 127),128+ (qrand() % 127),128+ (qrand() % 127)));
-        mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)], QColor::fromRgb(img.pixel(x,y)));
-    }
-    mesh->endMesh();
-    model.addGeometry(mesh);
-
-    */
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::setupSimpleMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory)
 {
     Qtr3dVertexMesh *mesh = factory.createVertexMesh();
-    mesh->setDefaultColor(Qt::white);
     mesh->startMesh(Qtr3dVertexMesh::Triangle);
 
     bool colored = mVerticesColors.count() == mVertices.count();

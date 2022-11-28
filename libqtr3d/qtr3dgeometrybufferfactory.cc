@@ -11,6 +11,7 @@ Qtr3dGeometryBufferFactory::Qtr3dGeometryBufferFactory()
  : QObject()
  , mSimpleShader(nullptr)
  , mTextureShader(nullptr)
+ , mDefaultColor(Qt::white)
 {
 }
 
@@ -45,6 +46,7 @@ Qtr3dVertexMesh *Qtr3dGeometryBufferFactory::createVertexMesh()
 {
     Qtr3dVertexMesh *mesh = new Qtr3dVertexMesh();
     mSimpleShader->registerBuffer(*mesh);
+    mesh->setDefaultColor(mDefaultColor);
     return mesh;
 }
 
@@ -52,5 +54,11 @@ Qtr3dVertexMesh *Qtr3dGeometryBufferFactory::createVertexMesh()
 Qtr3dModel *Qtr3dGeometryBufferFactory::createModel()
 {
     return new Qtr3dModel(textures());
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBufferFactory::setDefaultColor(QColor c)
+{
+    mDefaultColor = c;
 }
 

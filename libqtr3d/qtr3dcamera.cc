@@ -19,14 +19,17 @@ Qtr3dCamera::Qtr3dCamera()
 void Qtr3dCamera::setPosition(float x, float y, float z)
 {
     setPosition(QVector3D(x,y,z));
-    updatePerspectiveMatrix();
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dCamera::setPosition(const QVector3D &pos)
 {
+    if (mPos == pos)
+        return;
+
     mPos = pos;
     updatePerspectiveMatrix();
+    emit positionChanged(mPos);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -34,6 +37,7 @@ void Qtr3dCamera::move(float dx, float dy, float dz)
 {
     mPos += QVector3D(dx,dy,dz);
     updatePerspectiveMatrix();
+    emit positionChanged(mPos);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -81,6 +85,7 @@ void Qtr3dCamera::lookAt(const QVector3D &pos, const QVector3D &toCenter, const 
     mUp     = up;
     mMode   = LookAt;
     updatePerspectiveMatrix();
+    emit positionChanged(mPos);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -99,6 +104,7 @@ void Qtr3dCamera::lookAtTurn(float dxAngle, float dyAngle)
     vpos = vpos * turnMatrix;
     mPos = mLookAt + vpos;
     updatePerspectiveMatrix();
+    emit positionChanged(mPos);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -116,8 +122,8 @@ void Qtr3dCamera::updatePerspectiveMatrix()
 
     mProjectionMatrix.perspective(mFov,mWidth/(float)mHeight,1,-1);
 
-    float height = 2;
-    float width  = height * (mWidth/(float)mHeight);
+    // float height = 2;
+    // float width  = height * (mWidth/(float)mHeight);
 
     // mProjectionMatrix.frustum(-width/2,width/2,-height/2,height/2,10,-10);
     // qDebug() << mWidth << mHeight << width << height;

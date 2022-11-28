@@ -37,6 +37,20 @@ double Qtr3dModel::radius() const
 }
 
 //-------------------------------------------------------------------------------------------------
+int Qtr3dModel::bufferCount() const
+{
+    return mModelBuffers.count();
+}
+
+//-------------------------------------------------------------------------------------------------
+const Qtr3dGeometryBuffer *Qtr3dModel::buffer(int index) const
+{
+    Q_ASSERT(index >= 0);
+    Q_ASSERT(index < mModelBuffers.count());
+    return mModelBuffers[index];
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dTextureFactory *Qtr3dModel::texturesFactory()
 {
     return mTexturesFactory;

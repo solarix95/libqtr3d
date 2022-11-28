@@ -18,7 +18,6 @@ struct Light {
 uniform Material material;
 uniform Light    light;
 
-
 // Parameters from the vertex shader
 varying vec4 fragColor;
 varying vec3 fragNormal;

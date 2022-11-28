@@ -39,6 +39,9 @@ ViewerForm::ViewerForm(QWidget *parent)
                     loadFile(parts[1]);
             }
         }
+
+        connect(ui->viewer->camera(), &Qtr3dCamera::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
+
     });
 
     connect(ui->btnLoad, &QPushButton::clicked, this, &ViewerForm::load);
@@ -83,7 +86,7 @@ void ViewerForm::updateLight()
 {
     if (!mModelState)
         return;
-    mModelState->setLightingType(Qtr3d::FlatLighting);//  setFlat(ui->btnLightOff->isChecked());
+    mModelState->setLightingType(ui->btnLightOff->isChecked() ? Qtr3d::NoLighting : Qtr3d::FlatLighting);//  setFlat(ui->btnLightOff->isChecked());
     ui->viewer->update();
 }
 

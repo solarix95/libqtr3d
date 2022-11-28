@@ -33,6 +33,7 @@ public:
 
 signals:
     void changed();
+    void positionChanged(QVector3D newPos);
 
 private:
     void updatePerspectiveMatrix();

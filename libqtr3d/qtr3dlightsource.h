@@ -13,17 +13,17 @@ public:
     Qtr3dLightSource(const QVector3D &p, QColor color, QObject *parent = nullptr);
     virtual ~Qtr3dLightSource();
 
-    void      setPos(const QVector3D &p);
     QVector3D pos() const;
-
-    void      setColor(QColor c);
     QColor    color() const;
     QVector3D colorf() const;
     QVector3D ambientColor() const;
+    QVector3D strengthAmbient() const;   // Support: Qtr3d::NoLighting + FlatLighting + PhongLighting
 
+public slots:
+    void      setColor(QColor c);
+    void      setPos(const QVector3D &p);
     void      setAmbientStrength(float kAmbient);
     void      setAmbientStrength(const QVector3D &ambient);
-    QVector3D strengthAmbient() const;   // Support: Qtr3d::NoLighting + FlatLighting + PhongLighting
 
 signals:
     void changed(Qtr3dLightSource *light);

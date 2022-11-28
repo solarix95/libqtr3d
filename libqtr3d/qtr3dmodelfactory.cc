@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QImage>
 #include <QVariant>
 #include <QVariantMap>
 #include <QVariantList>
@@ -402,13 +403,13 @@ bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &jso
             return false;
         }
         auto toVector = [](const QVariant &v) {
-                QVariantList coords = v.toList();
-                if (coords.count() != 3)
-                    return QVector3D();
-                return QVector3D(coords[0].toFloat(), coords[1].toFloat(), coords[2].toFloat());
+            QVariantList coords = v.toList();
+            if (coords.count() != 3)
+                return QVector3D();
+            return QVector3D(coords[0].toFloat(), coords[1].toFloat(), coords[2].toFloat());
         };
         mesh.addQuad(toVector(vertices[0]), toVector(vertices[1]),
-                     toVector(vertices[2]), toVector(vertices[3]));
+                toVector(vertices[2]), toVector(vertices[3]));
     }
 
     mesh.endMesh();
@@ -446,6 +447,65 @@ bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dVertexMesh &mesh, const Qtr3dVerte
         nextNormal = vectorLenght * nextNormal.normalized();
         mesh.addVertex(pos);
         mesh.addVertex(pos+nextNormal);
+    }
+
+    mesh.endMesh();
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &highmapImageName, const QString &texture)
+{
+    QImage highmapImg;
+    if (!highmapImg.load(highmapImageName))
+        return false;
+
+    if ((highmapImg.width() * highmapImg.height()) <= 0)
+        return false;
+
+    int w = highmapImg.width();
+    int h = highmapImg.height();
+
+    mesh.startMesh(Qtr3dVertexMesh::Triangle, Qtr3dVertexMesh::ClockWise);
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            float fx = (-w/2.0f) + x;
+            float fz = (-h/2.0f) + y;
+            float fy = qGray(highmapImg.pixel(x,y))/255.0f;
+            QVector3D normal = {0.0f,1.0f,0.0f};
+            if ((y > 0) && (x > 0) && (y < (h-1)) && (x < (w-1))) {
+                float topHigh    = qGray(highmapImg.pixel(x,y-1))/255.0f;
+                float bottomHigh = qGray(highmapImg.pixel(x,y+1))/255.0f;
+
+                float rightHigh  = qGray(highmapImg.pixel(x+1,y))/255.0f;
+                float leftHigh   = qGray(highmapImg.pixel(x-1,y))/255.0f;
+
+                QVector3D horiz = { 2, rightHigh-leftHigh, 0};
+                QVector3D verti = { 2, bottomHigh-topHigh, 0};
+                normal = QVector3D::crossProduct(verti,horiz).normalized();
+            }
+            mesh.addVertex({fx,fy,fz},QVector3D({0.0f,1.0f,0.0f}), highmapImg.pixel(x,y));
+        }
+    }
+
+    for (int y = 0; y < h-1; y++) {
+        for (int x = 0; x < w-1; x++) {
+            int topLeftIndex     = ((y+0)*w) + x + 0;
+            int topRightIndex    = ((y+0)*w) + x + 1;
+            int bottomLeftIndex  = ((y+1)*w) + x + 0;
+            int bottomRightIndex = ((y+1)*w) + x + 1;
+
+            // Triangle 1
+            mesh.addIndex(topLeftIndex);
+            mesh.addIndex(topRightIndex);
+            mesh.addIndex(bottomLeftIndex);
+
+            // Triangle 2
+            mesh.addIndex(topRightIndex);
+            mesh.addIndex(bottomRightIndex);
+            mesh.addIndex(bottomLeftIndex);
+        }
     }
 
     mesh.endMesh();

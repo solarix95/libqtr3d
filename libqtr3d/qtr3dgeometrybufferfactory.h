@@ -2,6 +2,7 @@
 #define QTR3DGEOMETRYBUFFERFACTORY_H
 
 #include <QObject>
+#include <QColor>
 
 class Qtr3dTexturedMesh;
 class Qtr3dTexturedMeshShader;
@@ -23,11 +24,15 @@ public:
     Qtr3dTexturedMesh   *createTexturedMesh(const QString &textureName="");
     Qtr3dVertexMesh     *createVertexMesh();
     Qtr3dModel          *createModel();
+    void                 setDefaultColor(QColor c);
 
 private:
     Qtr3dVertexMeshShader   *mSimpleShader;
     Qtr3dTexturedMeshShader *mTextureShader;
     Qtr3dTextureFactory     *mTextures;
+
+    QColor                   mDefaultColor;
+
 };
 
 #endif // QTR3DGEOMETRYBUFFERFACTORY_H
