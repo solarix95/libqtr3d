@@ -83,6 +83,7 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, co
 
     currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    // currentProgram()->setUniformValue(mNormalviewMatrix,modelWorldMatrix.inverted());
 
     currentProgram()->setUniformValue(mLightPos,lightPos);
 

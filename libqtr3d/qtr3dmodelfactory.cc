@@ -454,7 +454,7 @@ bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dVertexMesh &mesh, const Qtr3dVerte
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &highmapImageName, const QString &texture)
+bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &highmapImageName, QVector3D scale, const QString &texture)
 {
     QImage highmapImg;
     if (!highmapImg.load(highmapImageName))
@@ -463,16 +463,25 @@ bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &high
     if ((highmapImg.width() * highmapImg.height()) <= 0)
         return false;
 
-    int w = highmapImg.width();
-    int h = highmapImg.height();
+    QImage textureImg;
+    if (!textureImg.load(texture))
+        return false;
+
+    if ((textureImg.width() * textureImg.height()) <= 0)
+        return false;
+
+    int w  = highmapImg.width();
+    int h  = highmapImg.height();
+    int tw = textureImg.width();
+    int th = textureImg.height();
 
     mesh.startMesh(Qtr3dVertexMesh::Triangle, Qtr3dVertexMesh::ClockWise);
 
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
-            float fx = (-w/2.0f) + x;
-            float fz = (-h/2.0f) + y;
-            float fy = qGray(highmapImg.pixel(x,y))/255.0f;
+            float fx = scale.x() * ((-w/2.0f) + x);
+            float fz = scale.z() * ((-h/2.0f) + y);
+            float fy = scale.y() * (qGray(highmapImg.pixel(x,y))/255.0f);
             QVector3D normal = {0.0f,1.0f,0.0f};
             if ((y > 0) && (x > 0) && (y < (h-1)) && (x < (w-1))) {
                 float topHigh    = qGray(highmapImg.pixel(x,y-1))/255.0f;
@@ -481,11 +490,13 @@ bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &high
                 float rightHigh  = qGray(highmapImg.pixel(x+1,y))/255.0f;
                 float leftHigh   = qGray(highmapImg.pixel(x-1,y))/255.0f;
 
-                QVector3D horiz = { 2, rightHigh-leftHigh, 0};
-                QVector3D verti = { 2, bottomHigh-topHigh, 0};
+                QVector3D horiz = { scale.x()*2, scale.y()*(rightHigh-leftHigh), 0};
+                QVector3D verti = { 0,           scale.y()*(bottomHigh-topHigh), scale.z()*2};
+
                 normal = QVector3D::crossProduct(verti,horiz).normalized();
             }
-            mesh.addVertex({fx,fy,fz},QVector3D({0.0f,1.0f,0.0f}), highmapImg.pixel(x,y));
+
+            mesh.addVertex({fx,fy,fz},normal, textureImg.pixel((x/(float)w)*tw, (y/(float)h)*th));
         }
     }
 

@@ -13,7 +13,7 @@ namespace Qtr3dModelFactory {
 bool modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Qtr3dModelLoader::Options opts = Qtr3dModelLoader::DefaultOptions);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QString &filename);
 bool meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json);
-bool meshByHighmap(Qtr3dVertexMesh &mesh, const QString &highmapImageName, const QString &texture = "");
+bool meshByHighmap(Qtr3dVertexMesh &mesh, const QString &highmapImageName, QVector3D scale = {1,1,1}, const QString &texture = "");
 bool meshByXyzAxis(Qtr3dVertexMesh &mesh); // Debug Purpose
 bool meshByStarsky(Qtr3dVertexMesh &mesh, float radius, int starCount, const QColor &color);
 bool meshByCylinder(Qtr3dVertexMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color);
