@@ -34,6 +34,7 @@ private:
     void setupTexturedMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
     void setupSimpleMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
     void setupVertexDotMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
+    void setupNormalMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
 
     QList<QVector3D>  mVertices;
     QList<QColor>     mVerticesColors;

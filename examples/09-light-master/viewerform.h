@@ -35,7 +35,9 @@ private:
     QList<Qtr3dGeometryBuffer*>   mMeshes;
     Qtr3dGeometryBufferState *mFloorState;
     Qtr3dGeometryBufferState *mCubeState;
-    Qtr3dGeometryBufferState *mSphereState;
+    Qtr3dGeometryBufferState *mSphereState1;
+    Qtr3dGeometryBufferState *mSphereState2;
+    Qtr3dGeometryBufferState *mSphereState3;
     Qtr3dGeometryBufferState *mLightState;
 
 };

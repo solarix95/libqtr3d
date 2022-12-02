@@ -27,7 +27,9 @@ ViewerForm::ViewerForm(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ViewerForm)
     , mCubeState(nullptr)
-    , mSphereState(nullptr)
+    , mSphereState1(nullptr)
+    , mSphereState2(nullptr)
+    , mSphereState3(nullptr)
     , mLightState(nullptr)
 {
     ui->setupUi(this);
@@ -82,12 +84,24 @@ ViewerForm::ViewerForm(QWidget *parent)
         mLightState->setLightingType(Qtr3d::NoLighting);
         mLightState->setScale({0.1,0.1,0.1});
 
-        // Create Sphere
-        auto *sphereMesh = ui->viewer->createVertexMesh();
-        Qtr3dModelFactory::meshBySphere(*sphereMesh,60,QImage(":/pebbles_texture.jpg"));
-        sphereMesh->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        mSphereState = ui->viewer->createBufferState(sphereMesh);
-        mMeshes << sphereMesh;
+        // Create Textured Sphere
+        auto *sphereMesh1 = ui->viewer->createVertexMesh();
+        Qtr3dModelFactory::meshBySphere(*sphereMesh1,60,QImage(":/pebbles_texture.jpg"));
+        sphereMesh1->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+        mSphereState1 = ui->viewer->createBufferState(sphereMesh1);
+        mMeshes << sphereMesh1;
+
+        auto *sphereMesh2 = ui->viewer->createVertexMesh();
+        Qtr3dModelFactory::meshBySphere(*sphereMesh2,60,Qt::black);
+        sphereMesh2->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+        mSphereState2 = ui->viewer->createBufferState(sphereMesh2);
+        mMeshes << sphereMesh2;
+
+        auto *sphereMesh3 = ui->viewer->createVertexMesh();
+        Qtr3dModelFactory::meshBySphere(*sphereMesh3,60,Qt::white);
+        sphereMesh3->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+        mSphereState3 = ui->viewer->createBufferState(sphereMesh3);
+        mMeshes << sphereMesh2;
 
         // Create Floor
         auto *floor = ui->viewer->createTexturedMesh(":/pebbles_texture.jpg");
@@ -218,7 +232,9 @@ void ViewerForm::updateLightType()
         return;
     }
     mCubeState->setLightingType(nextType);
-    mSphereState->setLightingType(nextType);
+    mSphereState1->setLightingType(nextType);
+    mSphereState2->setLightingType(nextType);
+    mSphereState3->setLightingType(nextType);
     mFloorState->setLightingType(nextType);
 
     ui->viewer->update();
@@ -248,8 +264,12 @@ void ViewerForm::updateModelPos()
     startPos = {3,1,0};
     mCubeState->setPos(turnMatrix * startPos);
 
-    startPos = {-3,1,0};
-    mSphereState->setPos(turnMatrix * startPos);
+    turnMatrix.rotate(90,{0,1,0});
+    mSphereState1->setPos(turnMatrix * startPos);
+    turnMatrix.rotate(90,{0,1,0});
+    mSphereState2->setPos(turnMatrix * startPos);
+    turnMatrix.rotate(90,{0,1,0});
+    mSphereState3->setPos(turnMatrix * startPos);
 
     ui->viewer->update();
 }

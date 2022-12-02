@@ -84,6 +84,11 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
         return true;
     }
 
+    if (opts.testFlag(NormalVectors)) {
+        setupNormalMesh(model,factory);
+        return true;
+    }
+
     if (!mTextureName.isEmpty() && !mTextureCoords.isEmpty())
         setupTexturedMesh(model, factory);
     else
@@ -118,7 +123,7 @@ void Qtr3dObjLoader::processVertex(const QStringList &args)
     mVertices << QVector3D(x,y,z);
     if (args.count() < 6)
         return;
-        // mMesh->addVertex(QVector3D(x,y,z));
+    // mMesh->addVertex(QVector3D(x,y,z));
 
 
     // Vertex extradata -> Color, 0..1
@@ -140,7 +145,7 @@ void Qtr3dObjLoader::processNormal(const QStringList &args)
     float x = args.at(0).toFloat();
     float y = args.at(1).toFloat();
     float z = args.at(2).toFloat();
-   //  mMesh->addNormal(QVector3D(x,y,z));
+    //  mMesh->addNormal(QVector3D(x,y,z));
     mNormals << QVector3D(x,y,z);
 }
 
@@ -274,9 +279,9 @@ void Qtr3dObjLoader::setupTexturedMesh(Qtr3dModel &model,  Qtr3dGeometryBufferFa
     // Faces
     for (int i=0; i<mFaceVertexIndexes.count(); i++) {
         mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)],
-                        mTextureCoords[mFaceTextureIndexes.at(i)].x(),
-                        mTextureCoords[mFaceTextureIndexes.at(i)].y(),
-                        mNormals[mFaceNormalsIndexes.at(i)]);
+                mTextureCoords[mFaceTextureIndexes.at(i)].x(),
+                mTextureCoords[mFaceTextureIndexes.at(i)].y(),
+                mNormals[mFaceNormalsIndexes.at(i)]);
 
     }
     mesh->endMesh();
@@ -288,7 +293,7 @@ void Qtr3dObjLoader::setupSimpleMesh(Qtr3dModel &model, Qtr3dGeometryBufferFacto
 {
     Qtr3dVertexMesh *mesh = factory.createVertexMesh();
     mesh->startMesh(Qtr3dVertexMesh::Triangle);
-
+    mesh->setDefaultColor(QColor("#293133"));
     bool colored = mVerticesColors.count() == mVertices.count();
 
     // Vertices
@@ -325,6 +330,30 @@ void Qtr3dObjLoader::setupVertexDotMesh(Qtr3dModel &model, Qtr3dGeometryBufferFa
             mesh->addVertex(mVertices.at(i),mVerticesColors.at(i));
         else
             mesh->addVertex(mVertices.at(i));
+    }
+
+    mesh->endMesh();
+    model.addGeometry(mesh);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dObjLoader::setupNormalMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory)
+{
+    if (mNormals.isEmpty())
+        return;
+
+    Qtr3dVertexMesh *mesh = factory.createVertexMesh();
+    mesh->setDefaultColor(Qt::red);
+    mesh->startMesh(Qtr3dVertexMesh::Line);
+
+    for (int i=0; i<mFaceVertexIndexes.count(); i++) {
+        QVector3D v = mVertices.at(mFaceVertexIndexes.at(i));
+        QVector3D n = mNormals.at(mFaceNormalsIndexes.at(i));
+
+
+        mesh->addVertex(v);
+        mesh->addVertex(v + (50*n));
+
     }
 
 

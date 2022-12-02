@@ -18,7 +18,7 @@ public:
     double    radius() const;
 
     int       bufferCount() const;
-    const Qtr3dGeometryBuffer *buffer(int index) const;
+    Qtr3dGeometryBuffer *buffer(int index) const;
 
     Qtr3dTextureFactory *texturesFactory();
 

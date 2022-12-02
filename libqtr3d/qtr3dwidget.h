@@ -32,6 +32,7 @@ public:
     Qtr3dWidget(Options ops = NoOption, QWidget *parent = NULL);
     Qtr3dWidget(QWidget *parent);
 
+    void                        setClearColor(QColor c);
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
     Qtr3dGeometryBufferFactory *factory();

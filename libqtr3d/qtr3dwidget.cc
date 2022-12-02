@@ -41,6 +41,12 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::setClearColor(QColor c)
+{
+    mClearColor = c;
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dCamera *Qtr3dWidget::camera()
 {
     if (!mCamera) {

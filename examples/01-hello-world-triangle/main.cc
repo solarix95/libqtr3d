@@ -1,6 +1,5 @@
 #include <QApplication>
 #include <QDebug>
-#include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dvertexmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>

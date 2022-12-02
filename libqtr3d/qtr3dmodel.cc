@@ -43,7 +43,7 @@ int Qtr3dModel::bufferCount() const
 }
 
 //-------------------------------------------------------------------------------------------------
-const Qtr3dGeometryBuffer *Qtr3dModel::buffer(int index) const
+Qtr3dGeometryBuffer *Qtr3dModel::buffer(int index) const
 {
     Q_ASSERT(index >= 0);
     Q_ASSERT(index < mModelBuffers.count());
