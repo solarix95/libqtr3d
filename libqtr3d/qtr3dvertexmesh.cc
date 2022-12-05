@@ -7,7 +7,7 @@ Qtr3dVertexMesh::Qtr3dVertexMesh(Type meshType)
     : Qtr3dGeometryBuffer()
     , mVertexBufferId(0)
     , mElementBufferId(0)
-    , mDefaultColor(Qt::white)
+    , mVertexCount(0)
 {
     startMesh(meshType);
 }
@@ -18,6 +18,7 @@ Qtr3dVertexMesh::~Qtr3dVertexMesh()
     reset();
 }
 
+//-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::setMeshType(Type t)
 {
     mMeshType = t;
@@ -29,11 +30,11 @@ void Qtr3dVertexMesh::reset()
     // TODO: release mVertexBufferId/mElementBufferId
     mVertexBufferId  = 0;
     mElementBufferId = 0;
+    mVertexCount     = 0;
     mVertexes.clear();
     mIndexes.clear();
     mNormals.clear();
 
-    mDefaultColor    = QColor();
     startMesh(Unknown);
 }
 
@@ -47,7 +48,7 @@ Qtr3dVertexMesh *Qtr3dVertexMesh::startMesh(Qtr3dVertexMesh::Type meshType, Qtr3
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMesh::endMesh()
+void Qtr3dVertexMesh::endMesh(bool doTrim)
 {
     if (mMeshType == Unknown || mVertexes.isEmpty())
         return;
@@ -62,7 +63,6 @@ void Qtr3dVertexMesh::endMesh()
         }
     }
 
-
     // Transfer Modeldata to Graphic-Memory
     mVertexBufferId = Qtr3dShader::makeBO(mVertexes.data(),mVertexes.count() * sizeof(Qtr3dColoredVertex));
 
@@ -73,21 +73,25 @@ void Qtr3dVertexMesh::endMesh()
         }
     }
 
-
-    mNormals.clear();
     mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(),mIndexes.count() * sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER);
+    mVertexCount     = mIndexes.count();
+
+    if (doTrim)
+        trim();
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMesh::setDefaultColor(const QColor &c)
+void Qtr3dVertexMesh::trim()
 {
-    mDefaultColor = c;
+    mVertexes.clear();
+    mNormals.clear();
+    mIndexes.clear();
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::addVertex(const QVector3D &v)
 {
-    addVertex(v,mDefaultColor);
+    addVertex(v,defaultColor());
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -101,7 +105,7 @@ void Qtr3dVertexMesh::addVertex(const QVector3D &v, const QColor &c)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMesh::addVertex(const QVector3D &v, const QVector3D &n)
 {
-    addVertex(v,n,mDefaultColor);
+    addVertex(v,n,defaultColor());
 }
 
 //-------------------------------------------------------------------------------------------------

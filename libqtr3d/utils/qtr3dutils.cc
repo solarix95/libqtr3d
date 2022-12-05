@@ -16,7 +16,7 @@ qint32 Qtr3d::qrand()
     Q_ASSERT(qApp->thread() == QThread::currentThread());
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-    return qrand();
+    return ::qrand();
 #else
     return QRandomGenerator::global()->generate();
 #endif

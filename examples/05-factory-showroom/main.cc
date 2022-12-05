@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
         qDebug() << "OpenGL ready";
-
+        w.setDefaultLighting(Qtr3d::FlatLighting);
         const int itemsCount = 4;
         QVector3D showRoomPos(0,0,-3);
         QMatrix4x4 showRoomRotate;
@@ -31,13 +31,12 @@ int main(int argc, char *argv[])
 
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByXyzAxis(*mesh);
-        w.createBufferState(mesh)->setFlat(true);
+        w.createBufferState(mesh, Qtr3d::NoLighting);
 
         // Cycle
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByCycle(*mesh,13,Qt::red);
         state = w.createBufferState(mesh);
-        state->setFlat(false);
         state->setState(showRoomPos,{0,0,45});
         showRoomPos = showRoomRotate * showRoomPos;
 
@@ -45,7 +44,6 @@ int main(int argc, char *argv[])
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshBySphere(*mesh,13,Qt::red);
         state = w.createBufferState(mesh);
-        state->setFlat(false);
         state->setState(showRoomPos,{0,0,0});
         showRoomPos = showRoomRotate * showRoomPos;
 
@@ -54,14 +52,13 @@ int main(int argc, char *argv[])
         mesh = w.createVertexMesh();
         Qtr3dModelFactory::meshByCylinder(*mesh,13,false,false,Qt::red);
         state = w.createBufferState(mesh);
-        state->setFlat(false);
         state->setState(showRoomPos,{0,0,0});
         showRoomPos = showRoomRotate * showRoomPos;
 
         // Solar System
-        SolarSystem *solar = new SolarSystem(w.textures(),&w);
-        w.createBufferState(solar)->setState(showRoomPos,{0,0,0},{0.1,0.1,0.1});
-        showRoomPos = showRoomRotate * showRoomPos;
+        //SolarSystem *solar = new SolarSystem(w.textures(),&w);
+        //w.createBufferState(solar)->setState(showRoomPos,{0,0,0},{0.1,0.1,0.1});
+        //showRoomPos = showRoomRotate * showRoomPos;
 
         // Sky
         mesh = w.createVertexMesh();

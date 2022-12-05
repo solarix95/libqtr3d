@@ -23,4 +23,5 @@ void main() {
         // gl_Position = projection * worldview * modelview * vertex; // vec4(vertex.x, vertex.y, vertex.z, 1.0);
         // gl_Position = vertex * modelview * projection;
         gl_Position = projection * modelview * vertex;
+        // gl_Position = projection * modelview * vec4(vertex.xy, 0.0, 1.0);
 }

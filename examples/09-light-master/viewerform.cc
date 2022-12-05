@@ -77,11 +77,9 @@ ViewerForm::ViewerForm(QWidget *parent)
         mMeshes << cubeMesh;
 
         mCubeState = ui->viewer->createBufferState(cubeMesh);
-        mCubeState->setLightingType(Qtr3d::FlatLighting);
 
         // Create 2nd-Cube as LightPosition-Marker
-        mLightState = ui->viewer->createBufferState(cubeMesh);
-        mLightState->setLightingType(Qtr3d::NoLighting);
+        mLightState = ui->viewer->createBufferState(cubeMesh, Qtr3d::NoLighting);
         mLightState->setScale({0.1,0.1,0.1});
 
         // Create Textured Sphere
@@ -134,6 +132,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         connect(ui->sldAmbient, &QSlider::valueChanged, this, [&](){ ui->ambientTot->setValue(ui->sldAmbient->value()/1000.0); });
         connect(ui->sldDiffuse, &QSlider::valueChanged, this, [&](){ ui->diffuseTot->setValue(ui->sldDiffuse->value()/1000.0); });
         connect(ui->sldSpecular,&QSlider::valueChanged, this, [&](){ ui->specularTot->setValue(ui->sldSpecular->value()/1000.0); });
+        connect(ui->sldShininess,&QSlider::valueChanged, this, [&](){ui->shininess->setValue(ui->sldShininess->value()/10); });
 
         connect(ui->lightambientTot,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
                 this, [&](){ ui->lightambientX->setValue(ui->lightambientTot->value());
@@ -168,6 +167,8 @@ ViewerForm::ViewerForm(QWidget *parent)
         connect(ui->ambientY,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
                 this, &ViewerForm::updateLightAttrib);
         connect(ui->ambientZ,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+                this, &ViewerForm::updateLightAttrib);
+        connect(ui->shininess,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
                 this, &ViewerForm::updateLightAttrib);
 
         connect(ui->diffuseX,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
@@ -231,12 +232,8 @@ void ViewerForm::updateLightType()
         updateLightType();
         return;
     }
-    mCubeState->setLightingType(nextType);
-    mSphereState1->setLightingType(nextType);
-    mSphereState2->setLightingType(nextType);
-    mSphereState3->setLightingType(nextType);
-    mFloorState->setLightingType(nextType);
 
+    ui->viewer->setDefaultLighting(nextType);
     ui->viewer->update();
 }
 
@@ -249,6 +246,7 @@ void ViewerForm::updateLightAttrib()
         mesh->material().kAmbient  = {float(ui->ambientX->value()),  float(ui->ambientY->value()),  float(ui->ambientZ->value())};
         mesh->material().kDiffuse  = {float(ui->diffuseX->value()),  float(ui->diffuseY->value()),  float(ui->diffuseZ->value())};
         mesh->material().kSpecular = {float(ui->specularX->value()), float(ui->specularY->value()), float(ui->specularZ->value())};
+        mesh->material().shininess = ui->shininess->value();
     }
 
     ui->viewer->update();

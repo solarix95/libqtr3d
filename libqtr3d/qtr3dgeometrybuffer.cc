@@ -5,6 +5,7 @@ Qtr3dGeometryBuffer::Qtr3dGeometryBuffer()
     : mFaceOrientation(DefaultOrientation)
     , mBlending(false)
     , mParent(nullptr)
+    , mDefaultColor(Qt::white)
 {
     mMin = QVector3D( std::numeric_limits<double>::max(),
                       std::numeric_limits<double>::max(),
@@ -38,6 +39,12 @@ Qtr3dGeometryBuffer::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() cons
         ret = ClockWise;
 
     return ret;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBuffer::setDefaultColor(const QColor &c)
+{
+    mDefaultColor = c;
 }
 
 //-------------------------------------------------------------------------------------------------

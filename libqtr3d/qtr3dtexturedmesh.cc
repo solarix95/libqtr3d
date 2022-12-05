@@ -85,8 +85,7 @@ void Qtr3dTexturedMesh::reset()
 void Qtr3dTexturedMesh::init(const QString &fname)
 {
     releaseGlIds();
-    mTexture = mTextures->texture(fname);
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    mTexture         = mTextures->texture(fname);
     mVertexBufferId  = Qtr3dShader::makeBO(mVertices.data(),mVertices.count() * sizeof(Qtr3dTexturedVertex),GL_ARRAY_BUFFER,GL_STATIC_DRAW);
 
     qDebug() << sizeof(Qtr3dTexturedVertex);

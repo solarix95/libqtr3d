@@ -31,12 +31,13 @@ public:
 
     void            setFaceOrientation(FaceOrientation orientation);
     FaceOrientation faceOrientation() const;
+    void            setDefaultColor(const QColor &c);
     Qtr3d::Material &material();
     const Qtr3d::Material &cMaterial() const;
     void            setBlendingEnabled(bool enabled);
     bool            blending() const;
 
-    void    setParentBuffer(Qtr3dGeometryBuffer *buffer);
+    void                 setParentBuffer(Qtr3dGeometryBuffer *buffer);
     Qtr3dGeometryBuffer *parentBuffer() const;
 
     virtual QVector3D minValues() const; // lowest xyz
@@ -47,6 +48,7 @@ public:
     // BufferState Iteration
     virtual void registerBufferState(Qtr3dGeometryBufferState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
+    inline QColor defaultColor() { return mDefaultColor; }
 
 protected:
     void analyze(const QVector3D &v);
@@ -59,8 +61,9 @@ private:
     bool                        mBlending;
     Qtr3dGeometryBuffer        *mParent;
     Qtr3dGeometryBufferStates   mBufferStates;
-    Qtr3d::Material             mMaterial;
 
+    Qtr3d::Material             mMaterial;
+    QColor                      mDefaultColor;
 
     QVector3D                   mMin;
     QVector3D                   mMax;

@@ -11,6 +11,7 @@
 #include "qtr3dtexturedquad.h"
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
+#include "loader/qtr3dplyloader.h"
 #include "loader/qtr3d3dsloader.h"
 #include "loader/qtr3dglbloader.h"
 #include "utils/qtr3dutils.h"
@@ -253,6 +254,7 @@ bool Qtr3dModelFactory::meshByCylinder(Qtr3dVertexMesh &mesh, int sectors, bool 
 
     mesh.startMesh(Qtr3dVertexMesh::Triangle);
     mesh.setDefaultColor(color);
+    mesh.setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
     for (int i=0; i<sectors; i++) {
         mesh.addVertex(pointer + QVector3D(0, 0.5,0),pointer); // Top Cycle
         mesh.addVertex(pointer + QVector3D(0,-0.5,0),pointer); // Bottom Cycle
@@ -294,6 +296,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     const float PI = 3.1415;
 
     mesh.startMesh(Qtr3dVertexMesh::Triangle);
+    mesh.setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
 
     auto getColor = [&](float xProc, float yProc) {
         return colorMap.pixel(xProc * (colorMap.width()-1),
@@ -421,6 +424,9 @@ bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, 
 {
     if (Qtr3dStlLoader::supportsFile(filename))
         return Qtr3dStlLoader::loadFile(model,filename, factory);
+
+    if (Qtr3dPlyLoader::supportsFile(filename))
+        return Qtr3dPlyLoader::loadFile(model,filename, factory);
 
     if (Qtr3dObjLoader::supportsFile(filename))
         return Qtr3dObjLoader::loadFile(model,filename, factory, opts);

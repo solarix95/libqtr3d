@@ -22,7 +22,7 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     , mFactory(nullptr)
     , mLightSource(nullptr)
     , mTexturedMeshShader(nullptr)
-    , mClearColor("#000000") // black
+    , mClearColor(Qt::black)
 {
     initializeMultisampleAntiAliasing();
 }
@@ -35,7 +35,7 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     , mFactory(nullptr)
     , mLightSource(nullptr)
     , mTexturedMeshShader(nullptr)
-    , mClearColor("#000000") // black
+    , mClearColor(Qt::black)
 {
     initializeMultisampleAntiAliasing();
 }
@@ -44,6 +44,16 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
 void Qtr3dWidget::setClearColor(QColor c)
 {
     mClearColor = c;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::setDefaultLighting(Qtr3d::LightingType t)
+{
+    Q_ASSERT(mVertexMeshShader);
+    mVertexMeshShader->setDefaultLighting(t);
+
+    Q_ASSERT(mTexturedMeshShader);
+    mTexturedMeshShader->setDefaultLighting(t);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -1,48 +1,62 @@
 #include <QFile>
-#include "qtr3dstlloader.h"
+#include "qtr3dplyloader.h"
 #include <libqtr3d/loader/qtr3dbinreader.h>
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::supportsFile(const QString &filename)
+bool Qtr3dPlyLoader::supportsFile(const QString &filename)
 {
-    return filename.toLower().endsWith(".stl");
+    return (fileHeader(filename).startsWith("ply\n"));
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dPlyLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
-    Qtr3dStlLoader loader;
+    Qtr3dPlyLoader loader;
     return loader.loadModel(model,filename,factory);
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dStlLoader::Qtr3dStlLoader()
-    : mMesh(nullptr)
+Qtr3dPlyLoader::Qtr3dPlyLoader()
+    : mFormat(InvalidFormat)
+    , mMesh(nullptr)
 {
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dStlLoader::~Qtr3dStlLoader() = default;
+Qtr3dPlyLoader::~Qtr3dPlyLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
 {
-    QByteArray header = fileHeader(filename,100);
-    if (header.isEmpty())
-        return false;
-
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))
         return false;
+
+    auto magicLine = f.readLine();
+    if (!magicLine.startsWith("ply"))
+        return false;
+
+    parseHeader(f);
+
+    if (mFormat == InvalidFormat)
+        return false;
+
+    return false;
 
     auto *mesh = factory.createVertexMesh();
     mesh->setDefaultColor(model.defaultColor());
 
     bool done = false;
-    if (header.trimmed().startsWith("solid"))
-         done = fromASCII(*mesh,f);
-    else
-        done = fromBinary(*mesh,f);
+    switch (mFormat) {
+    case TextFormat:
+        done = fromASCII(*mesh, f);
+        break;
+    case BinaryBigEndianFormat:
+    case BinaryLittleEndianFormat:
+        done = fromBinary(*mesh, f);
+        break;
+    default: break;
+    }
 
     if (!done) {
         delete mesh;
@@ -54,7 +68,29 @@ bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::fromASCII(Qtr3dVertexMesh &mesh, QFile &f)
+void Qtr3dPlyLoader::parseHeader(QFile &f)
+{
+    QByteArray nextLine;
+    do {
+        nextLine   = f.readLine().toLower().trimmed();
+        if (nextLine.startsWith("comment"))
+            continue;
+
+        auto parts = nextLine.split(' ');
+        if (parts.count() >= 2 && parts[0] == "format") { // "format binary_big_endian 1.0"
+            if (parts[1] == "binary_big_endian")
+                mFormat = BinaryBigEndianFormat;
+            else if (parts[1] == "binary_little_endian")
+                mFormat = BinaryLittleEndianFormat;
+            else if (parts[1] == "ascii")
+                mFormat = TextFormat;
+        }
+
+    } while (!nextLine.isEmpty() && (nextLine != "end_header"));
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dPlyLoader::fromASCII(Qtr3dVertexMesh &mesh, QFile &f)
 {
     QTextStream in(&f);
     mMesh = &mesh;
@@ -168,7 +204,7 @@ bool Qtr3dStlLoader::fromASCII(Qtr3dVertexMesh &mesh, QFile &f)
 }
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3dStlLoader::fromBinary(Qtr3dVertexMesh &mesh, QFile &f)
+bool Qtr3dPlyLoader::fromBinary(Qtr3dVertexMesh &mesh, QFile &f)
 {
     Qtr3dBinReader reader(f.readAll());
     reader.skip(80);
@@ -198,7 +234,7 @@ bool Qtr3dStlLoader::fromBinary(Qtr3dVertexMesh &mesh, QFile &f)
 
 //-------------------------------------------------------------------------------------------------}
 
-QVector3D Qtr3dStlLoader::vectorFromStringList(const QStringList &strings)
+QVector3D Qtr3dPlyLoader::vectorFromStringList(const QStringList &strings)
 {
     if (strings.count() != 3)
         return QVector3D();

@@ -4,25 +4,20 @@
 #include "qtr3dtexturedquad.h"
 
 //-------------------------------------------------------------------------------------------------
-// Simple helper to make a single buffer object.
-
-/*
-inline GLuint sMakeBO( QOpenGLFunctions *f, GLenum type, void* data, GLsizei size, int accessFlags ) {
-    GLuint bo;
-    f->glGenBuffers( 1, &bo );
-    f->glBindBuffer( type, bo );
-    f->glBufferData( type, size, data, accessFlags );
-    return( bo );
-}
-*/
-
-//-------------------------------------------------------------------------------------------------
 Qtr3dShader::Qtr3dShader(const QString &eglFile)
- : mCurrentType(Qtr3d::DefaultLighting)
+ : mDefaultLighting(Qtr3d::NoLighting)
+ , mCurrentType(Qtr3d::DefaultLighting)
 {
     initShader(Qtr3d::NoLighting,    eglFile);
     initShader(Qtr3d::FlatLighting,  eglFile);
     initShader(Qtr3d::PhongLighting, eglFile);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::setDefaultLighting(Qtr3d::LightingType l)
+{
+    mDefaultLighting = l;
+    Q_ASSERT(mDefaultLighting != Qtr3d::DefaultLighting);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -33,6 +28,7 @@ void Qtr3dShader::render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &
 }
 
 // Simple helper to make a single buffer object.
+//-------------------------------------------------------------------------------------------------
 GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlags ) {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     GLuint bo;

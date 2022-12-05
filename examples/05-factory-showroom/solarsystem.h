@@ -1,14 +1,14 @@
 #ifndef SOLARSYSTEM_H
 #define SOLARSYSTEM_H
 
-#include "libqtr3d/qtr3dmodel.h"
+#include <QObject>
 
-class Qtr3dWidget;
-class SolarSystem : public Qtr3dModel
+class Qtr3dGeometryBufferFactory;
+class SolarSystem : public QObject
 {
     Q_OBJECT
 public:
-    SolarSystem(Qtr3dTextureFactory *textures, Qtr3dWidget *parent);
+    SolarSystem(Qtr3dGeometryBufferFactory *factory);
 
 private slots:
     void updateSolarSystem();

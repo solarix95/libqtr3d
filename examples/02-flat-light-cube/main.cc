@@ -58,21 +58,18 @@ int main(int argc, char *argv[])
 
         mesh->endMesh();
 
-        auto *state = w.createBufferState(mesh);
-        state->setLightingType(Qtr3d::FlatLighting);
+        auto *state = w.createBufferState(mesh, Qtr3d::FlatLighting);
 
-        auto *stateLight = w.createBufferState(mesh);
-        stateLight->setLightingType(Qtr3d::NoLighting);
+        auto *stateLight = w.createBufferState(mesh, Qtr3d::NoLighting);
         stateLight->setState({0,2,0},{0,0,0},{0.1,0.1,0.1});
 
         // Debug-Mesh:
         auto *mesh2 = w.createVertexMesh();
-
-        Qtr3dModelFactory::normalMeshByMesh(*mesh2, *mesh, 1);
-        auto *state2 = w.createBufferState(mesh2);
-        state2->setLightingType(Qtr3d::NoLighting);
+        Qtr3dModelFactory::normalMeshByMesh(*mesh2, *mesh, 1, Qt::red);
+        auto *state2 = w.createBufferState(mesh2, Qtr3d::NoLighting);
 
         w.primaryLightSource()->setPos({0,5,0});
+        w.primaryLightSource()->setAmbientStrength(0.1);
         w.camera()->lookAt({5,5,-12},{0,0,0},{0,1,0});
         new Qtr3dFreeCameraController(&w);
     });

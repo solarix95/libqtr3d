@@ -23,7 +23,7 @@ void Qtr3dTexturedMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, c
                 continue;
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
-                nextLightingTyp = Qtr3d::NoLighting;
+                nextLightingTyp = defaultLighting();
 
             setProgram(nextLightingTyp);
             switch(nextLightingTyp) {

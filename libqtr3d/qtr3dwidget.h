@@ -33,17 +33,17 @@ public:
     Qtr3dWidget(QWidget *parent);
 
     void                        setClearColor(QColor c);
+    void                        setDefaultLighting(Qtr3d::LightingType t);
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
     Qtr3dGeometryBufferFactory *factory();
     Qtr3dLightSource           *primaryLightSource();
 
     // Factories
-
     virtual Qtr3dTexturedMesh        *createTexturedMesh(const QString &textureName="");
     virtual Qtr3dVertexMesh          *createVertexMesh();
     virtual Qtr3dModel               *createModel();
-    virtual Qtr3dGeometryBufferState *createBufferState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::NoLighting);
+    virtual Qtr3dGeometryBufferState *createBufferState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
 
 public slots:
     void updateRequested();

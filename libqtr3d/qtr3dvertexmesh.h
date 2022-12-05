@@ -15,11 +15,10 @@ public:
     void              setMeshType(Type t);
     Type              meshType() const;
 
-    void reset();
-    Qtr3dVertexMesh *startMesh(Type meshType, FaceOrientation orientation = DefaultOrientation);
-    void endMesh();
-
-    void setDefaultColor(const QColor &c);
+    void              reset();
+    Qtr3dVertexMesh  *startMesh(Type meshType, FaceOrientation orientation = DefaultOrientation);
+    void              endMesh(bool doTrim = false);
+    void              trim(); // save memory by throw away onused data structures
 
     void addVertex(const QVector3D &v); // .. and use "defaultColor"
     void addVertex(const QVector3D &v, const QColor &c);
@@ -38,7 +37,7 @@ public:
     // Shader Interface
     inline GLuint vertexBufferId() const  { return mVertexBufferId;  }
     inline GLuint elementBufferId() const { return mElementBufferId; }
-    inline int    vertexCount() const     { return mIndexes.isEmpty() ? mVertexes.count() : mIndexes.count();}
+    inline int    vertexCount() const     { return mVertexCount > 0 ? mVertexCount : (mIndexes.isEmpty() ? mVertexes.count() : mIndexes.count());}
     GLenum        bufferType() const;
 
 
@@ -47,8 +46,8 @@ private:
 
     GLuint mVertexBufferId;
     GLuint mElementBufferId;
+    int    mVertexCount;
 
-    QColor                      mDefaultColor;
     Type                        mMeshType;
 
     QVector<Qtr3dColoredVertex> mVertexes;
