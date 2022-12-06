@@ -8,6 +8,7 @@ class Qtr3dBinReader
 {
 public:
     Qtr3dBinReader(const QByteArray &buffer = QByteArray());
+    Qtr3dBinReader(bool byteSwap, const QByteArray &buffer = QByteArray());
 
     void setBuffer(const QByteArray &buffer);
     void clear();
@@ -43,6 +44,7 @@ private:
     const quint8 *mCursor;
     int           mParsedBytes;
     bool          mError;
+    bool          mByteSwap;
 };
 
 #endif // BINARYREADER_H

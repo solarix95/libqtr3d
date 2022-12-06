@@ -5,14 +5,40 @@
 #define ERROR(c) if (!c) { mError = true; return 0; }
 
 //-------------------------------------------------------------------------------------------
+template <typename T>
+T bswap(T val) {
+    T retVal;
+    char *pVal = (char*) &val;
+    char *pRetVal = (char*)&retVal;
+    int size = sizeof(T);
+    for(int i=0; i<size; i++) {
+        pRetVal[size-1-i] = pVal[i];
+    }
+    return retVal;
+}
+
+//-------------------------------------------------------------------------------------------
 Qtr3dBinReader::Qtr3dBinReader(const QByteArray &buffer)
- : mCursor(NULL)
- , mParsedBytes(0)
- , mError(false)
+    : mCursor(NULL)
+    , mParsedBytes(0)
+    , mError(false)
+    , mByteSwap(false)
 {
     if (!buffer.isEmpty())
         setBuffer(buffer);
 }
+
+//-------------------------------------------------------------------------------------------
+Qtr3dBinReader::Qtr3dBinReader(bool byteSwap, const QByteArray &buffer)
+    : mCursor(NULL)
+    , mParsedBytes(0)
+    , mError(false)
+    , mByteSwap(byteSwap)
+{
+    if (!buffer.isEmpty())
+        setBuffer(buffer);
+}
+
 
 //-------------------------------------------------------------------------------------------
 void Qtr3dBinReader::setBuffer(const QByteArray &buffer)
@@ -70,6 +96,7 @@ bool Qtr3dBinReader::read(void *destPtr, int size)
     memcpy(destPtr,mCursor,size);
     mCursor      += size;
     mParsedBytes += size;
+    // TODO: ByteSwap
     return true;
 }
 
@@ -150,14 +177,20 @@ QString Qtr3dBinReader::readAsciiZ()
 qint32 Qtr3dBinReader::getInt32(int pos) const
 {
     Q_ASSERT(pos >= 0 && pos < mBuffer.length());
-    return *(qint32*)(mBuffer.constData() + pos);
+    return mByteSwap ?
+                bswap<qint32>(*(qint32*)(mBuffer.constData() + pos))
+                :
+                (*(qint32*)(mBuffer.constData() + pos));
 }
 
 //-------------------------------------------------------------------------------------------
 quint32 Qtr3dBinReader::getUint32(int pos) const
 {
     Q_ASSERT(pos >= 0 && pos < mBuffer.length());
-    return *(quint32*)(mBuffer.constData() + pos);
+    return mByteSwap ?
+                bswap<quint32>(*(quint32*)(mBuffer.constData() + pos))
+                :
+                (*(quint32*)(mBuffer.constData() + pos));
 }
 
 //-------------------------------------------------------------------------------------------

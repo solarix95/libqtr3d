@@ -39,22 +39,16 @@ public:
 
     virtual bool loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
 
-protected:
-
 private:
     void parseHeader(QFile &f);
     bool decodeNextAsciiElement(QFile &f);
     void appendElementAttribut(const QString &elementName, const QString &attributName, const QVariantList &values);
     void appendElementAttributs(const QString &elementName, const QStringList &attributNames, const QVariantList &values);
 
-
-    bool fromASCII(Qtr3dVertexMesh &mesh, QFile &f);
-    bool fromBinary(Qtr3dVertexMesh &mesh, QFile &f);
-
-    static QVector3D    vectorFromStringList(const QStringList &strings);
     static AttributType typeByString(const QString &type);
     static bool         decodeAsciiVariant(const QString &inValue, QVariant &outValue, AttributType t);
 
+    // Element-Block Metadata for Decoding
     struct Element {
         // element vertex 8
         QString        name; // "vertex" or "face"

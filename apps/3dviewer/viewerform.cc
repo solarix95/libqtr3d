@@ -31,7 +31,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         ui->viewer->primaryLightSource()->setAmbientStrength(0.7);
 
         ui->btnLoad->setEnabled(true);
-        new Qtr3dFreeCameraController(ui->viewer);
+        connect(new Qtr3dFreeCameraController(ui->viewer), &Qtr3dFreeCameraController::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
         for (auto arg: qApp->arguments()) {
             if (arg.startsWith("--load=")) {
                 auto parts = arg.split("=");
