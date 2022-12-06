@@ -48,7 +48,8 @@ public:
     // BufferState Iteration
     virtual void registerBufferState(Qtr3dGeometryBufferState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
-    inline QColor defaultColor() { return mDefaultColor; }
+    inline QColor    defaultColor()  { return mDefaultColor; }
+    inline QVector3D defaultColorF() { return QVector3D(mDefaultColor.redF(), mDefaultColor.greenF(), mDefaultColor.blueF()); }
 
 protected:
     void analyze(const QVector3D &v);

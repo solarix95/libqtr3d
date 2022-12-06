@@ -4,6 +4,8 @@
 #include <QString>
 #include <QFile>
 #include <QList>
+#include <QVariant>
+#include <QVariantList>
 #include <QStringList>
 #include "qtr3dmodelloader.h"
 
@@ -19,6 +21,19 @@ public:
         BinaryLittleEndianFormat,
         BinaryBigEndianFormat
     };
+
+
+    enum AttributType {
+        InvalidType,
+        Char,
+        UChar,
+        Short,
+        UShort,
+        Int,
+        UInt,
+        Float,
+        Double
+    };
     Qtr3dPlyLoader();
     virtual ~Qtr3dPlyLoader();
 
@@ -28,9 +43,17 @@ protected:
 
 private:
     void parseHeader(QFile &f);
+    bool decodeNextAsciiElement(QFile &f);
+    void appendElementAttribut(const QString &elementName, const QString &attributName, const QVariantList &values);
+    void appendElementAttributs(const QString &elementName, const QStringList &attributNames, const QVariantList &values);
+
+
     bool fromASCII(Qtr3dVertexMesh &mesh, QFile &f);
     bool fromBinary(Qtr3dVertexMesh &mesh, QFile &f);
-    static QVector3D vectorFromStringList(const QStringList &strings);
+
+    static QVector3D    vectorFromStringList(const QStringList &strings);
+    static AttributType typeByString(const QString &type);
+    static bool         decodeAsciiVariant(const QString &inValue, QVariant &outValue, AttributType t);
 
     struct Element {
         // element vertex 8
@@ -38,13 +61,14 @@ private:
         int            elementCount;
 
         // property float x
-        QList<QString> attributNames;
-        QList<int>     attribuTypes;
+        QList<QString>      attributNames;
+        QList<AttributType> attributTypes;
 
         // property list uchar int vertex_index
-        int  listType; // uchar
+        AttributType   listType; // uchar
 
-        Element() : elementCount(0), listType(QVariant::Invalid) {}
+        Element() : elementCount(0), listType(InvalidType) {}
+        Element(QString n, int count): name(n), elementCount(count), listType(InvalidType) {}
     };
 
     Format           mFormat;
