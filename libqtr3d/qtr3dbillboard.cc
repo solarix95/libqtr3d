@@ -1,5 +1,7 @@
 #include <cmath>
 #include <QDebug>
+#include <QVector3D>
+#include <QMatrix4x4>
 #include "qtr3dbillboard.h"
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dgeometrybufferstate.h>

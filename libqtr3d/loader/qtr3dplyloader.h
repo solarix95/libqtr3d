@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QFile>
+#include <QList>
 #include <QStringList>
 #include "qtr3dmodelloader.h"
 
@@ -31,7 +32,23 @@ private:
     bool fromBinary(Qtr3dVertexMesh &mesh, QFile &f);
     static QVector3D vectorFromStringList(const QStringList &strings);
 
+    struct Element {
+        // element vertex 8
+        QString        name; // "vertex" or "face"
+        int            elementCount;
+
+        // property float x
+        QList<QString> attributNames;
+        QList<int>     attribuTypes;
+
+        // property list uchar int vertex_index
+        int  listType; // uchar
+
+        Element() : elementCount(0), listType(QVariant::Invalid) {}
+    };
+
     Format           mFormat;
+    QList<Element>   mElements;
     Qtr3dVertexMesh *mMesh;
 };
 
