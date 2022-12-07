@@ -53,19 +53,6 @@ void Qtr3dVertexMesh::endMesh(bool doTrim)
     if (mMeshType == Unknown || mVertexes.isEmpty())
         return;
 
-    if (mMeshType == Triangle || mMeshType == Quad) {
-        for (int i=0; i<mVertexes.count(); i++) {
-            if (i != 4)
-                continue;
-            if (mVertexes.at(i).n.isNull()) {
-                calculateNormal(i);
-            }
-        }
-    }
-
-    // Transfer Modeldata to Graphic-Memory
-    mVertexBufferId = Qtr3dShader::makeBO(mVertexes.data(),mVertexes.count() * sizeof(Qtr3dColoredVertex));
-
     // Transfer Vertex Order to Graphic-Memory
     if (mIndexes.isEmpty()) {
         for (int i=0; i<mVertexes.count(); i++) {
@@ -73,8 +60,19 @@ void Qtr3dVertexMesh::endMesh(bool doTrim)
         }
     }
 
+    // Auto-Normal
+    if (mMeshType == Triangle || mMeshType == Quad) {
+        for (int i=0; i<mIndexes.count();) {
+            if (mVertexes.at(mIndexes[i]).n.isNull())
+                calculateFaceNormal(mIndexes[i], mIndexes[i+1], mIndexes[i+2]);
+            i += (mMeshType == Triangle ? 3 : 4);
+        }
+    }
+
+    // Transfer Modeldata to Graphic-Memory
+    mVertexBufferId  = Qtr3dShader::makeBO(mVertexes.data(),mVertexes.count() * sizeof(Qtr3dColoredVertex));
     mElementBufferId = Qtr3dShader::makeBO(mIndexes.data(),mIndexes.count() * sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER);
-    mVertexCount     = mIndexes.count();
+    mVertexCount     = mIndexes.count(); // ready to trim "mIndexes"
 
     if (doTrim)
         trim();
@@ -190,12 +188,14 @@ void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
     int shapeIndex   = vertexIndex / shapeVertexCount;
 
 
-    QVector3D v01(mVertexes.at(shapeIndex+1).p.toQVector() -
-                  mVertexes.at(shapeIndex+0).p.toQVector());
+    // https://stackoverflow.com/questions/19350792/calculate-normal-of-a-single-triangle-in-3d-space
+    QVector3D v01(mVertexes.at(vertexIndex+1).p.toQVector() -
+                  mVertexes.at(vertexIndex+0).p.toQVector());
 
-    QVector3D v02(mVertexes.at(shapeIndex+2).p.toQVector() -
-                  mVertexes.at(shapeIndex+0).p.toQVector());
+    QVector3D v02(mVertexes.at(vertexIndex+2).p.toQVector() -
+                  mVertexes.at(vertexIndex+0).p.toQVector());
 
+    /*
     switch(relativIndex) {
     case 0: {
         v01 = mVertexes.at(shapeIndex+1).p.toQVector() - mVertexes.at(shapeIndex+0).p.toQVector();
@@ -206,9 +206,12 @@ void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
         v02 = mVertexes.at(shapeIndex+2).p.toQVector() - mVertexes.at(shapeIndex+0).p.toQVector();
     } break;
     }
+    */
 
     QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
-    mVertexes[vertexIndex].n = normal;
+    mVertexes[vertexIndex+0].n = normal;
+    mVertexes[vertexIndex+1].n = normal;
+    mVertexes[vertexIndex+2].n = normal;
 
     /*
     double l1 = mVertexes.at(shapeIndex+0).p.toQVector().distanceToPoint(center());
@@ -216,6 +219,22 @@ void Qtr3dVertexMesh::calculateNormal(int vertexIndex)
 
     mVertexes[vertexIndex].n = (l2 > l1) ? normal : -normal;
     */
+
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dVertexMesh::calculateFaceNormal(int vi1, int vi2, int vi3)
+{
+    QVector3D v01(mVertexes.at(vi2).p.toQVector() -
+                  mVertexes.at(vi1).p.toQVector());
+
+    QVector3D v02(mVertexes.at(vi3).p.toQVector() -
+                  mVertexes.at(vi1).p.toQVector());
+
+    QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
+    mVertexes[vi1].n = normal;
+    mVertexes[vi2].n = normal;
+    mVertexes[vi3].n = normal;
 
 }
 

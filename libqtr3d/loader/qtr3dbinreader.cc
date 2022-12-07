@@ -96,7 +96,35 @@ bool Qtr3dBinReader::read(void *destPtr, int size)
     memcpy(destPtr,mCursor,size);
     mCursor      += size;
     mParsedBytes += size;
-    // TODO: ByteSwap
+    // TODO: make ByteSwap faster?
+    if (mByteSwap && (size > 1)) {
+        char swapBuffer[size];
+        switch (size) {
+        case 2:
+            swapBuffer[0] = ((char*)destPtr)[1];
+            swapBuffer[1] = ((char*)destPtr)[0];
+            break;
+        case 4:
+            swapBuffer[0] = ((char*)destPtr)[3];
+            swapBuffer[1] = ((char*)destPtr)[2];
+            swapBuffer[2] = ((char*)destPtr)[1];
+            swapBuffer[3] = ((char*)destPtr)[0];
+            break;
+        case 8:
+            swapBuffer[0] = ((char*)destPtr)[7];
+            swapBuffer[1] = ((char*)destPtr)[6];
+            swapBuffer[2] = ((char*)destPtr)[5];
+            swapBuffer[3] = ((char*)destPtr)[4];
+            swapBuffer[4] = ((char*)destPtr)[3];
+            swapBuffer[5] = ((char*)destPtr)[2];
+            swapBuffer[6] = ((char*)destPtr)[1];
+            swapBuffer[7] = ((char*)destPtr)[0];
+            break;
+        default:
+            Q_ASSERT(0 && "not supported");
+        }
+       memcpy(destPtr,swapBuffer,size);
+    }
     return true;
 }
 
@@ -159,6 +187,15 @@ float Qtr3dBinReader::readFloat()
 {
     float ret;
     bool done = read(&ret,4);
+    ERROR(done);
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------
+double Qtr3dBinReader::readDouble()
+{
+    double ret;
+    bool done = read(&ret,8);
     ERROR(done);
     return ret;
 }

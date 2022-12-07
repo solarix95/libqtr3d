@@ -27,6 +27,7 @@ public:
     quint32 readUint32();
     qint32  readInt32();
     float   readFloat();
+    double  readDouble();
     QString readAsciiZ();
 
     qint32  getInt32(int pos) const;

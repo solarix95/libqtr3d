@@ -31,7 +31,7 @@ Qtr3dTexture *Qtr3dTextureFactory::texture(const QImage &img, const QString &nam
     Qtr3dTexture *tex = mTextureDb.value(name,nullptr);
     if (!tex) {
         tex = createTexture(img);
-        if (tex)
+        if (tex && !name.isEmpty())
             mTextureDb[name] = tex;
     }
     return tex;

@@ -40,10 +40,11 @@ private:
     QByteArray  bufferView(int index) const;
     QVariantMap accessorInfo(int index) const;
 
-    void loadMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
+    void loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
+    void loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo);
     QList<QVector3D> loadVectors(int componentType, int count, const QByteArray &buffer) const;
     QList<int>       loadFaceIndexes(int componentType, int count, const QByteArray &buffer) const;
-    QList<QPointF>   loadTextureCoords(int componentType, int count, const QByteArray &buffer) const;
+    QList<QPointF>   loadTextureCoords(int componentType, int count, const QByteArray &buffer, const QString &coordType) const;
     QImage           loadTexture(int materialIndex, int &texCoord) const;
 
     Qtr3dModel                 *mModel;

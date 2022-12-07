@@ -40,6 +40,7 @@ ViewerForm::ViewerForm(QWidget *parent)
             }
         }
 
+        ui->viewer->primaryLightSource()->setAmbientStrength(0.1);
         connect(ui->viewer->camera(), &Qtr3dCamera::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
 
     });
@@ -64,7 +65,7 @@ void ViewerForm::load()
     static QString fileName = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
 
     fileName = QFileDialog::getOpenFileName(this,
-        tr("Open Image"), fileName, tr("3D Files (*.stl *.obj *.3ds *.glb)"));
+        tr("Open Image"), fileName, tr("3D Files (*.stl *.obj *.3ds *.glb *.ply)"));
 
     if (fileName.isEmpty())
         return;

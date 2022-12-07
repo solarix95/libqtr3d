@@ -43,6 +43,7 @@ public:
 
 private:
     void calculateNormal(int vertexIndex);
+    void calculateFaceNormal(int vi1, int vi2, int vi3);
 
     GLuint mVertexBufferId;
     GLuint mElementBufferId;

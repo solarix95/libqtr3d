@@ -51,6 +51,14 @@ bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
                 delete mMesh;
                 return false;
             }
+    } else {
+        QByteArray binaryBuffer = f.readAll();
+        Qtr3dBinReader reader(true,binaryBuffer);
+        while (mElements.count() > 0)
+            if (!decodeNextBinaryElement(reader)) {
+                delete mMesh;
+                return false;
+            }
     }
     mMesh->endMesh();
 
@@ -162,6 +170,55 @@ bool Qtr3dPlyLoader::decodeNextAsciiElement(QFile &f)
 }
 
 //-------------------------------------------------------------------------------------------------
+bool Qtr3dPlyLoader::decodeNextBinaryElement(Qtr3dBinReader &reader)
+{
+    Q_ASSERT(mElements.count() > 0);
+    Element e = mElements.takeFirst();
+    if (e.attributTypes.isEmpty())
+        return false;
+
+    QList<QByteArray> parts;
+    QVariant          value;
+    QVariantList      values;
+
+    for (int i=0; i<e.elementCount; i++) {
+
+        // Decode Binary List Attribute
+        if (e.listType != InvalidType) {
+            // "property list uchar int vertex_indices" -> "3 1 2 3"
+            if (!decodeBinaryVariant(reader,value,e.listType))
+                return false;
+
+            if (value.toInt() <= 0)
+                return false;
+
+            values.clear();
+            int attributCount = value.toInt();
+            for (int ai=0; ai< attributCount; ai++) {
+                if (!decodeBinaryVariant(reader,value,e.attributTypes[0]))
+                    return false;
+                values << value;
+            }
+            appendElementAttribut(e.name, e.attributNames.first(), values);
+            continue;
+        }
+
+        // Decode Recular/Scalar Attribute
+        if (e.attributNames.count() <= 0)
+            return false;
+        values.clear();
+        for (int ai=0; ai<e.attributTypes.count(); ai++) {
+            if (!decodeBinaryVariant(reader,value,e.attributTypes[ai]))
+                return false;
+            values << value;
+        }
+        appendElementAttributs(e.name, e.attributNames, values);
+
+    }
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dPlyLoader::appendElementAttribut(const QString &elementName, const QString &attributName, const QVariantList &values)
 {
     // qDebug() << elementName << attributName << values;
@@ -263,4 +320,24 @@ bool Qtr3dPlyLoader::decodeAsciiVariant(const QString &inValue, QVariant &outVal
     }
     return false;
 }
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dPlyLoader::decodeBinaryVariant(Qtr3dBinReader &reader, QVariant &outValue, AttributType t)
+{
+    switch (t) {
+    case Char:   outValue = QVariant(reader.readInt8());    return true;
+    case UChar:  outValue = QVariant(reader.readUint8());   return true;
+    case Short:  outValue = QVariant(reader.readInt16());   return true;
+    case UShort: outValue = QVariant(reader.readUint16());  return true;
+    case Int:    outValue = QVariant(reader.readInt32());   return true;
+    case UInt:   outValue = QVariant(reader.readUint32());  return true;
+    case Float:  outValue = QVariant(reader.readFloat());   return true;
+    case Double: outValue = QVariant(reader.readDouble());  return true;
+    default: return false;
+    }
+    return false;
+}
+
+
+
 

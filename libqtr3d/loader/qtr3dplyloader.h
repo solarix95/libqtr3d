@@ -8,6 +8,7 @@
 #include <QVariantList>
 #include <QStringList>
 #include "qtr3dmodelloader.h"
+#include "qtr3dbinreader.h"
 
 class Qtr3dPlyLoader : public Qtr3dModelLoader
 {
@@ -42,11 +43,14 @@ public:
 private:
     void parseHeader(QFile &f);
     bool decodeNextAsciiElement(QFile &f);
+    bool decodeNextBinaryElement(Qtr3dBinReader &reader);
     void appendElementAttribut(const QString &elementName, const QString &attributName, const QVariantList &values);
     void appendElementAttributs(const QString &elementName, const QStringList &attributNames, const QVariantList &values);
 
     static AttributType typeByString(const QString &type);
     static bool         decodeAsciiVariant(const QString &inValue, QVariant &outValue, AttributType t);
+    static bool         decodeBinaryVariant(Qtr3dBinReader &reader, QVariant &outValue, AttributType t);
+
 
     // Element-Block Metadata for Decoding
     struct Element {

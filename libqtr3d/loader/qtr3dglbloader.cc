@@ -97,6 +97,10 @@ bool Qtr3dGlbLoader::parseJunkv2(Qtr3dBinReader &binReader)
 void Qtr3dGlbLoader::parseJsonJunk(const QByteArray &data)
 {
     mJsonStruct = QJsonDocument::fromJson(data).toVariant().toMap();
+
+    //QFile f("/tmp/test.json");
+    //if (f.open(QIODevice::WriteOnly))
+    //        f.write(QJsonDocument::fromVariant(mJsonStruct).toJson(QJsonDocument::Indented));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -110,19 +114,29 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo)
 {
     QVariantList primitiveInfos = meshInfo["primitives"].toList();
     for (int i=0; i<primitiveInfos.count(); i++) {
-        int indicesAcsessorIndex  = primitiveInfos[i].toMap()["indices"].toInt();
-        int materialIndex         = primitiveInfos[i].toMap()["material"].toInt();
+        int indicesAcsessorIndex  = primitiveInfos[i].toMap().value("indices",-1).toInt();
+        int materialIndex         = primitiveInfos[i].toMap().value("material",-1).toInt();
         int textCoordIndex = -1;
         QImage texture = loadTexture(materialIndex,textCoordIndex);
 
-        int positionAccessorIndex = primitiveInfos[i].toMap()["attributes"].toMap()["POSITION"].toInt();
-        int normalAccessorIndex   = primitiveInfos[i].toMap()["attributes"].toMap()["NORMAL"].toInt();
-        int textcoordAccessorIndex= primitiveInfos[i].toMap()["attributes"].toMap()[QString("TEXCOORD_%1").arg(textCoordIndex)].toInt();
-        loadMesh(accessorInfo(positionAccessorIndex),
-                 accessorInfo(indicesAcsessorIndex),
-                 accessorInfo(normalAccessorIndex),
-                 accessorInfo(textcoordAccessorIndex),
-                 texture);
+        int positionAccessorIndex = primitiveInfos[i].toMap()["attributes"].toMap().value("POSITION",-1).toInt();
+        int normalAccessorIndex   = primitiveInfos[i].toMap()["attributes"].toMap().value("NORMAL",-1).toInt();
+        int textcoordAccessorIndex= primitiveInfos[i].toMap()["attributes"].toMap().value(QString("TEXCOORD_%1").arg(textCoordIndex),-1).toInt();
+
+        Q_ASSERT(indicesAcsessorIndex >= 0);
+        Q_ASSERT(normalAccessorIndex >= 0);
+
+        if (textcoordAccessorIndex >= 0) {
+            loadTexturedMesh(accessorInfo(positionAccessorIndex),
+                     accessorInfo(indicesAcsessorIndex),
+                     accessorInfo(normalAccessorIndex),
+                     accessorInfo(textcoordAccessorIndex),
+                     texture);
+        } else {
+            loadColoredMesh(accessorInfo(positionAccessorIndex),
+                     accessorInfo(indicesAcsessorIndex),
+                     accessorInfo(normalAccessorIndex));
+        }
         qDebug() << positionAccessorIndex << indicesAcsessorIndex << normalAccessorIndex << textcoordAccessorIndex;
     }
 }
@@ -203,7 +217,7 @@ QVariantMap Qtr3dGlbLoader::accessorInfo(int index) const
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture)
+void Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture)
 {
     if (positionInfo.isEmpty() || faceInfo.isEmpty())
         return;
@@ -230,15 +244,18 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
     QList<QPointF> textureCoords = loadTextureCoords(
                 textCoordInfo["componentType"].toInt(),
                 textCoordInfo["count"].toInt(),
-                bufferView(textCoordInfo["bufferView"].toInt())
+                bufferView(textCoordInfo["bufferView"].toInt()),
+                textCoordInfo["type"].toString()
             );
 
 
 #if 1
-     mModel->texturesFactory()->texture(texture.mirrored(),"test");
+    QString textureName = QString("texture_%1").arg(qrand());
+
+     mModel->texturesFactory()->texture(texture.mirrored(), textureName);
 
      auto *mesh = mFactory->createTexturedMesh();
-     mesh->startMesh(Qtr3dGeometryBuffer::Triangle,"test");
+     mesh->startMesh(Qtr3dGeometryBuffer::Triangle,textureName);
      for (int vi=0; vi < points.count(); vi++)
          mesh->addVertex(points[vi],textureCoords[vi].y(),textureCoords[vi].x(),normVectors[vi]);
      for (auto i: faceIndexes)
@@ -266,6 +283,42 @@ void Qtr3dGlbLoader::loadMesh(const QVariantMap &positionInfo, const QVariantMap
     mesh->endMesh();
     mModel->addGeometry(mesh);
 #endif
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGlbLoader::loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo)
+{
+    if (positionInfo.isEmpty() || faceInfo.isEmpty())
+        return;
+
+    QList<QVector3D> points = loadVectors(
+                positionInfo["componentType"].toInt(),
+            positionInfo["count"].toInt(),
+            bufferView(positionInfo["bufferView"].toInt())
+            );
+
+    QList<int> faceIndexes = loadFaceIndexes(
+                faceInfo["componentType"].toInt(),
+            faceInfo["count"].toInt(),
+            bufferView(faceInfo["bufferView"].toInt())
+            );
+
+    QList<QVector3D> normVectors = loadVectors(
+                normalInfo["componentType"].toInt(),
+            normalInfo["count"].toInt(),
+            bufferView(normalInfo["bufferView"].toInt())
+            );
+
+
+     auto *mesh = mFactory->createVertexMesh();
+     mesh->startMesh(Qtr3dGeometryBuffer::Triangle);
+     for (int vi=0; vi < points.count(); vi++)
+         mesh->addVertex(points[vi],normVectors[vi], Qt::red);
+     for (auto i: faceIndexes)
+         mesh->addIndex(i);
+
+     mesh->endMesh();
+     mModel->addGeometry(mesh);
 }
 
 
@@ -307,7 +360,7 @@ QList<int> Qtr3dGlbLoader::loadFaceIndexes(int componentType, int count, const Q
 }
 
 //-------------------------------------------------------------------------------------------------
-QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int count, const QByteArray &buffer) const
+QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int count, const QByteArray &buffer, const QString &coordType) const
 {
     if (componentType != GL_FLOAT)
         return QList<QPointF>();
@@ -315,11 +368,24 @@ QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int count, c
     QList<QPointF> ret;
     Qtr3dBinReader reader(buffer);
 
+    int size = 0;
+    if (coordType == "VEC2")
+        size = 2;
+    if (coordType == "VEC3")
+        size = 3;
+    Q_ASSERT( size == 2);
+
+    qDebug() << count;
     while(count) {
-        ret << QPointF(reader.readFloat(), reader.readFloat());
+        QVector3D uv(reader.readFloat(), reader.readFloat(),size == 3 ?  reader.readFloat() : 0.0);
+
+        ret << QPointF(uv.x(), uv.y());
+        if (size == 3)
+            qDebug() << uv;
         count--;
     }
 
+    qDebug() << reader.parsedBytes() << buffer.length();
     Q_ASSERT(reader.parsedBytes() == buffer.length());
     return ret;
 }
@@ -328,14 +394,19 @@ QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int count, c
 QImage Qtr3dGlbLoader::loadTexture(int materialIndex, int &texCoord) const
 {
     QImage ret;
+    if (materialIndex < 0)
+        return ret;
+
     texCoord = -1;
 
     QVariantMap material = mJsonStruct["materials"].toList()[materialIndex].toMap();
     QVariantMap metallic = material["pbrMetallicRoughness"].toMap();
 
     if (metallic.contains("baseColorTexture")) {
-        int textureIndex = metallic["baseColorTexture"].toMap()["index"].toInt();
-        texCoord         = metallic["baseColorTexture"].toMap()["texCoord"].toInt();
+        int textureIndex = metallic["baseColorTexture"].toMap().value("index",-1).toInt();
+        texCoord         = metallic["baseColorTexture"].toMap().value("texCoord",-1).toInt();
+        Q_ASSERT(textureIndex >= 0);
+        Q_ASSERT(texCoord     >= 0);
         int imageIndex   = mJsonStruct["textures"].toList()[textureIndex].toMap()["source"].toInt();
         int bufferIndex  = mJsonStruct["images"].toList()[imageIndex].toMap()["bufferView"].toInt();
         ret = QImage::fromData(bufferView(bufferIndex));

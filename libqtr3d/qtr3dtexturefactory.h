@@ -13,7 +13,7 @@ public:
     virtual ~Qtr3dTextureFactory();
 
     Qtr3dTexture *texture(const QString &name);
-    Qtr3dTexture *texture(const QImage &img, const QString &name);
+    Qtr3dTexture *texture(const QImage &img, const QString &name = "");
     void          clear();
 
 protected:
