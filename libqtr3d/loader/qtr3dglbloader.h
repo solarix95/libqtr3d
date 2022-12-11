@@ -32,7 +32,8 @@ private:
     void parseJsonJunk(const QByteArray &data);
     void parseBinaryJunk(const QByteArray &data);
 
-    void createMesh(const QVariantMap &meshInfo);
+    void createNode(const QVariantMap &nodeInfo, const QMatrix4x4 &parentTranslation);
+    void createMesh(const QVariantMap &meshInfo, const QMatrix4x4 &translation);
 
     void splitAccessors(const QVariantList &bufferInfos);
     bool takeNextAccessor(const QVariantMap &bufferInfo);
@@ -40,9 +41,9 @@ private:
     QByteArray  bufferView(int index) const;
     QVariantMap accessorInfo(int index) const;
 
-    void loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
-    void loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo);
-    QList<QVector3D> loadVectors(int componentType, int count, const QByteArray &buffer) const;
+    Qtr3dTexturedMesh *loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
+    Qtr3dVertexMesh   *loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo);
+    QList<QVector3D> loadVectors(int componentType,  int offset, int count, const QByteArray &buffer) const;
     QList<int>       loadFaceIndexes(int componentType, int count, const QByteArray &buffer) const;
     QList<QPointF>   loadTextureCoords(int componentType, int count, const QByteArray &buffer, const QString &coordType) const;
     QImage           loadTexture(int materialIndex, int &texCoord) const;

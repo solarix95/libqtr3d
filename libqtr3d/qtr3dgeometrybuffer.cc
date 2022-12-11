@@ -121,6 +121,25 @@ void Qtr3dGeometryBuffer::registerBufferState(Qtr3dGeometryBufferState *s)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBuffer::addModelTransition(const QMatrix4x4 &t)
+{
+    mTransitions << t;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBuffer::addModelTransition(const QVector3D &pos, const QVector3D &rotation)
+{
+    QMatrix4x4 t;
+    t.translate(pos);
+    if (!rotation.isNull()) {
+        t.rotate(rotation.x(), {1,0,0});
+        t.rotate(rotation.y(), {0,1,0});
+        t.rotate(rotation.z(), {0,0,1});
+    }
+    mTransitions << t;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBuffer::analyze(const QVector3D &v)
 {
     if (v.x() > mMax.x())

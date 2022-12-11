@@ -66,21 +66,28 @@ void Qtr3dVertexMeshShader::onProgramChange()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
-    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
-    drawMesh(mesh);
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
-    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
     QVector3D lightPos = worldMatrix * light->pos();
 
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     // currentProgram()->setUniformValue(mNormalviewMatrix,modelWorldMatrix.inverted());
 
@@ -93,22 +100,25 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dVertexMesh &mesh, co
     currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light->colorf());
 
-    drawMesh(mesh);
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
-    // Normal view matrix - inverse transpose of modelview.
-    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-
-
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-
-    QMatrix4x4 normalView       = modelWorldMatrix.inverted();
-    currentProgram()->setUniformValue(mNormalviewMatrix,normalView);
-
 
     currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
     currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
@@ -119,7 +129,19 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dVertexMesh &mesh, c
     currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light->colorf());
 
-    drawMesh(mesh);
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

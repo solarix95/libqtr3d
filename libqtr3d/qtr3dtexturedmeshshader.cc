@@ -61,20 +61,26 @@ void Qtr3dTexturedMeshShader::onProgramChange()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMeshShader::drawBuffer_NoLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
-    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
-    drawMesh(mesh);
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
-    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
@@ -86,15 +92,24 @@ void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh
     currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light->colorf());
 
-    drawMesh(mesh);
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
 {
-    QMatrix4x4 modelWorldMatrix = worldMatrix * state.modelView();
-
-    currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
@@ -106,7 +121,19 @@ void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mes
     currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light->colorf());
 
-    drawMesh(mesh);
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
