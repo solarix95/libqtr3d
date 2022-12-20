@@ -36,9 +36,9 @@ private:
 
     QMap<QString,std::function<void(const QString &, int)> > mParserHooks;
 
-    void setupMesh(const QString &fname, Qtr3dGeometryBufferFactory &factory);
+    void setupMesh(const QString &fname);
     Qtr3dModel                *mModel;
-    Qtr3dVertexMesh           *mMesh;
+    Qtr3dMesh                 *mMesh;
 
     QList<QVector3D>           mObjectVertices;
     QList<QList<int> >         mObjectFaces;

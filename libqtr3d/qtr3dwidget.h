@@ -5,9 +5,10 @@
 #include "qtr3dtypes.h"
 
 class Qtr3dTexturedMesh;
-class Qtr3dTexturedMeshShader;
-class Qtr3dVertexMesh;
+class Qtr3dTexturedShader;
+class Qtr3dMesh;
 class Qtr3dVertexMeshShader;
+class Qtr3dPlainShader;
 class Qtr3dGeometryBuffer;
 class Qtr3dGeometryBufferState;
 class Qtr3dTextureFactory;
@@ -15,6 +16,8 @@ class Qtr3dCamera;
 class Qtr3dModel;
 class Qtr3dLightSource;
 class Qtr3dGeometryBufferFactory;
+class Qtr3dContext;
+class Qtr3dShader;
 
 //-------------------------------------------------------------------------------------------------
 class Qtr3dWidget : public QOpenGLWidget
@@ -36,14 +39,15 @@ public:
     void                        setDefaultLighting(Qtr3d::LightingType t);
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
+    Qtr3dContext               *bufferContext();
     Qtr3dGeometryBufferFactory *factory();
     Qtr3dLightSource           *primaryLightSource();
 
     // Factories
     virtual Qtr3dTexturedMesh        *createTexturedMesh(const QString &textureName="");
-    virtual Qtr3dVertexMesh          *createVertexMesh();
+    virtual Qtr3dMesh                *createMesh();
     virtual Qtr3dModel               *createModel();
-    virtual Qtr3dGeometryBufferState *createBufferState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
+    virtual Qtr3dGeometryBufferState *createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
 
 public slots:
     void updateRequested();
@@ -61,7 +65,9 @@ signals:
     void initialized();
 
 private:
-    void initializeMultisampleAntiAliasing();
+    void preInitializing();
+    void paintMeshes();
+    void paintModels();
 
     Options                  mOptions;
     Qtr3dCamera             *mCamera;
@@ -69,8 +75,11 @@ private:
     Qtr3dGeometryBufferFactory *mFactory;
     Qtr3dLightSource        *mLightSource;
 
+    Qtr3dContext            *mContext;
+
+    Qtr3dPlainShader        *mPlainShader;
     Qtr3dVertexMeshShader   *mVertexMeshShader;
-    Qtr3dTexturedMeshShader *mTexturedMeshShader;
+    Qtr3dTexturedShader     *mTexturedMeshShader;
 
     QColor                   mClearColor;
 };

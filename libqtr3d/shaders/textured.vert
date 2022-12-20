@@ -8,30 +8,24 @@ attribute vec3 vnormal;
 attribute vec2 vtexcoords;
 
 // Same for the whole model or scene: Projection and Modelview matrices
-uniform mat4 projection;
-uniform mat4 modelview;
-// uniform mat4 normalview;
-uniform vec3 lightpos;   // = LightPosition * modelview
+uniform mat4      projection;
+uniform mat4      modelview;
+uniform sampler2D textureId;
 
 // Parameters passed to the fragment shader.
-varying vec2 fragTexcoord;
+varying vec2 fragTexcoords;
 varying vec3 fragNormal;
 varying vec4 fragPos;
-varying vec3 fragLightPos;
 
 void main() {
         // Transform the vertex according to modelview
-        fragPos           = modelview * vertex;
-        fragLightPos      = lightpos;
+        fragPos      = modelview * vertex;
+        fragTexcoords= vtexcoords;
 
-        // fragNormal   = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
         vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
         vec4 turnNorm  = modelview * normPoint;
         fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
 
-        // fragNormal   = (modelview * vec4(vnormal.x,vnormal.y,vnormal.z,1)).xyz;
-
         // Project and send to the fragment shader
-        fragTexcoord = vtexcoords;
         gl_Position  = projection * modelview * vertex;
 }

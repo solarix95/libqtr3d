@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dvertexmesh.h>
+#include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *mesh = w.createVertexMesh()->startMesh(Qtr3dGeometryBuffer::Quad, Qtr3dGeometryBuffer::CounterClockWise);
+        auto *mesh = w.createMesh()->startMesh(Qtr3d::Quad, Qtr3d::CounterClockWise);
 
         // roof
         mesh->addVertex({-1,1, 1},Qt::red);
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
         mesh->endMesh();
 
-        w.createBufferState(mesh);
+        w.createState(mesh);
 
         new Qtr3dCameraCycler(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});
     });

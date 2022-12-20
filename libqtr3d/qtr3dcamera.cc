@@ -120,7 +120,7 @@ void Qtr3dCamera::updatePerspectiveMatrix()
 {
     mWorldMatrix = mProjectionMatrix = QMatrix4x4();
 
-    mProjectionMatrix.perspective(mFov,mWidth/(float)mHeight,1,-1);
+    mProjectionMatrix.perspective(mFov,mWidth/(float)mHeight,0.1,10000);
 
     // float height = 2;
     // float width  = height * (mWidth/(float)mHeight);

@@ -4,7 +4,7 @@
 #include <QQuaternion>
 #include "qtr3dbinreader.h"
 #include "qtr3dglbloader.h"
-#include "../qtr3dvertexmesh.h"
+#include "../qtr3dmesh.h"
 #include "../qtr3dtexturedmesh.h"
 #include "../qtr3dtexturefactory.h"
 
@@ -50,7 +50,6 @@ bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     }
 
     mModel   = &model;
-    mFactory = &factory;
 
     if (version == 2)
         return loadGlbv2(reader);
@@ -82,7 +81,12 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
     QVariantList allNodes   = mJsonStruct["nodes"].toList();
 
     QMatrix4x4 rootMatrix;
-    rootMatrix.data()[15] = 1;
+
+    rootMatrix.data()[0] = 1.0f;
+    rootMatrix.data()[5] = 1.0f;
+    rootMatrix.data()[10] = 1.0f;
+    rootMatrix.data()[15] = 1.0f;
+
     for (auto const &node: sceneNodes) {
         int nodeIndex = node.toInt();
         if (nodeIndex < 0 || nodeIndex >= allNodes.count())
@@ -137,32 +141,107 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, const QMatrix4x4 &p
     QVariantList rotation    = nodeInfo["rotation"].toList();
     QVariantList scale       = nodeInfo["scale"].toList();
 
-    QMatrix4x4 m;
+    float tx = 0;
+    float ty = 0;
+    float tz = 0;
+
+    float qx = 0;
+    float qy = 0;
+    float qz = 0;
+    float qw = 1;
+
+    float sx = 1;
+    float sy = 1;
+    float sz = 1;
+    /*
+        float tx = node->translation[0];
+        float ty = node->translation[1];
+        float tz = node->translation[2];
+
+        float qx = node->rotation[0];
+        float qy = node->rotation[1];
+        float qz = node->rotation[2];
+        float qw = node->rotation[3];
+
+        float sx = node->scale[0];
+        float sy = node->scale[1];
+        float sz = node->scale[2];
+
+        lm[0] = (1 - 2 * qy*qy - 2 * qz*qz) * sx;
+        lm[1] = (2 * qx*qy + 2 * qz*qw) * sx;
+        lm[2] = (2 * qx*qz - 2 * qy*qw) * sx;
+        lm[3] = 0.f;
+
+        lm[4] = (2 * qx*qy - 2 * qz*qw) * sy;
+        lm[5] = (1 - 2 * qx*qx - 2 * qz*qz) * sy;
+        lm[6] = (2 * qy*qz + 2 * qx*qw) * sy;
+        lm[7] = 0.f;
+
+        lm[8] = (2 * qx*qz + 2 * qy*qw) * sz;
+        lm[9] = (2 * qy*qz - 2 * qx*qw) * sz;
+        lm[10] = (1 - 2 * qx*qx - 2 * qy*qy) * sz;
+        lm[11] = 0.f;
+
+        lm[12] = tx;
+        lm[13] = ty;
+        lm[14] = tz;
+        lm[15] = 1.f;
+    */
+    QMatrix4x4 m = parentTranslation;
+    float *lm = m.data();
+
 
     if (translation.count() == 3) // x, y, z
-        m.translate(translation[0].toFloat(),
-                    translation[1].toFloat(),
-                    translation[2].toFloat());
+    {
+         tx = translation[0].toFloat();
+         ty = translation[1].toFloat();
+         tz = translation[2].toFloat();
+    }
+    if (translation.count() == 3) // x, y, z
+       m.translate(translation[0].toFloat(),
+                   translation[1].toFloat(),
+                   translation[2].toFloat());
 
     if (rotation.count() == 4) {   // x, y, z, w
-        QQuaternion q(360*rotation[3].toFloat()/(2*3.1415),
-                      rotation[0].toFloat(),
-                      rotation[1].toFloat(),
-                      rotation[2].toFloat());
-        QMatrix3x3  rot = q.toRotationMatrix();
-
-        const float *f = rot.constData();
-        m = m * QMatrix4x4(f[0], f[1], f[2], 0.0,
-                f[3], f[4], f[5], 0.0,
-                f[6], f[7], f[8], 0.0,
-                0.0,  0.0,   0.0, 1.0);
+        QVector3D v(rotation[0].toFloat(), rotation[1].toFloat(), rotation[2].toFloat());
+        QQuaternion q(rotation[3].toFloat(),v); // v.normalized());
+        m.rotate(q);
+        qx = rotation[0].toFloat();
+        qy = rotation[1].toFloat();
+        qz = rotation[2].toFloat();
+        qw = rotation[3].toFloat();
     }
 
-    if (scale.count() == 3) // x, y, z
-        m.scale(translation[0].toFloat(), translation[1].toFloat(), translation[2].toFloat());
+    //if (scale.count() == 3) // x, y, z
+    //    m.scale(scale[0].toFloat(), scale[1].toFloat(), scale[2].toFloat());
+#if 0
+    lm[0] = (1 - 2 * qy*qy - 2 * qz*qz) * sx;
+    lm[1] = (2 * qx*qy + 2 * qz*qw) * sx;
+    lm[2] = (2 * qx*qz - 2 * qy*qw) * sx;
+    lm[3] = 0.f;
 
-   m = parentTranslation * m;
+    lm[4] = (2 * qx*qy - 2 * qz*qw) * sy;
+    lm[5] = (1 - 2 * qx*qx - 2 * qz*qz) * sy;
+    lm[6] = (2 * qy*qz + 2 * qx*qw) * sy;
+    lm[7] = 0.f;
 
+    lm[8] = (2 * qx*qz + 2 * qy*qw) * sz;
+    lm[9] = (2 * qy*qz - 2 * qx*qw) * sz;
+    lm[10] = (1 - 2 * qx*qx - 2 * qy*qy) * sz;
+    lm[11] = 0.f;
+
+    lm[12] = tx;
+    lm[13] = ty;
+    lm[14] = tz;
+    lm[15] = 1.f;
+#endif
+
+    // m = parentTranslation * m;
+
+    if (nodeInfo["name"] == "11 Canadarm2_04")
+        qDebug() << "HA";
+
+    // m = m.transposed();
     if (meshIndex >= 0)
         createMesh(meshInfos[meshIndex].toMap(), m);
 
@@ -199,14 +278,14 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, const QMatrix4x4 &t
         Qtr3dGeometryBuffer *buffer = nullptr;
         if (textcoordAccessorIndex >= 0) {
             buffer = loadTexturedMesh(accessorInfo(positionAccessorIndex),
-                             accessorInfo(indicesAcsessorIndex),
-                             accessorInfo(normalAccessorIndex),
-                             accessorInfo(textcoordAccessorIndex),
-                             texture);
+                                      accessorInfo(indicesAcsessorIndex),
+                                      accessorInfo(normalAccessorIndex),
+                                      accessorInfo(textcoordAccessorIndex),
+                                      texture);
         } else {
             buffer = loadColoredMesh(accessorInfo(positionAccessorIndex),
-                            accessorInfo(indicesAcsessorIndex),
-                            accessorInfo(normalAccessorIndex));
+                                     accessorInfo(indicesAcsessorIndex),
+                                     accessorInfo(normalAccessorIndex));
         }
         if (buffer)
             buffer->addModelTransition(translation);
@@ -290,7 +369,7 @@ QVariantMap Qtr3dGlbLoader::accessorInfo(int index) const
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture)
+Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture)
 {
     if (positionInfo.isEmpty() || faceInfo.isEmpty())
         return nullptr;
@@ -304,6 +383,7 @@ Qtr3dTexturedMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionI
 
     QList<int> faceIndexes = loadFaceIndexes(
                 faceInfo["componentType"].toInt(),
+            faceInfo["byteOffset"].toInt(),
             faceInfo["count"].toInt(),
             bufferView(faceInfo["bufferView"].toInt())
             );
@@ -317,45 +397,43 @@ Qtr3dTexturedMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionI
 
     QList<QPointF> textureCoords = loadTextureCoords(
                 textCoordInfo["componentType"].toInt(),
+            textCoordInfo["byteOffset"].toInt(),
             textCoordInfo["count"].toInt(),
-            bufferView(textCoordInfo["bufferView"].toInt()),
-            textCoordInfo["type"].toString()
+            bufferView(textCoordInfo["bufferView"].toInt())
             );
-
-
 
     QString textureName = QString("texture_%1").arg(qrand());
 
-    mModel->texturesFactory()->texture(texture.mirrored(), textureName);
-
-    auto *mesh = mFactory->createTexturedMesh();
-    mesh->startMesh(Qtr3dGeometryBuffer::Triangle,textureName);
+    auto *mesh = mModel->context()->createMesh();
+    mesh->setTexture(texture);
+    mesh->startMesh(Qtr3d::Triangle);
     for (int vi=0; vi < points.count(); vi++)
-        mesh->addVertex(points[vi],textureCoords[vi].y(),textureCoords[vi].x(),normVectors[vi]);
+        mesh->addVertex(points[vi],normVectors[vi], textureCoords[vi].y(),textureCoords[vi].x());
     for (auto i: faceIndexes)
         mesh->addIndex(i);
 
     mesh->endMesh();
-    mModel->addGeometry(mesh);
+    mModel->addMesh(mesh);
 
     return mesh;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dVertexMesh *Qtr3dGlbLoader::loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo)
+Qtr3dMesh *Qtr3dGlbLoader::loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo)
 {
     if (positionInfo.isEmpty() || faceInfo.isEmpty())
         return nullptr;
 
     QList<QVector3D> points = loadVectors(
                 positionInfo["componentType"].toInt(),
-                positionInfo["byteOffset"].toInt(),
+            positionInfo["byteOffset"].toInt(),
             positionInfo["count"].toInt(),
             bufferView(positionInfo["bufferView"].toInt())
             );
 
     QList<int> faceIndexes = loadFaceIndexes(
                 faceInfo["componentType"].toInt(),
+            faceInfo["byteOffset"].toInt(),
             faceInfo["count"].toInt(),
             bufferView(faceInfo["bufferView"].toInt())
             );
@@ -368,15 +446,15 @@ Qtr3dVertexMesh *Qtr3dGlbLoader::loadColoredMesh(const QVariantMap &positionInfo
             );
 
 
-    auto *mesh = mFactory->createVertexMesh();
-    mesh->startMesh(Qtr3dGeometryBuffer::Triangle);
+    auto *mesh = mModel->context()->createMesh();
+    mesh->startMesh(Qtr3d::Triangle);
     for (int vi=0; vi < points.count(); vi++)
         mesh->addVertex(points[vi],normVectors[vi], Qt::red);
     for (auto i: faceIndexes)
         mesh->addIndex(i);
 
     mesh->endMesh();
-    mModel->addGeometry(mesh);
+    mModel->addMesh(mesh);
     return mesh;
 }
 
@@ -401,25 +479,26 @@ QList<QVector3D> Qtr3dGlbLoader::loadVectors(int componentType, int offset, int 
 }
 
 //-------------------------------------------------------------------------------------------------
-QList<int> Qtr3dGlbLoader::loadFaceIndexes(int componentType, int count, const QByteArray &buffer) const
+QList<int> Qtr3dGlbLoader::loadFaceIndexes(int componentType, int offset, int count, const QByteArray &buffer) const
 {
     if (componentType != GL_UNSIGNED_SHORT)
         return QList<int>();
 
     QList<int> ret;
     Qtr3dBinReader reader(buffer);
+    reader.skip(offset);
 
     while(count) {
         ret << reader.readUint16();
         count--;
     }
 
-    Q_ASSERT(reader.parsedBytes() == buffer.length());
+    Q_ASSERT(reader.parsedBytes() <= buffer.length());
     return ret;
 }
 
 //-------------------------------------------------------------------------------------------------
-QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int count, const QByteArray &buffer, const QString &coordType) const
+QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int offset, int count, const QByteArray &buffer) const
 {
     if (componentType != GL_FLOAT)
         return QList<QPointF>();
@@ -427,25 +506,14 @@ QList<QPointF> Qtr3dGlbLoader::loadTextureCoords(int componentType, int count, c
     QList<QPointF> ret;
     Qtr3dBinReader reader(buffer);
 
-    int size = 0;
-    if (coordType == "VEC2")
-        size = 2;
-    if (coordType == "VEC3")
-        size = 3;
-    Q_ASSERT( size == 2);
+    reader.skip(offset);
 
-    qDebug() << count;
     while(count) {
-        QVector3D uv(reader.readFloat(), reader.readFloat(),size == 3 ?  reader.readFloat() : 0.0);
-
-        ret << QPointF(uv.x(), uv.y());
-        if (size == 3)
-            qDebug() << uv;
+        ret << QPointF(reader.readFloat(), reader.readFloat());
         count--;
     }
 
-    qDebug() << reader.parsedBytes() << buffer.length();
-    Q_ASSERT(reader.parsedBytes() == buffer.length());
+    Q_ASSERT(reader.parsedBytes() <= buffer.length());
     return ret;
 }
 

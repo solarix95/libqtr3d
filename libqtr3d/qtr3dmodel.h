@@ -5,26 +5,40 @@
 #include "qtr3dgeometrybuffer.h"
 
 class Qtr3dTextureFactory;
+class Qtr3dMesh;
+class Qtr3dContext;
+
 class Qtr3dModel : public Qtr3dGeometryBuffer
 {
     Q_OBJECT
 public:
-    explicit Qtr3dModel(Qtr3dTextureFactory *textures);
+    struct Node {
+        Qtr3dMesh  *mMesh;
+        Node       *mParent;
+        QMatrix4x4  mTranslation;
+        QMatrix4x4  translation () const { return mParent ? mParent->translation() * mTranslation : mTranslation; }
+    };
 
-    virtual void addGeometry(Qtr3dGeometryBuffer *buffer);
-    virtual void registerBufferState(Qtr3dGeometryBufferState *s);
+    explicit Qtr3dModel(Qtr3dContext *context);
+    virtual ~Qtr3dModel();
+
+    virtual Node *createNode(Qtr3dMesh *mesh, const QMatrix4x4 &translation, Node *parent = nullptr);
+    virtual Node *createNode(Qtr3dMesh *mesh, Node *parent = nullptr);
+    virtual void  addMesh(Qtr3dMesh *mesh, bool createDefaultNode = false);
 
     QVector3D center() const;
     double    radius() const;
 
-    int       bufferCount() const;
-    Qtr3dGeometryBuffer *buffer(int index) const;
+    int         meshCount() const;
+    Qtr3dMesh  *mesh(int index) const;
 
-    Qtr3dTextureFactory *texturesFactory();
+    const QList<Node*> &nodes() const;
 
 private:
-    QList<Qtr3dGeometryBuffer*> mModelBuffers;
-    Qtr3dTextureFactory        *mTexturesFactory;
+    QList<Qtr3dMesh*>     mMeshes;
+    QList<Node*>          mNodes;
 };
+
+typedef QList<Qtr3dModel::Node*> Qtr3dModelNodes;
 
 #endif // QTR3DMODEL_H

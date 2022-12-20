@@ -1,10 +1,14 @@
+#include "qtr3dcontext.h"
 #include "qtr3dgeometrybuffer.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer::Qtr3dGeometryBuffer()
-    : mFaceOrientation(DefaultOrientation)
+Qtr3dGeometryBuffer::Qtr3dGeometryBuffer(Qtr3dContext *parent)
+    : QObject(parent)
+    , mContext(parent)
+    , mParentBuffer(nullptr)
+    , mShader(Qtr3d::PlainShader)
+    , mFaceOrientation(Qtr3d::DefaultOrientation)
     , mBlending(false)
-    , mParent(nullptr)
     , mDefaultColor(Qt::white)
 {
     mMin = QVector3D( std::numeric_limits<double>::max(),
@@ -22,21 +26,33 @@ Qtr3dGeometryBuffer::~Qtr3dGeometryBuffer()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::setFaceOrientation(FaceOrientation orientation)
+Qtr3dContext *Qtr3dGeometryBuffer::context()
+{
+    return mContext;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3d::ShaderType Qtr3dGeometryBuffer::shader() const
+{
+    return mShader;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBuffer::setFaceOrientation(Qtr3d::FaceOrientation orientation)
 {
     mFaceOrientation = orientation;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() const
+Qtr3d::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() const
 {
-    FaceOrientation ret = mFaceOrientation;
+    Qtr3d::FaceOrientation ret = mFaceOrientation;
 
-    if (ret == DefaultOrientation && parentBuffer())
+    if (ret == Qtr3d::DefaultOrientation && parentBuffer())
         ret = parentBuffer()->faceOrientation();
 
-    if (ret == DefaultOrientation)
-        ret = ClockWise;
+    if (ret == Qtr3d::DefaultOrientation)
+        ret = Qtr3d::ClockWise;
 
     return ret;
 }
@@ -74,13 +90,13 @@ bool Qtr3dGeometryBuffer::blending() const
 //-------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBuffer::setParentBuffer(Qtr3dGeometryBuffer *buffer)
 {
-    mParent = buffer;
+    mParentBuffer = buffer;
 }
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dGeometryBuffer *Qtr3dGeometryBuffer::parentBuffer() const
 {
-    return mParent;
+    return mParentBuffer;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -160,6 +176,13 @@ void Qtr3dGeometryBuffer::analyze(const QVector3D &v)
     if (v.z() < mMin.z())
         mMin.setZ(v.z());
 }
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBuffer::setShader(Qtr3d::ShaderType t)
+{
+    mShader = t;
+}
+
 //-------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBuffer::stateDestroyed(QObject *state)
 {

@@ -1,5 +1,5 @@
 #include "qtr3dtexturedmesh.h"
-#include "qtr3dvertexmesh.h"
+#include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
 #include "qtr3dtexturedmeshshader.h"
 #include "qtr3dvertexmeshshader.h"
@@ -18,7 +18,7 @@ Qtr3dGeometryBufferFactory::Qtr3dGeometryBufferFactory()
 Qtr3dGeometryBufferFactory::~Qtr3dGeometryBufferFactory() = default;
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferFactory::init(Qtr3dVertexMeshShader *shader1, Qtr3dTexturedMeshShader *shader2, Qtr3dTextureFactory *textures)
+void Qtr3dGeometryBufferFactory::init(Qtr3dVertexMeshShader *shader1, Qtr3dTexturedShader *shader2, Qtr3dTextureFactory *textures)
 {
     mSimpleShader  = shader1;
     mTextureShader = shader2;
@@ -36,24 +36,16 @@ Qtr3dTextureFactory *Qtr3dGeometryBufferFactory::textures()
 //-------------------------------------------------------------------------------------------------
 Qtr3dTexturedMesh *Qtr3dGeometryBufferFactory::createTexturedMesh(const QString &textureName)
 {
-    Qtr3dTexturedMesh *geometryBuffer = new Qtr3dTexturedMesh(textures(),textureName);
-    mTextureShader->registerBuffer(*geometryBuffer);
-    return geometryBuffer;
+   return nullptr;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dVertexMesh *Qtr3dGeometryBufferFactory::createVertexMesh()
+Qtr3dMesh *Qtr3dGeometryBufferFactory::createMesh()
 {
-    Qtr3dVertexMesh *mesh = new Qtr3dVertexMesh();
-    mSimpleShader->registerBuffer(*mesh);
-    mesh->setDefaultColor(mDefaultColor);
-    return mesh;
-}
-
-//-------------------------------------------------------------------------------------------------
-Qtr3dModel *Qtr3dGeometryBufferFactory::createModel()
-{
-    return new Qtr3dModel(textures());
+    //Qtr3dMesh *mesh = new Qtr3dMesh(this);
+    //mSimpleShader->registerBuffer(*mesh);
+    //mesh->setDefaultColor(mDefaultColor);
+    return nullptr;
 }
 
 //-------------------------------------------------------------------------------------------------

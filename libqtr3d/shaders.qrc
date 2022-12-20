@@ -1,17 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="texmesh_nolight.frag">shaders/texmesh_nolight.frag</file>
-        <file alias="texmesh_nolight.vert">shaders/texmesh_nolight.vert</file>
-        <file alias="texmesh_flatlight.frag">shaders/texmesh_flatlight.frag</file>
-        <file alias="texmesh_flatlight.vert">shaders/texmesh_flatlight.vert</file>
-        <file alias="texmesh_phonglight.frag">shaders/texmesh_phonglight.frag</file>
-        <file alias="texmesh_phonglight.vert">shaders/texmesh_phonglight.vert</file>
+        <file alias="plain.vert">shaders/plain.vert</file>
+        <file alias="colored.vert">shaders/colored.vert</file>
+        <file alias="textured.vert">shaders/textured.vert</file>
 
-        <file alias="vertexmesh_nolight.frag">shaders/vertexmesh_nolight.frag</file>
-        <file alias="vertexmesh_nolight.vert">shaders/vertexmesh_nolight.vert</file>
-        <file alias="vertexmesh_flatlight.frag">shaders/vertexmesh_flatlight.frag</file>
-        <file alias="vertexmesh_flatlight.vert">shaders/vertexmesh_flatlight.vert</file>
-        <file alias="vertexmesh_phonglight.frag">shaders/vertexmesh_phonglight.frag</file>
-        <file alias="vertexmesh_phonglight.vert">shaders/vertexmesh_phonglight.vert</file>
+        <file alias="nolight.frag">shaders/nolight.frag</file>
+        <file alias="flatlight.frag">shaders/flatlight.frag</file>
+        <file alias="phonglight.frag">shaders/phonglight.frag</file>
     </qresource>
 </RCC>

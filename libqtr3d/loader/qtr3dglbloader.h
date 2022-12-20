@@ -41,15 +41,14 @@ private:
     QByteArray  bufferView(int index) const;
     QVariantMap accessorInfo(int index) const;
 
-    Qtr3dTexturedMesh *loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
-    Qtr3dVertexMesh   *loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo);
+    Qtr3dMesh   *loadTexturedMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo, const QVariantMap &textCoordInfo, const QImage &texture);
+    Qtr3dMesh   *loadColoredMesh(const QVariantMap &positionInfo, const QVariantMap &faceInfo, const QVariantMap &normalInfo);
     QList<QVector3D> loadVectors(int componentType,  int offset, int count, const QByteArray &buffer) const;
-    QList<int>       loadFaceIndexes(int componentType, int count, const QByteArray &buffer) const;
-    QList<QPointF>   loadTextureCoords(int componentType, int count, const QByteArray &buffer, const QString &coordType) const;
+    QList<int>       loadFaceIndexes(int componentType, int offset, int count, const QByteArray &buffer) const;
+    QList<QPointF>   loadTextureCoords(int componentType, int offset, int count, const QByteArray &buffer) const;
     QImage           loadTexture(int materialIndex, int &texCoord) const;
 
     Qtr3dModel                 *mModel;
-    Qtr3dGeometryBufferFactory *mFactory;
 
     // GLB v2 Parts
     QVariantMap        mJsonStruct; // Original JSON-Struct

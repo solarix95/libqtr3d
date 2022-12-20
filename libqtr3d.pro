@@ -13,10 +13,9 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameramovement.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameracycler.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedquad.h \
-    \ # $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedquadshader.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dvertexmesh.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dvertexmeshshader.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dplainshader.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dfreecameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelfactory.h \
@@ -32,12 +31,14 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dplyloader.h  \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dassimploader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmeshshader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.h
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -47,10 +48,9 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameramovement.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameracycler.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedquad.cc \
-    \ # $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedquadshader.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dvertexmesh.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dvertexmeshshader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dplainshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dcameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelfactory.cc \
@@ -71,11 +71,24 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.cc
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/misc.qrc
 
+with_libassimp {
+HEADERS += \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dassimploader.h
+
+SOURCES += \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dassimploader.cc
+
+LIBS += -lassimp
+
+DEFINES += WITH_LIBASSIMP
+
+}
 #AbstractShape
 # - Line
 # - Triangle

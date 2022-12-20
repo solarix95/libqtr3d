@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dvertexmesh.h>
+#include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *mesh = w.createVertexMesh()->startMesh(Qtr3dVertexMesh::Triangle, Qtr3dGeometryBuffer::CounterClockWise);
+        auto *mesh = w.createMesh()->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
 
         mesh->addVertex({-2,-1,0},Qt::red);
         mesh->addVertex({0,1,0},Qt::green);
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
         mesh->endMesh();
 
-        w.createBufferState(mesh);
+        w.createState(mesh);
 
         w.camera()->lookAt({0,0,-5},{0,0,0}, {0,1,0});
     });

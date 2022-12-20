@@ -1,57 +1,85 @@
+
+#include "qtr3dcontext.h"
+#include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dModel::Qtr3dModel(Qtr3dTextureFactory *textures)
-    : Qtr3dGeometryBuffer()
-    , mTexturesFactory(textures)
+Qtr3dModel::Qtr3dModel(Qtr3dContext *context)
+    : Qtr3dGeometryBuffer(context)
 {
-    Q_ASSERT(mTexturesFactory);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dModel::addGeometry(Qtr3dGeometryBuffer *buffer)
+Qtr3dModel::~Qtr3dModel()
 {
-    Q_ASSERT(buffer);
-    mModelBuffers << buffer;
-    buffer->setParentBuffer(this);
+    qDeleteAll(mNodes);
+    qDeleteAll(mMeshes);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dModel::registerBufferState(Qtr3dGeometryBufferState *s)
+Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &translation, Node *parent)
 {
-    for (auto *buffer : mModelBuffers)
-        buffer->registerBufferState(s);
-    Qtr3dGeometryBuffer::registerBufferState(s);
+    Q_ASSERT(mMeshes.contains(mesh));
+    Node *n = new Node();
+    n->mMesh   = mesh;
+    n->mParent = parent;
+    n->mTranslation = translation;
+
+    mNodes << n;
+
+    return n;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, Node *parent)
+{
+    return createNode(mesh, QMatrix4x4(1,0,0,0,
+                                       0,1,0,0,
+                                       0,0,1,0,
+                                       0,0,0,1), parent);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dModel::addMesh(Qtr3dMesh *mesh, bool createDefaultNode)
+{
+    Q_ASSERT(mesh);
+    Q_ASSERT(mesh->context() == this->context());
+    mesh->setParentBuffer(this);
+    mMeshes << mesh;
+
+    if (createDefaultNode)
+        createNode(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
 QVector3D Qtr3dModel::center() const
 {
-    return mModelBuffers.isEmpty() ? QVector3D() : mModelBuffers.first()->center();
+    return mMeshes.isEmpty() ? QVector3D() : mMeshes.first()->center();
 }
 
 //-------------------------------------------------------------------------------------------------
 double Qtr3dModel::radius() const
 {
-    return mModelBuffers.isEmpty() ? 0 : mModelBuffers.first()->radius();
+    return mMeshes.isEmpty() ? 0 : mMeshes.first()->radius();
 }
 
 //-------------------------------------------------------------------------------------------------
-int Qtr3dModel::bufferCount() const
+int Qtr3dModel::meshCount() const
 {
-    return mModelBuffers.count();
+    return mMeshes.count();
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer *Qtr3dModel::buffer(int index) const
+Qtr3dMesh *Qtr3dModel::mesh(int index) const
 {
     Q_ASSERT(index >= 0);
-    Q_ASSERT(index < mModelBuffers.count());
-    return mModelBuffers[index];
+    Q_ASSERT(index < mMeshes.count());
+    return mMeshes[index];
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTextureFactory *Qtr3dModel::texturesFactory()
+const QList<Qtr3dModel::Node *> &Qtr3dModel::nodes() const
 {
-    return mTexturesFactory;
+    return mNodes;
 }
+

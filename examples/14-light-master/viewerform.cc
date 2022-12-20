@@ -17,7 +17,6 @@
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
-#include <libqtr3d/qtr3dtexturedmesh.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
@@ -35,7 +34,7 @@ ViewerForm::ViewerForm(QWidget *parent)
     ui->setupUi(this);
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
-        auto *cubeMesh = ui->viewer->createVertexMesh()->startMesh(Qtr3dGeometryBuffer::Quad, Qtr3dGeometryBuffer::CounterClockWise);
+        auto *cubeMesh = ui->viewer->createMesh()->startMesh(Qtr3d::Quad, Qtr3d::CounterClockWise);
 
         // roof
         cubeMesh->addVertex({-1,1, 1},{0,1,0}, Qt::red);
@@ -76,40 +75,41 @@ ViewerForm::ViewerForm(QWidget *parent)
         cubeMesh->endMesh();
         mMeshes << cubeMesh;
 
-        mCubeState = ui->viewer->createBufferState(cubeMesh);
+        mCubeState = ui->viewer->createState(cubeMesh);
 
         // Create 2nd-Cube as LightPosition-Marker
-        mLightState = ui->viewer->createBufferState(cubeMesh, Qtr3d::NoLighting);
+        mLightState = ui->viewer->createState(cubeMesh, Qtr3d::NoLighting);
         mLightState->setScale({0.1,0.1,0.1});
 
         // Create Textured Sphere
-        auto *sphereMesh1 = ui->viewer->createVertexMesh();
+        auto *sphereMesh1 = ui->viewer->createMesh();
         Qtr3dModelFactory::meshBySphere(*sphereMesh1,60,QImage(":/pebbles_texture.jpg"));
-        sphereMesh1->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        mSphereState1 = ui->viewer->createBufferState(sphereMesh1);
+        sphereMesh1->setFaceOrientation(Qtr3d::CounterClockWise);
+        mSphereState1 = ui->viewer->createState(sphereMesh1);
         mMeshes << sphereMesh1;
 
-        auto *sphereMesh2 = ui->viewer->createVertexMesh();
+        auto *sphereMesh2 = ui->viewer->createMesh();
         Qtr3dModelFactory::meshBySphere(*sphereMesh2,60,Qt::black);
-        sphereMesh2->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        mSphereState2 = ui->viewer->createBufferState(sphereMesh2);
+        sphereMesh2->setFaceOrientation(Qtr3d::CounterClockWise);
+        mSphereState2 = ui->viewer->createState(sphereMesh2);
         mMeshes << sphereMesh2;
 
-        auto *sphereMesh3 = ui->viewer->createVertexMesh();
+        auto *sphereMesh3 = ui->viewer->createMesh();
         Qtr3dModelFactory::meshBySphere(*sphereMesh3,60,Qt::white);
-        sphereMesh3->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        mSphereState3 = ui->viewer->createBufferState(sphereMesh3);
+        sphereMesh3->setFaceOrientation(Qtr3d::CounterClockWise);
+        mSphereState3 = ui->viewer->createState(sphereMesh3);
         mMeshes << sphereMesh2;
 
         // Create Floor
-        auto *floor = ui->viewer->createTexturedMesh(":/pebbles_texture.jpg");
-        floor->startMesh(Qtr3dGeometryBuffer::Triangle);
+        auto *floor = ui->viewer->createMesh();
+        floor->setTexture(QImage(":/pebbles_texture.jpg"));
+        floor->startMesh(Qtr3d::Triangle);
         floor->addQuad({-1,0,1},{1,0,1},{1,0,-1},{-1,0,-1},{0,1,0});
         floor->endMesh();
-        floor->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+        floor->setFaceOrientation(Qtr3d::CounterClockWise);
         mMeshes << floor;
 
-        mFloorState = ui->viewer->createBufferState(floor);
+        mFloorState = ui->viewer->createState(floor);
         mFloorState->setScale({20,1,20});
 
         ui->viewer->camera()->lookAt({0,10,10},{0,0,0},{0,1,0});

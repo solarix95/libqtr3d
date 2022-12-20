@@ -9,10 +9,12 @@
 #include "qtr3dtexturefactory.h"
 #include "qtr3dtexturedquad.h"
 #include "qtr3dlightsource.h"
+#include "qtr3dplainshader.h"
 #include "qtr3dwidget.h"
 #include "qtr3dshader.h"
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
+#include "qtr3dcontext.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
@@ -21,10 +23,12 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     , mCamera(nullptr)
     , mFactory(nullptr)
     , mLightSource(nullptr)
+    , mContext(nullptr)
+    , mPlainShader(nullptr)
     , mTexturedMeshShader(nullptr)
     , mClearColor(Qt::black)
 {
-    initializeMultisampleAntiAliasing();
+    preInitializing();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -34,10 +38,12 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     , mCamera(nullptr)
     , mFactory(nullptr)
     , mLightSource(nullptr)
+    , mContext(nullptr)
+    , mPlainShader(nullptr)
     , mTexturedMeshShader(nullptr)
     , mClearColor(Qt::black)
 {
-    initializeMultisampleAntiAliasing();
+    preInitializing();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -54,6 +60,9 @@ void Qtr3dWidget::setDefaultLighting(Qtr3d::LightingType t)
 
     Q_ASSERT(mTexturedMeshShader);
     mTexturedMeshShader->setDefaultLighting(t);
+
+    Q_ASSERT(mPlainShader);
+    mPlainShader->setDefaultLighting(t);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -64,6 +73,12 @@ Qtr3dCamera *Qtr3dWidget::camera()
         connect(mCamera, &Qtr3dCamera::changed, this, &Qtr3dWidget::updateRequested);
     }
     return mCamera;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dContext *Qtr3dWidget::bufferContext()
+{
+    return mContext;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -88,26 +103,23 @@ Qtr3dTexturedMesh *Qtr3dWidget::createTexturedMesh(const QString &textureName)
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dVertexMesh *Qtr3dWidget::createVertexMesh()
+Qtr3dMesh *Qtr3dWidget::createMesh()
 {
     makeCurrent();
-    return factory()->createVertexMesh();
+    return bufferContext()->createMesh();
 }
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel *Qtr3dWidget::createModel()
 {
     makeCurrent();
-    return factory()->createModel();
+    return bufferContext()->createModel();
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState *Qtr3dWidget::createBufferState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype)
+Qtr3dGeometryBufferState *Qtr3dWidget::createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype)
 {
-    Q_ASSERT(buffer);
-    Qtr3dGeometryBufferState *state = new Qtr3dGeometryBufferState(ltype);
-    buffer->registerBufferState(state);
-    return state;
+    return bufferContext()->createState(buffer, ltype);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -119,6 +131,15 @@ void Qtr3dWidget::updateRequested()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::initializeGL()
 {
+    /*
+    if (context()->shareContext() != mContext) {
+        context()->setShareContext(mContext);
+        mContext->create();
+        return;
+    }
+    */
+    // mContext->create();
+
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->initializeOpenGLFunctions();
 
@@ -126,8 +147,9 @@ void Qtr3dWidget::initializeGL()
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LEQUAL);
 
-    mVertexMeshShader   = new Qtr3dVertexMeshShader("vertexmesh");
-    mTexturedMeshShader = new Qtr3dTexturedMeshShader("texmesh");
+    mPlainShader        = new Qtr3dPlainShader(this);
+    mVertexMeshShader   = new Qtr3dVertexMeshShader(this);
+    mTexturedMeshShader = new Qtr3dTexturedShader(this);
     mTextures           = new Qtr3dTextureFactory();
     mFactory            = new Qtr3dGeometryBufferFactory();
 
@@ -146,8 +168,8 @@ void Qtr3dWidget::paintGL()
     f->glEnable(GL_CULL_FACE) ;
     f->glCullFace(GL_BACK);
 
-    mTexturedMeshShader->render(camera()->projection(),camera()->worldMatrix(), primaryLightSource());
-    mVertexMeshShader->render(camera()->projection(), camera()->worldMatrix(),  primaryLightSource());
+    paintMeshes();
+    paintModels();
 
     f->glDisable(GL_CULL_FACE); // otherwise: can't see 2D Paintings..
 }
@@ -174,8 +196,11 @@ Qtr3dTextureFactory *Qtr3dWidget::createTextureFactory()
 //-------------------------------------------------------------------------------------------------
 //                                    PRIVATE
 //-------------------------------------------------------------------------------------------------
-void Qtr3dWidget::initializeMultisampleAntiAliasing()
+void Qtr3dWidget::preInitializing()
 {
+    if (!mContext)
+        mContext = new Qtr3dContext(this);
+
     int samples = 0;
     if (mOptions.testFlag(MSAA4))
         samples = 4;
@@ -183,9 +208,89 @@ void Qtr3dWidget::initializeMultisampleAntiAliasing()
         samples = 16;
 
     if (samples > 0) {
-            QSurfaceFormat currentFormat = format();
-            currentFormat.setSamples(samples);
-            setFormat(currentFormat);
+        QSurfaceFormat currentFormat = format();
+        currentFormat.setSamples(samples);
+        setFormat(currentFormat);
     }
 
 }
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paintMeshes()
+{
+    const QList<Qtr3dMesh*> rootBuffers = bufferContext()->meshes();
+
+    for(auto *mesh: rootBuffers) {
+        if (mesh->bufferStates().isEmpty())
+            continue;
+
+        Qtr3dShader *shader = nullptr;
+        switch (mesh->shader()) {
+        case Qtr3d::PlainShader:
+            shader = mPlainShader; break;
+        case Qtr3d::ColoredShader:
+            shader = mVertexMeshShader; break;
+        case Qtr3d::TexturedShader:
+            shader = mTexturedMeshShader; break;
+        default: break;
+        }
+
+        if (!shader)
+            continue;
+
+        const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
+        shader->setProgram(Qtr3d::DefaultLighting);
+        for(auto *state: states) {
+            if (!state->enabled())
+                continue;
+            auto nextLightingTyp = state->lightingType();
+            if (nextLightingTyp == Qtr3d::DefaultLighting)
+                nextLightingTyp = shader->defaultLighting();
+            shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource());
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paintModels()
+{
+    const QList<Qtr3dModel*> models = bufferContext()->models();
+
+    for(auto *model: models) {
+
+        const Qtr3dGeometryBufferStates &states = model->bufferStates();
+        const Qtr3dModelNodes           &nodes  = model->nodes();
+
+        if (states.isEmpty() || nodes.isEmpty())
+            continue;
+
+        for(auto *state: states) {
+            if (!state->enabled())
+                continue;
+            for(auto *node: nodes) {
+                Qtr3dShader *shader = nullptr;
+                switch (node->mMesh->shader()) {
+                case Qtr3d::PlainShader:
+                    shader = mPlainShader; break;
+                case Qtr3d::ColoredShader:
+                    shader = mVertexMeshShader; break;
+                case Qtr3d::TexturedShader:
+                    shader = mTexturedMeshShader; break;
+                default: break;
+                }
+
+                if (!shader)
+                    continue;
+
+                shader->setProgram(Qtr3d::DefaultLighting);
+                auto nextLightingTyp = state->lightingType();
+                if (nextLightingTyp == Qtr3d::DefaultLighting)
+                    nextLightingTyp = shader->defaultLighting();
+
+                shader->render(*node->mMesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource());
+            }
+        }
+    }
+}
+
+

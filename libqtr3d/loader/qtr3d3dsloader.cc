@@ -72,8 +72,7 @@ bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     };
 
     processNextJunk(reader,"");
-
-    setupMesh(filename,factory);
+    setupMesh(filename);
 
     return true;
 }
@@ -182,7 +181,7 @@ void Qtr3d3dsLoader::processMappingCoordJunk(Qtr3dBinReader &reader)
 }
 
 //-------------------------------------------------------------------------------------------------}
-void Qtr3d3dsLoader::setupMesh(const QString &fname, Qtr3dGeometryBufferFactory &factory)
+void Qtr3d3dsLoader::setupMesh(const QString &fname)
 {
     Q_ASSERT(mModel);
 
@@ -192,8 +191,9 @@ void Qtr3d3dsLoader::setupMesh(const QString &fname, Qtr3dGeometryBufferFactory 
         if (!isValidExternalTexture(textureFullPath))
             textureFullPath = ":/missing_texture.png";
 
-        auto *mesh = factory.createTexturedMesh(textureFullPath);
-        mesh->startMesh();
+        auto *mesh = mModel->context()->createMesh();
+        mesh->setTexture(QImage(textureFullPath));
+        mesh->startMesh(Qtr3d::Triangle);
         for (auto faceId : mFaceIndexesByMaterial[textureName]) {
 
             QVector3D v1 = mObjectVertices[mObjectFaces[faceId][0]];
@@ -201,21 +201,18 @@ void Qtr3d3dsLoader::setupMesh(const QString &fname, Qtr3dGeometryBufferFactory 
             QVector3D v3 = mObjectVertices[mObjectFaces[faceId][2]];
 
             QVector3D normal = QVector3D::crossProduct(v2-v1,v3-v1).normalized();
-            mesh->addVertex(v1,
-                    mTextureMappings[mObjectFaces[faceId][0]].x(),
-                    mTextureMappings[mObjectFaces[faceId][0]].y(),
-                    normal);
-            mesh->addVertex(v2,
-                    mTextureMappings[mObjectFaces[faceId][1]].x(),
-                    mTextureMappings[mObjectFaces[faceId][1]].y(),
-                    normal);
-            mesh->addVertex(v3,
-                    mTextureMappings[mObjectFaces[faceId][2]].x(),
-                    mTextureMappings[mObjectFaces[faceId][2]].y(),
-                    normal);
+            mesh->addVertex(v1,normal,
+                            mTextureMappings[mObjectFaces[faceId][0]].x(),
+                            mTextureMappings[mObjectFaces[faceId][0]].y());
+            mesh->addVertex(v2,normal,
+                            mTextureMappings[mObjectFaces[faceId][1]].x(),
+                            mTextureMappings[mObjectFaces[faceId][1]].y());
+            mesh->addVertex(v3, normal,
+                            mTextureMappings[mObjectFaces[faceId][2]].x(),
+                            mTextureMappings[mObjectFaces[faceId][2]].y());
         }
         mesh->endMesh();
-        mModel->addGeometry(mesh);
+        mModel->addMesh(mesh);
     }
 
     /*

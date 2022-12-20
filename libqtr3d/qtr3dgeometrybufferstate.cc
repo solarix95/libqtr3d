@@ -1,8 +1,9 @@
 #include "qtr3dgeometrybufferstate.h"
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3d::LightingType ltype)
- : mEnabled(true)
+Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, Qtr3d::LightingType ltype)
+ : QObject(parent)
+ , mEnabled(true)
  , mLightingType(ltype)
  , mParent(nullptr)
 {
@@ -10,8 +11,9 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3d::LightingType ltype)
 }
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(const QVector3D &pos, const QVector3D &rotation)
- : mEnabled(true)
+Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, const QVector3D &pos, const QVector3D &rotation)
+ : QObject(parent)
+ , mEnabled(true)
  , mLightingType(Qtr3d::DefaultLighting)
  , mParent(nullptr)
 {

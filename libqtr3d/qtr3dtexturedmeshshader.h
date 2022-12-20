@@ -1,42 +1,40 @@
-#ifndef QTR3DTEXTUREDMESHSHADER_H
-#define QTR3DTEXTUREDMESHSHADER_H
+#ifndef QTR3DTEXTUREDSHADER_H
+#define QTR3DTEXTUREDSHADER_H
 
-#include "qtr3dtexturedmesh.h"
 #include "qtr3dshader.h"
 
-class Qtr3dTexturedMeshShader : public Qtr3dShader
+class Qtr3dTexturedShader : public Qtr3dShader
 {
 public:
-    Qtr3dTexturedMeshShader(const QString &eglFile);
-
-    void registerBuffer(Qtr3dTexturedMesh &buffer);
+    Qtr3dTexturedShader(QObject *parent);
+    virtual ~Qtr3dTexturedShader();
 
 protected:
-    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
     virtual void onProgramChange();
 
 private:
+    virtual void drawBuffer_NoLight(const Qtr3dMesh    &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void drawBuffer_FlatLight(const Qtr3dMesh  &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light);
+    virtual void drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light);
 
-    void drawBuffer_NoLight(const Qtr3dTexturedMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
-    void drawBuffer_FlatLight(const Qtr3dTexturedMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
-    void drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
-    void drawMesh(const Qtr3dTexturedMesh &buffer);
+    //void drawBuffer_NoLight(const Qtr3dTexturedMesh    &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    //void drawBuffer_FlatLight(const Qtr3dTexturedMesh  &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light);
+    // void drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light);
 
-    // These are variables passed into shaders
+    void drawMesh(const Qtr3dMesh &buffer);
+
+    // shader attributes
     int    mVertexPosition;
     int    mVertexNormal;
     int    mVertexTexcoords;
 
     int    mModelviewMatrix;
-    int    mNormalviewMatrix;
     int    mProjectionMatrix;
+    int    mTexture;
+
     int    mLightPos;
     int    mLightAmbient;
     int    mLightDiffuse;
-
-    int    mDefaultTexture;
-
-    Qtr3dTexturedMeshes     mGeometryBuffers;
 };
 
 #endif // QTR3DTEXTUREDMESHSHADER_H

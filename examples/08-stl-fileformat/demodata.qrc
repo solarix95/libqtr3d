@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Utah_teapot.stl</file>
+    </qresource>
+</RCC>

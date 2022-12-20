@@ -1,26 +1,26 @@
-#include "qtr3dvertexmeshshader.h"
+#include "qtr3dplainshader.h"
 #include "qtr3dgeometrybufferstate.h"
 #include "qtr3dlightsource.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dVertexMeshShader::Qtr3dVertexMeshShader(QObject *parent)
-    : Qtr3dShader(parent, "colored", "varying vec4 fragColor;", "fragColor;")
-{
-}
-
-Qtr3dVertexMeshShader::~Qtr3dVertexMeshShader() = default;
+Qtr3dPlainShader::Qtr3dPlainShader(QObject *parent)
+    : Qtr3dShader(parent, "plain", "varying vec4 fragColor;", "fragColor;")
+{}
+Qtr3dPlainShader::~Qtr3dPlainShader() = default;
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::onProgramChange()
+void Qtr3dPlainShader::onProgramChange()
 {
     // Get locations of attributes and uniforms used inside.
     mVertexPosition   = currentProgram()->attributeLocation("vertex" );
     mVertexNormal     = currentProgram()->attributeLocation("vnormal" );
-    mVertexColor      = currentProgram()->attributeLocation("vcolor" );
 
+    // Vertex Shader Uniforms
     mProjectionMatrix = currentProgram()->uniformLocation("projection" );
     mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
+    mModelColor       = currentProgram()->uniformLocation("modelcolor" );
 
+    // Fragment Shader Uniforms
     mLightPos         = currentProgram()->uniformLocation("lightpos" );
     mLightColor       = currentProgram()->uniformLocation("lightcolor" );
     mLightAmbient     = currentProgram()->uniformLocation("lightambientk" );
@@ -28,9 +28,10 @@ void Qtr3dVertexMeshShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
 
     const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
     QMatrix4x4 modelWorldMatrix;
@@ -48,14 +49,13 @@ void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMat
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     QVector3D lightPos = worldMatrix * light.pos();
 
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    // currentProgram()->setUniformValue(mNormalviewMatrix,modelWorldMatrix.inverted());
-
     currentProgram()->setUniformValue(mLightPos,lightPos);
+    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
 
     currentProgram()->setUniformValue("material.ambient",mesh.cMaterial().kAmbient);
     currentProgram()->setUniformValue("material.diffuse",mesh.cMaterial().kDiffuse);
@@ -80,9 +80,10 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QM
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
 
     currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
     currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
@@ -109,7 +110,7 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const Q
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
+void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -155,18 +156,6 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
         f->glEnableVertexAttribArray( mVertexNormal );
     }
 
-    // Colors
-    f->glBindBuffer( GL_ARRAY_BUFFER, buffer.colorBufferId() );
-    f->glVertexAttribPointer(
-                mVertexColor,
-                4,             // RGB + A
-                GL_FLOAT,      // .. each "Float"
-                GL_FALSE,
-                sizeof(Qtr3dColor),
-                (void*)0
-                );
-    f->glEnableVertexAttribArray( mVertexColor );
-
     // Send element buffer to GPU and draw.
     f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.elementBufferId() );
     f->glDrawElements(
@@ -180,5 +169,4 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
     f->glDisableVertexAttribArray( mVertexPosition );
     if (mVertexNormal >= 0)
         f->glDisableVertexAttribArray( mVertexNormal );
-    f->glDisableVertexAttribArray( mVertexColor );
 }

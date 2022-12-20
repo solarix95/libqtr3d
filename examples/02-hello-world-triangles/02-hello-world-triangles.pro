@@ -3,10 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 07-obj-fileformat
-
+TARGET = 02-hello-world-triangles
 INCLUDEPATH += .
-QT += core gui widgets
+CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 
@@ -26,5 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # Input
 SOURCES += main.cc
 
-RESOURCES += demodata.qrc
+RESOURCES += \
+    textures.qrc
 

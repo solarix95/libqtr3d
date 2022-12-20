@@ -8,8 +8,9 @@
 #include "qtr3dtexturedmesh.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Type meshType)
-    : mType(meshType)
+Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Qtr3d::MeshType meshType)
+    : Qtr3dGeometryBuffer(nullptr)
+    , mType(meshType)
     , mTextures(textures)
     , mTexture(nullptr)
     , mVertexBufferId(0)
@@ -18,8 +19,9 @@ Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Type meshTyp
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName, Type meshType )
-    : mType(meshType)
+Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName, Qtr3d::MeshType meshType )
+    : Qtr3dGeometryBuffer(nullptr)
+    , mType(meshType)
     , mTextures(textures)
     , mTexture(nullptr)
     , mVertexBufferId(0)
@@ -29,18 +31,18 @@ Qtr3dTexturedMesh::Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QStrin
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer::Type Qtr3dTexturedMesh::meshType() const
+Qtr3d::MeshType Qtr3dTexturedMesh::meshType() const
 {
     return mType;
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMesh::startMesh(Type meshType, const QString &textureName)
+void Qtr3dTexturedMesh::startMesh(Qtr3d::MeshType meshType, const QString &textureName)
 {
     destroy();
     if (!textureName.isEmpty())
         mTextureName = textureName;
-    if (meshType != Unknown)
+    if (meshType != Qtr3d::UnknownMesh)
         mType = meshType;
 }
 
@@ -108,11 +110,11 @@ void Qtr3dTexturedMesh::destroy()
 GLenum Qtr3dTexturedMesh::bufferType() const
 {
     switch (mType) {
-    case Unknown: Q_ASSERT(0); return 0; break;
-    case Dot:      return GL_POINTS;    break;
-    case Line:     return GL_LINES;     break;
-    case Triangle: return GL_TRIANGLES; break;
-    case Quad:     return GL_QUADS; break;
+    case Qtr3d::UnknownMesh: Q_ASSERT(0); return 0; break;
+    case Qtr3d::Dot:      return GL_POINTS;    break;
+    case Qtr3d::Line:     return GL_LINES;     break;
+    case Qtr3d::Triangle: return GL_TRIANGLES; break;
+    case Qtr3d::Quad:     return GL_QUADS; break;
     }
     Q_ASSERT(0);
     return 0;

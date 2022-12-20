@@ -7,7 +7,7 @@
 #include <QVariantMap>
 #include <QVariantList>
 #include "qtr3dmodelfactory.h"
-#include "qtr3dvertexmesh.h"
+#include "qtr3dmesh.h"
 #include "qtr3dtexturedquad.h"
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
@@ -15,6 +15,10 @@
 #include "loader/qtr3d3dsloader.h"
 #include "loader/qtr3dglbloader.h"
 #include "utils/qtr3dutils.h"
+
+#ifdef WITH_LIBASSIMP
+#include "loader/qtr3dassimploader.h"
+#endif
 
 //-------------------------------------------------------------------------------------------------
 static QVariant sLoadJson(const QString &filename) {
@@ -45,13 +49,13 @@ static QVariant sLoadJson(const QString &filename) {
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByJson(Qtr3dVertexMesh &mesh, const QString &filename)
+bool Qtr3dModelFactory::meshByJson(Qtr3dMesh &mesh, const QString &filename)
 {
     return meshByJson(mesh, sLoadJson(filename));
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json)
+bool Qtr3dModelFactory::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
 {
     QVariantMap map = json.toMap();
 
@@ -63,7 +67,7 @@ bool Qtr3dModelFactory::meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json)
     QString defaultColorName = map.value("defaultColor").toString();
     if (!defaultColorName.isEmpty())
         mesh.setDefaultColor(QColor(defaultColorName));
-    mesh.startMesh(Qtr3dVertexMesh::Line);
+    mesh.startMesh(Qtr3d::Line);
     foreach(QVariant vertex, vertices) {
         QVariantList list = vertex.toList();
         if (list.count() != 3) {
@@ -77,10 +81,10 @@ bool Qtr3dModelFactory::meshByJson(Qtr3dVertexMesh &mesh, const QVariant &json)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByStarsky(Qtr3dVertexMesh &mesh, float radius, int starCount, const QColor &color)
+bool Qtr3dModelFactory::meshByStarsky(Qtr3dMesh &mesh, float radius, int starCount, const QColor &color)
 {
     mesh.setDefaultColor(color);
-    mesh.startMesh(Qtr3dVertexMesh::Dot);
+    mesh.startMesh(Qtr3d::Dot);
 
     for (int i=0; i<starCount; i++) {
         QVector3D v((float)(-10000 + (Qtr3d::qrand()%20000)),
@@ -96,7 +100,7 @@ bool Qtr3dModelFactory::meshByStarsky(Qtr3dVertexMesh &mesh, float radius, int s
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const QColor &color)
+bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color)
 {
     float       radius = 1.0f;
     float       cx = 0.0f;
@@ -105,10 +109,10 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     const float PI = 3.1415;
 
     mesh.setDefaultColor(color);
-    mesh.startMesh(Qtr3dVertexMesh::Triangle);
+    mesh.startMesh(Qtr3d::Triangle);
 
     /* top */
-    mesh.addVertex({cx,cy,cz + radius}, QVector3D(0.f, 0.f, 1.f), color);
+    mesh.addVertex({cx,cy,cz + radius}, QVector3D(0.f, 0.f, 1.f));
 
     float stepXY = 2*PI/sectors;
     float angleZ  = PI/(sectors-1);
@@ -150,7 +154,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
 
     /* Button */
     mesh.addVertex({cx, cy, cz - radius},
-                   QVector3D(0.f,0.f,-1.f), color);
+                   QVector3D(0.f,0.f,-1.f));
 
     for (int ring = 0; ring<sectors-3; ring++) {
         for (int s=0; s<sectors; s++) {
@@ -184,7 +188,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByCycle(Qtr3dVertexMesh &mesh, int sectors, const QColor &color)
+bool Qtr3dModelFactory::meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color)
 {
     float       radius = 1.0f;
     QVector3D   center = {0.f, 0.f, 0.f};
@@ -192,7 +196,7 @@ bool Qtr3dModelFactory::meshByCycle(Qtr3dVertexMesh &mesh, int sectors, const QC
     if (sectors < 3)
         return false;
 
-    mesh.startMesh(Qtr3dVertexMesh::Triangle);
+    mesh.startMesh(Qtr3d::Triangle);
     mesh.setDefaultColor(color);
 
     QVector3D  pointer = {radius, 0.f, 0.f};
@@ -217,9 +221,9 @@ bool Qtr3dModelFactory::meshByCycle(Qtr3dVertexMesh &mesh, int sectors, const QC
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByXyzAxis(Qtr3dVertexMesh &mesh)
+bool Qtr3dModelFactory::meshByXyzAxis(Qtr3dMesh &mesh)
 {
-    mesh.startMesh(Qtr3dVertexMesh::Line);
+    mesh.startMesh(Qtr3d::Line);
 
     // 4 Dots
     mesh.addVertex({0,0,0}, Qt::white);
@@ -243,7 +247,7 @@ bool Qtr3dModelFactory::meshByXyzAxis(Qtr3dVertexMesh &mesh)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByCylinder(Qtr3dVertexMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
+bool Qtr3dModelFactory::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
 {
     if (sectors < 3)
         return false;
@@ -252,9 +256,9 @@ bool Qtr3dModelFactory::meshByCylinder(Qtr3dVertexMesh &mesh, int sectors, bool 
     QMatrix4x4 rotation;
     rotation.rotate(360.f/sectors,{0,1,0});
 
-    mesh.startMesh(Qtr3dVertexMesh::Triangle);
+    mesh.startMesh(Qtr3d::Triangle);
     mesh.setDefaultColor(color);
-    mesh.setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+    mesh.setFaceOrientation(Qtr3d::CounterClockWise);
     for (int i=0; i<sectors; i++) {
         mesh.addVertex(pointer + QVector3D(0, 0.5,0),pointer); // Top Cycle
         mesh.addVertex(pointer + QVector3D(0,-0.5,0),pointer); // Bottom Cycle
@@ -284,7 +288,7 @@ bool Qtr3dModelFactory::meshByCylinder(Qtr3dVertexMesh &mesh, int sectors, bool 
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const QImage &colorMap)
+bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
 {
     if (sectors < 3 || colorMap.isNull())
         return false;
@@ -295,8 +299,8 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
     float       cz = 0.0f;
     const float PI = 3.1415;
 
-    mesh.startMesh(Qtr3dVertexMesh::Triangle);
-    mesh.setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setFaceOrientation(Qtr3d::CounterClockWise);
 
     auto getColor = [&](float xProc, float yProc) {
         return colorMap.pixel(xProc * (colorMap.width()-1),
@@ -382,48 +386,14 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dVertexMesh &mesh, int sectors, const Q
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QString &filename)
-{
-    return quadsByJson(mesh, sLoadJson(filename));
-}
-
-//-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::quadsByJson(Qtr3dTexturedQuad &mesh, const QVariant &json)
-{
-    QVariantMap map = json.toMap();
-
-    QString      textureName = map.value("texture").toString();
-    QVariantList quads = map.value("quads").toList();
-    if (textureName.isEmpty() || quads.isEmpty())
-        return false;
-
-    mesh.startMesh(textureName);
-
-    foreach(QVariant quad, quads) {
-        QVariantList vertices = quad.toList();
-        if (vertices.count() != 4) {
-            mesh.reset();
-            return false;
-        }
-        auto toVector = [](const QVariant &v) {
-            QVariantList coords = v.toList();
-            if (coords.count() != 3)
-                return QVector3D();
-            return QVector3D(coords[0].toFloat(), coords[1].toFloat(), coords[2].toFloat());
-        };
-        mesh.addQuad(toVector(vertices[0]), toVector(vertices[1]),
-                toVector(vertices[2]), toVector(vertices[3]));
-    }
-
-    mesh.endMesh();
-    return true; // TODO: Validation?
-}
-
-//-------------------------------------------------------------------------------------------------
 bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Qtr3dModelLoader::Options opts)
 {
+ #ifdef WITH_LIBASSIMP
+    if (Qtr3dAssimpLoader::supportsFile(filename))
+        return Qtr3dAssimpLoader::loadFile(model,filename, factory);
+#endif
     if (Qtr3dStlLoader::supportsFile(filename))
-        return Qtr3dStlLoader::loadFile(model,filename, factory);
+        return Qtr3dStlLoader::loadFile(model,filename);
 
     if (Qtr3dPlyLoader::supportsFile(filename))
         return Qtr3dPlyLoader::loadFile(model,filename, factory);
@@ -440,9 +410,9 @@ bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, 
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dVertexMesh &mesh, const Qtr3dVertexMesh &sourceMesh, float vectorLenght, QColor color)
+bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float vectorLenght, QColor color)
 {
-    mesh.startMesh(Qtr3dGeometryBuffer::Line);
+    mesh.startMesh(Qtr3d::Line);
     mesh.setDefaultColor(color);
 
     for (int i=0; i<sourceMesh.vertexListCount(); i++) {
@@ -460,7 +430,7 @@ bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dVertexMesh &mesh, const Qtr3dVerte
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &highmapImageName, QVector3D scale, const QString &texture)
+bool Qtr3dModelFactory::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, QVector3D scale, const QString &texture)
 {
     QImage highmapImg;
     if (!highmapImg.load(highmapImageName))
@@ -481,7 +451,7 @@ bool Qtr3dModelFactory::meshByHighmap(Qtr3dVertexMesh &mesh, const QString &high
     int tw = textureImg.width();
     int th = textureImg.height();
 
-    mesh.startMesh(Qtr3dVertexMesh::Triangle, Qtr3dVertexMesh::ClockWise);
+    mesh.startMesh(Qtr3d::Triangle, Qtr3d::ClockWise);
 
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {

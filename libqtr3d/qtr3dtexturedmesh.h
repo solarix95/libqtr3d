@@ -19,11 +19,11 @@ class Qtr3dTexturedMesh : public Qtr3dGeometryBuffer
 {
     Q_OBJECT
 public:
-    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Type meshType = Triangle);
-    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName, Type meshType = Triangle);
+    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, Qtr3d::MeshType meshType = Qtr3d::Triangle);
+    Qtr3dTexturedMesh(Qtr3dTextureFactory *textures, const QString &textureName, Qtr3d::MeshType meshType = Qtr3d::Triangle);
 
-    Type meshType() const;
-    void startMesh(Type meshType = Triangle, const QString &textureName = "");
+    Qtr3d::MeshType meshType() const;
+    void startMesh(Qtr3d::MeshType meshType = Qtr3d::Triangle, const QString &textureName = "");
 
     void addVertex(const QVector3D &vertex, Qtr3dScalar u, Qtr3dScalar v, const QVector3D &n = QVector3D());
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n = QVector3D());
@@ -47,7 +47,7 @@ private:
     void init(const QString &fname);
     void releaseGlIds();
 
-    Type                 mType;
+    Qtr3d::MeshType      mType;
     Qtr3dTextureFactory *mTextures;
     Qtr3dTexture        *mTexture;
 

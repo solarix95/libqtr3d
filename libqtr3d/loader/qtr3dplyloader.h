@@ -71,7 +71,7 @@ private:
 
     Format           mFormat;
     QList<Element>   mElements;
-    Qtr3dVertexMesh *mMesh;
+    Qtr3dMesh *mMesh;
 };
 
 #endif // QTR3DSTLLOADER_H

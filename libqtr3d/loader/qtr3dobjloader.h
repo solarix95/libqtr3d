@@ -31,10 +31,10 @@ protected:
     void processMaterialTexture(const QString &matlibFilename, const QStringList &args);
 
 private:
-    void setupTexturedMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
-    void setupSimpleMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
-    void setupVertexDotMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
-    void setupNormalMesh(Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory);
+    void setupTexturedMesh(Qtr3dModel &model);
+    void setupSimpleMesh(Qtr3dModel &model);
+    void setupVertexDotMesh(Qtr3dModel &model);
+    void setupNormalMesh(Qtr3dModel &model);
 
     QList<QVector3D>  mVertices;
     QList<QColor>     mVerticesColors;
@@ -50,7 +50,7 @@ private:
     QString           mTextureName;
     QList<QPointF>    mTextureCoords;
 
-    Qtr3dVertexMesh *mMesh;
+    Qtr3dMesh *mMesh;
 
 };
 

@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dtexturedmesh.h>
+#include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 
@@ -15,10 +15,10 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *buffer = w.createTexturedMesh(":/texture.jpg");
+        auto *buffer = w.createMesh();
 
-        buffer->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        buffer->startMesh();
+        buffer->setTexture(QImage(":/texture.jpg"));
+        buffer->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
 
         buffer->addQuad({-1, 1,  1}, { 1, 1, 1}, { 1, 1,-1}, {-1, 1,-1});  // Top
         buffer->addQuad({-1, 1, -1}, { 1, 1,-1}, { 1,-1,-1}, {-1,-1,-1});  // Front
@@ -32,11 +32,11 @@ int main(int argc, char *argv[])
 
         buffer->endMesh();
 
-        w.createBufferState(buffer)->setLightingType(Qtr3d::NoLighting);
+        w.createState(buffer)->setLightingType(Qtr3d::NoLighting);
 
         // lets show 2 more instances of the same shape:
-        w.createBufferState(buffer)->move({-3,0,0});
-        w.createBufferState(buffer)->move({ 3,0,0});
+        w.createState(buffer)->move({-3,0,0});
+        w.createState(buffer)->move({ 3,0,0});
 
         new Qtr3dCameraCycler(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});
     });

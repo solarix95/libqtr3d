@@ -1,6 +1,4 @@
 #version 110
-// Simple fragment shader.
-// Does texturing and phong shading.
 
 struct Material {
     vec3 ambient;
@@ -19,21 +17,22 @@ uniform Material material;
 uniform Light    light;
 
 // Parameters from the vertex shader
-varying vec4 fragColor;
+#QTR3d_SHADER_PASS
 varying vec3 fragNormal;
 varying vec4 fragPos;
 
 void main() {
         // easy ambient color calculation
-        vec3  ambient  = (light.ambient * light.color * fragColor.rgb) + (material.ambient * fragColor.rgb);
+        vec4  inColor  = #QTR3D_FRAGMENT_COLOR
+        vec3  ambient  = (light.ambient * light.color * inColor.rgb) + (material.ambient * inColor.rgb);
 
         // diffuse color
         vec3  norm     = normalize(fragNormal);
         vec3  lightDir = normalize(light.pos - fragPos.xyz);
         float diff     = max(dot(norm, lightDir), 0.0);
-        vec3  diffuse  = diff * material.diffuse * fragColor.rgb * light.color;
+        vec3  diffuse  = diff * material.diffuse * inColor.rgb * light.color;
 
         // Final output
         gl_FragColor.rgb = (ambient + diffuse);
-        gl_FragColor.a   = fragColor.a;
+        gl_FragColor.a   = inColor.a;
 }

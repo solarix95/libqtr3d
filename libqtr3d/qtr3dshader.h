@@ -9,30 +9,40 @@
 #include <QMap>
 
 #include "qtr3dtypes.h"
-#include "qtr3dlightsource.h"
+
+class Qtr3dMesh;
+class Qtr3dGeometryBufferState;
+class Qtr3dCamera;
+class Qtr3dLightSource;
 
 //-------------------------------------------------------------------------------------------------
 class Qtr3dShader : public QObject
 {
 public:
-    Qtr3dShader(const QString &eglFile);
+    Qtr3dShader(QObject *parent, const QString &eglFile, const QString &fragVaryingCode, const QString &fragColorCode);
 
     void setDefaultLighting(Qtr3d::LightingType l);
-    void render(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light);
+    inline Qtr3d::LightingType defaultLighting() const { return mDefaultLighting; }
+
+    void setProgram(Qtr3d::LightingType lightType);
+
+    void render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light);
 
     // static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER);
     static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER, int accessFlags = GL_STATIC_DRAW);
 
 protected:
-    // static inline void matrixAsUniform(QOpenGLFunctions *f, GLuint location, QMatrix4x4 m) { f->glUniformMatrix4fv(location,1,GL_TRUE,m.data()); }
-    virtual void drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light) = 0;
     virtual void onProgramChange();
 
-    void setProgram(Qtr3d::LightingType lightType);
+    virtual void drawBuffer_NoLight(const Qtr3dMesh    &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix) = 0;
+    virtual void drawBuffer_FlatLight(const Qtr3dMesh  &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light) = 0;
+    virtual void drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light) = 0;
+
     QOpenGLShaderProgram *currentProgram();
-    inline Qtr3d::LightingType defaultLighting() const { return mDefaultLighting; }
+
 private:
-    void initShader(Qtr3d::LightingType lightType, const QString &extension);
+    void initShader(Qtr3d::LightingType lightType, const QString &extension, const QString &fragVaryingCode, const QString &fragColorCode);
+    static QByteArray shaderCode(const QString &name);
 
     struct ShaderComponents {
         QOpenGLShaderProgram *program;

@@ -9,10 +9,10 @@ bool Qtr3dStlLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dStlLoader::loadFile(Qtr3dModel &model, const QString &filename)
 {
     Qtr3dStlLoader loader;
-    return loader.loadModel(model,filename,factory);
+    return loader.loadModel(model,filename);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ Qtr3dStlLoader::Qtr3dStlLoader()
 Qtr3dStlLoader::~Qtr3dStlLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename)
 {
     QByteArray header = fileHeader(filename,100);
     if (header.isEmpty())
@@ -35,7 +35,7 @@ bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
-    auto *mesh = factory.createVertexMesh();
+    auto *mesh = model.context()->createMesh();
     mesh->setDefaultColor(model.defaultColor());
 
     bool done = false;
@@ -49,12 +49,12 @@ bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
         return false;
     }
 
-    model.addGeometry(mesh);
+    model.addMesh(mesh, true);
     return true;
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dStlLoader::fromASCII(Qtr3dVertexMesh &mesh, QFile &f)
+bool Qtr3dStlLoader::fromASCII(Qtr3dMesh &mesh, QFile &f)
 {
     QTextStream in(&f);
     mMesh = &mesh;
@@ -62,7 +62,7 @@ bool Qtr3dStlLoader::fromASCII(Qtr3dVertexMesh &mesh, QFile &f)
     QString     line;
     QString     cmd;
     QStringList parts;
-    mMesh->startMesh(Qtr3dVertexMesh::Triangle);
+    mMesh->startMesh(Qtr3d::Triangle);
 
     enum State {
         SolidState,
@@ -168,14 +168,14 @@ bool Qtr3dStlLoader::fromASCII(Qtr3dVertexMesh &mesh, QFile &f)
 }
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3dStlLoader::fromBinary(Qtr3dVertexMesh &mesh, QFile &f)
+bool Qtr3dStlLoader::fromBinary(Qtr3dMesh &mesh, QFile &f)
 {
     Qtr3dBinReader reader(f.readAll());
     reader.skip(80);
     quint32 numOfTriangles = reader.readUint32();
 
     mMesh = &mesh;
-    mMesh->startMesh(Qtr3dVertexMesh::Triangle);
+    mMesh->startMesh(Qtr3d::Triangle);
 
     while (numOfTriangles > 0) {
         QVector3D normal(reader.readFloat(), reader.readFloat(),reader.readFloat());

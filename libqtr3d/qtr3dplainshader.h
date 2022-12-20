@@ -1,14 +1,14 @@
-#ifndef QTR3DCOLOREDELEMENTSSHADER_H
-#define QTR3DCOLOREDELEMENTSSHADER_H
+#ifndef QTR3DPLAINSHADER_H
+#define QTR3DPLAINSHADER_H
 
 #include "qtr3dshader.h"
 #include "qtr3dmesh.h"
 
-class Qtr3dVertexMeshShader : public Qtr3dShader
+class Qtr3dPlainShader : public Qtr3dShader
 {
 public:
-    Qtr3dVertexMeshShader(QObject *parent);
-    virtual ~Qtr3dVertexMeshShader();
+    Qtr3dPlainShader(QObject *parent);
+    virtual ~Qtr3dPlainShader();
 
 protected:
     virtual void onProgramChange();
@@ -20,20 +20,20 @@ protected:
 private:
     void drawMesh(const Qtr3dMesh &buffer);
 
-    // Shader Attributes
-    int mVertexPosition;
-    int mVertexNormal;
-    int mVertexColor;
-
     // Shader global matrices
     int mProjectionMatrix;
-    int mModelviewMatrix; // world * model
+    int mModelviewMatrix;
+    int mModelColor;
 
     // Shader global light
     int mLightPos;
     int mLightColor;
     int mLightAmbient;
     int mLightDiffuse;
+
+    // Shader Attributes
+    int mVertexPosition;
+    int mVertexNormal;
 };
 
-#endif // QTR3DCOLOREDELEMENTSSHADER_H
+#endif

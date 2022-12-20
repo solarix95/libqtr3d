@@ -78,7 +78,7 @@ void ViewerForm::updateVertexOrientation()
 {
     if (!mModel)
         return;
-    mModel->setFaceOrientation(ui->btnCCW->isChecked() ? Qtr3dGeometryBuffer::CounterClockWise : Qtr3dGeometryBuffer::ClockWise);
+    mModel->setFaceOrientation(ui->btnCCW->isChecked() ? Qtr3d::CounterClockWise : Qtr3d::ClockWise);
     ui->viewer->update();
 }
 
@@ -104,7 +104,7 @@ void ViewerForm::loadFile(const QString &filename)
     Qtr3dModelFactory::modelByFile(*mModel,filename, *ui->viewer->factory());
     QApplication::restoreOverrideCursor();
 
-    mModelState =  ui->viewer->createBufferState(mModel);
+    mModelState =  ui->viewer->createState(mModel);
     updateLight();
     updateVertexOrientation();
 

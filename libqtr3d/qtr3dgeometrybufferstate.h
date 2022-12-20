@@ -12,9 +12,8 @@ class Qtr3dGeometryBuffer;
 class Qtr3dGeometryBufferState : public QObject
 {
 public:
-
-    Qtr3dGeometryBufferState(Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
-    Qtr3dGeometryBufferState(const QVector3D &pos, const QVector3D &rotation);
+    Qtr3dGeometryBufferState(QObject *parent, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
+    Qtr3dGeometryBufferState(QObject *parent, const QVector3D &pos, const QVector3D &rotation);
 
     void setParent(Qtr3dGeometryBufferState *state);
     void setLightingType(Qtr3d::LightingType ltype);

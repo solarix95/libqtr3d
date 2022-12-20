@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QByteArray>
 #include <QString>
-#include "../qtr3dvertexmesh.h"
+#include "../qtr3dmesh.h"
 #include "../qtr3dmodel.h"
 #include "../qtr3dgeometrybufferfactory.h"
 

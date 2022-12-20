@@ -1,85 +1,53 @@
+
 #include "qtr3dtexturedmeshshader.h"
-
+#include "qtr3dlightsource.h"
+#include "qtr3dmesh.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMeshShader::Qtr3dTexturedMeshShader(const QString &eglFile)
-    : Qtr3dShader(eglFile)
+Qtr3dTexturedShader::Qtr3dTexturedShader(QObject *parent)
+    : Qtr3dShader(parent, "textured", "varying vec2 fragTexcoords; uniform sampler2D textureId;", "texture2D( textureId, fragTexcoords );")
+    , mVertexPosition(-1)
+    , mVertexNormal(-1)
+    , mVertexTexcoords(-1)
+    , mModelviewMatrix(-1)
+    , mProjectionMatrix(-1)
+{}
+Qtr3dTexturedShader::~Qtr3dTexturedShader() = default;
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedShader::onProgramChange()
 {
+    mVertexPosition   = currentProgram()->attributeLocation("vertex");
+    mVertexNormal     = currentProgram()->attributeLocation("vnormal");
+    mVertexTexcoords  = currentProgram()->attributeLocation("vtexcoords");
+
+    mModelviewMatrix  = currentProgram()->uniformLocation("modelview");
+    mProjectionMatrix = currentProgram()->uniformLocation("projection");
+
+    mTexture   = currentProgram()->uniformLocation("textureId" );
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::registerBuffer(Qtr3dTexturedMesh &buffer)
-{
-    mGeometryBuffers << &buffer;
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffers(const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
-{
-    for(auto *mesh: mGeometryBuffers) {
-        const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
-        for(auto *state: states) {
-            if (!state->enabled())
-                continue;
-            auto nextLightingTyp = state->lightingType();
-            if (nextLightingTyp == Qtr3d::DefaultLighting)
-                nextLightingTyp = defaultLighting();
-
-            setProgram(nextLightingTyp);
-            switch(nextLightingTyp) {
-            case Qtr3d::NoLighting:
-                drawBuffer_NoLight(*mesh, *state, perspectiveMatrix, worldMatrix);
-                break;
-            case Qtr3d::FlatLighting:
-                drawBuffer_FlatLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
-                break;
-            case Qtr3d::PhongLighting:
-                drawBuffer_PhongLight(*mesh, *state, perspectiveMatrix, worldMatrix, light);
-                break;
-            default:break;
-            }
-        }
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::onProgramChange()
-{
-    mVertexPosition   = currentProgram()->attributeLocation("vertex" );
-    mVertexNormal     = currentProgram()->attributeLocation("vnormal" );
-    mVertexTexcoords  = currentProgram()->attributeLocation("vtexcoords" );
-
-    mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
-    mProjectionMatrix = currentProgram()->uniformLocation("projection" );
-    mLightPos         = currentProgram()->uniformLocation("lightpos" );
-    mLightAmbient     = currentProgram()->uniformLocation("lightambientk" );
-    mLightDiffuse     = currentProgram()->uniformLocation("lightdiffusek" );
-
-    mDefaultTexture   = currentProgram()->uniformLocation("texture" );
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffer_NoLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
     QMatrix4x4 modelWorldMatrix;
     if (transitions.isEmpty()) {
-        modelWorldMatrix = worldMatrix * state.modelView();
+        modelWorldMatrix = worldMatrix * modelView;
         currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
         drawMesh(mesh);
     } else {
         for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
-            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            modelWorldMatrix = worldMatrix * modelView * t;
             currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
             drawMesh(mesh);
         }
     }
 }
 
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
+void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
@@ -88,27 +56,26 @@ void Qtr3dTexturedMeshShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh
     currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
     currentProgram()->setUniformValue("material.shininess",5.0f);
 
-    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light->pos());
-    currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
-    currentProgram()->setUniformValue("light.color",   light->colorf());
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light.colorf());
 
     const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
     QMatrix4x4 modelWorldMatrix;
     if (transitions.isEmpty()) {
-        modelWorldMatrix = worldMatrix * state.modelView();
+        modelWorldMatrix = worldMatrix * modelView;
         currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
         drawMesh(mesh);
     } else {
         for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
-            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            modelWorldMatrix = worldMatrix * modelView * t;
             currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
             drawMesh(mesh);
         }
     }
 }
 
-//-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, Qtr3dLightSource *light)
+void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
@@ -117,9 +84,31 @@ void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mes
     currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
     currentProgram()->setUniformValue("material.shininess",5.0f);
 
-    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light->pos());
-    currentProgram()->setUniformValue("light.ambient", light->strengthAmbient());
-    currentProgram()->setUniformValue("light.color",   light->colorf());
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light.colorf());
+
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * modelView;
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * modelView * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
+}
+
+#if 0
+//-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+{
+    /*
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
     const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
     QMatrix4x4 modelWorldMatrix;
@@ -134,18 +123,82 @@ void Qtr3dTexturedMeshShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mes
             drawMesh(mesh);
         }
     }
+    */
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer)
+void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+{
+    /*
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+
+    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
+    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
+    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
+    currentProgram()->setUniformValue("material.shininess",5.0f);
+
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light.colorf());
+
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
+    */
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dTexturedMesh &mesh, const Qtr3dGeometryBufferState &state, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+{
+    /*
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+
+    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
+    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
+    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
+    currentProgram()->setUniformValue("material.shininess",5.0f);
+
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light.colorf());
+
+    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
+    QMatrix4x4 modelWorldMatrix;
+    if (transitions.isEmpty()) {
+        modelWorldMatrix = worldMatrix * state.modelView();
+        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+        drawMesh(mesh);
+    } else {
+        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
+            modelWorldMatrix = worldMatrix * state.modelView() * t;
+            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
+            drawMesh(mesh);
+        }
+    }
+    */
+}
+#endif
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedShader::drawMesh(const Qtr3dMesh &buffer)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     switch (buffer.faceOrientation()) {
-    case Qtr3dGeometryBuffer::ClockWise:
+    case Qtr3d::ClockWise:
         f->glFrontFace(GL_CW);
         break;
-    case Qtr3dGeometryBuffer::CounterClockWise:
+    case Qtr3d::CounterClockWise:
         f->glFrontFace(GL_CCW);
         break;
     default: break;
@@ -161,7 +214,7 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer)
     // Textures
     f->glActiveTexture( GL_TEXTURE0 );
     f->glBindTexture( GL_TEXTURE_2D, buffer.textureId() );
-    f->glUniform1i( mDefaultTexture, 0 );
+    f->glUniform1i( mTexture, 0 );
 
     // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );
@@ -170,7 +223,7 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer)
                 4,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(Qtr3dTexturedVertex),
+                sizeof(Qtr3dVertex),
                 (void*)0
                 );
     f->glEnableVertexAttribArray( mVertexPosition );
@@ -182,20 +235,21 @@ void Qtr3dTexturedMeshShader::drawMesh(const Qtr3dTexturedMesh &buffer)
                     3,
                     GL_FLOAT,
                     GL_FALSE,
-                    sizeof(Qtr3dTexturedVertex),
+                    sizeof(Qtr3dVertex),
                     (void*)(sizeof(GLfloat) * 4)
                     );
         f->glEnableVertexAttribArray( mVertexNormal );
     }
 
     // Texture coordinates
+    f->glBindBuffer( GL_ARRAY_BUFFER, buffer.texcoordBufferId() );
     f->glVertexAttribPointer(
                 mVertexTexcoords,
                 2,
                 GL_FLOAT,
                 GL_FALSE,
-                sizeof(Qtr3dTexturedVertex), // sizeof(GLfloat) * 9
-                (void*)(sizeof(GLfloat) * 7)
+                sizeof(Qtr3dTexCoord), // sizeof(GLfloat) * 9
+                (void*)0
                 );
     f->glEnableVertexAttribArray( mVertexTexcoords );
 

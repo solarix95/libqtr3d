@@ -41,10 +41,10 @@ bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     if (mFormat == InvalidFormat)
         return false;
 
-    mMesh = factory.createVertexMesh();
+    mMesh = factory.createMesh();
     mMesh->setDefaultColor(model.defaultColor());
 
-    mMesh->startMesh(Qtr3dVertexMesh::Triangle);
+    mMesh->startMesh(Qtr3d::Triangle);
     if (mFormat == TextFormat) {
         while (mElements.count() > 0)
             if (!decodeNextAsciiElement(f)) {
@@ -61,8 +61,8 @@ bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
             }
     }
     mMesh->endMesh();
+    model.addMesh(mMesh);
 
-    model.addGeometry(mMesh);
     return true;
 }
 
