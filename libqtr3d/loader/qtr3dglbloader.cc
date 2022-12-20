@@ -402,8 +402,6 @@ Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, con
             bufferView(textCoordInfo["bufferView"].toInt())
             );
 
-    QString textureName = QString("texture_%1").arg(qrand());
-
     auto *mesh = mModel->context()->createMesh();
     mesh->setTexture(texture);
     mesh->startMesh(Qtr3d::Triangle);

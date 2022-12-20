@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 10-blending
+TARGET = 05-textured-cube
 INCLUDEPATH += .
 
 LIBQTR3D_PATH = ../../

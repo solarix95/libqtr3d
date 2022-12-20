@@ -3,8 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 03-textured-cube
+TARGET = 12-blending
 INCLUDEPATH += .
+CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 include(../../libqtr3d.pro)

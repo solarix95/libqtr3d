@@ -3,9 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 02-flat-cube
+TARGET = 09-json-fileformat
 INCLUDEPATH += .
-CONFIG += debug
+QT += core gui widgets
 
 LIBQTR3D_PATH = ../../
 
@@ -24,4 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # Input
 SOURCES += main.cc
+
+RESOURCES += \
+    demodata.qrc
 

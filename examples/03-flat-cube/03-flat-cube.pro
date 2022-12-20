@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 03-mesh-states
+TARGET = 03-flat-cube.
 INCLUDEPATH += .
 CONFIG += debug
 

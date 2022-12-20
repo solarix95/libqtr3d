@@ -2,8 +2,7 @@
 #include <QDebug>
 #include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dtexturedmesh.h>
-#include <libqtr3d/qtr3dvertexmesh.h>
+#include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 
@@ -17,10 +16,11 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
         // Create simple Cube
-        auto *cube = w.createTexturedMesh(":/texture.jpg");
+        auto *cube = w.createMesh();
+        cube->setTexture(QImage(":/texture.jpg"));
 
-        cube->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        cube->startMesh();
+        cube->setFaceOrientation(Qtr3d::ClockWise);
+        cube->startMesh(Qtr3d::Triangle);
 
         cube->addQuad({-1, 1,  1}, { 1, 1, 1}, { 1, 1,-1}, {-1, 1,-1});  // Top
         cube->addQuad({-1, 1, -1}, { 1, 1,-1}, { 1,-1,-1}, {-1,-1,-1});  // Front
@@ -33,28 +33,29 @@ int main(int argc, char *argv[])
         cube->addQuad({-1,-1, -1}, { 1,-1,-1}, { 1,-1, 1}, {-1,-1, 1});  // Bottom
 
         cube->endMesh();
-        w.createBufferState(cube);
+        w.createState(cube);
 
         // textured Window
         // Texture by https://learnopengl.com/Advanced-OpenGL/Blending
-        auto *window = w.createTexturedMesh(":/blending_transparent_window.png");
-        window->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
+        auto *window = w.createMesh();
+        window->setTexture(QImage(":/blending_transparent_window.png"));
+        window->setFaceOrientation(Qtr3d::ClockWise);
         window->setBlendingEnabled(true);           // Enable Alpha Transparency for blending_transparent_window.png
-        window->startMesh();
+        window->startMesh(Qtr3d::Triangle);
         window->addQuad({-1, 1, 0},{ 1, 1,0},{ 1,-1,0},{-1,-1,0});     // Front
         window->endMesh();
-        auto *windowState = w.createBufferState(window);
+        auto *windowState = w.createState(window);
         windowState->setPos({0,0,-1.3});
 
         // Simple Vertex Window
-       auto *glas = w.createVertexMesh();
+       auto *glas = w.createMesh();
        glas->setDefaultColor(QColor(255,0,0,127)); // 127 =~ 0.5 Opacity
        glas->setBlendingEnabled(true);             // Enable Alpha Transparency
-       glas->startMesh(Qtr3dVertexMesh::Triangle, Qtr3dGeometryBuffer::CounterClockWise);
+       glas->startMesh(Qtr3d::Triangle, Qtr3d::ClockWise);
        glas->addQuad({0, 1,  1}, {0, 1,-1}, {0,-1,-1}, {0,-1, 1});  // Right
        glas->endMesh();
 
-       auto *glasState = w.createBufferState(glas);
+       auto *glasState = w.createState(glas);
        glasState->setPos({-1.3,0,0});
 
         new Qtr3dCameraCycler(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});

@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 02-flat-light-cube
+TARGET = 04-flat-light-cube
 INCLUDEPATH += .
 CONFIG += debug
 
