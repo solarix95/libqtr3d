@@ -386,26 +386,26 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage 
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Qtr3dModelLoader::Options opts)
+bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts)
 {
  #ifdef WITH_LIBASSIMP
     if (Qtr3dAssimpLoader::supportsFile(filename))
-        return Qtr3dAssimpLoader::loadFile(model,filename, factory);
+        return Qtr3dAssimpLoader::loadFile(model,filename);
 #endif
     if (Qtr3dStlLoader::supportsFile(filename))
         return Qtr3dStlLoader::loadFile(model,filename);
 
     if (Qtr3dPlyLoader::supportsFile(filename))
-        return Qtr3dPlyLoader::loadFile(model,filename, factory);
+        return Qtr3dPlyLoader::loadFile(model,filename);
 
     if (Qtr3dObjLoader::supportsFile(filename))
-        return Qtr3dObjLoader::loadFile(model,filename, factory, opts);
+        return Qtr3dObjLoader::loadFile(model,filename, opts);
 
     if (Qtr3d3dsLoader::supportsFile(filename))
-        return Qtr3d3dsLoader::loadFile(model,filename, factory);
+        return Qtr3d3dsLoader::loadFile(model,filename);
 
     if (Qtr3dGlbLoader::supportsFile(filename))
-        return Qtr3dGlbLoader::loadFile(model,filename, factory);
+        return Qtr3dGlbLoader::loadFile(model,filename);
     return false;
 }
 

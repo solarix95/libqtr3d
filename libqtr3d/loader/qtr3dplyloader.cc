@@ -9,10 +9,10 @@ bool Qtr3dPlyLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dPlyLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dPlyLoader::loadFile(Qtr3dModel &model, const QString &filename)
 {
     Qtr3dPlyLoader loader;
-    return loader.loadModel(model,filename,factory);
+    return loader.loadModel(model,filename);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ Qtr3dPlyLoader::Qtr3dPlyLoader()
 Qtr3dPlyLoader::~Qtr3dPlyLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename)
 {
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))
@@ -41,7 +41,7 @@ bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
     if (mFormat == InvalidFormat)
         return false;
 
-    mMesh = factory.createMesh();
+    mMesh = model.context()->createMesh();
     mMesh->setDefaultColor(model.defaultColor());
 
     mMesh->startMesh(Qtr3d::Triangle);
@@ -61,7 +61,7 @@ bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3d
             }
     }
     mMesh->endMesh();
-    model.addMesh(mMesh);
+    model.addMesh(mMesh, true);
 
     return true;
 }

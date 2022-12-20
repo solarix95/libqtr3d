@@ -14,7 +14,7 @@ class Qtr3dPlyLoader : public Qtr3dModelLoader
 {
 public:
     static bool supportsFile(const QString &filename);
-    static bool loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
+    static bool loadFile(Qtr3dModel &model, const QString &filename);
 
     enum Format {
         InvalidFormat,
@@ -38,7 +38,7 @@ public:
     Qtr3dPlyLoader();
     virtual ~Qtr3dPlyLoader();
 
-    virtual bool loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
+    virtual bool loadModel(Qtr3dModel &model, const QString &filename);
 
 private:
     void parseHeader(QFile &f);

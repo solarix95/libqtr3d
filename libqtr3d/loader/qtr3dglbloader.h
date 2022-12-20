@@ -17,12 +17,12 @@ class Qtr3dGlbLoader : public Qtr3dModelLoader
 {
 public:
     static bool supportsFile(const QString &filename);
-    static bool loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
+    static bool loadFile(Qtr3dModel &model, const QString &filename);
 
     Qtr3dGlbLoader();
     virtual ~Qtr3dGlbLoader();
 
-    virtual bool loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory);
+    virtual bool loadModel(Qtr3dModel &model, const QString &filename);
 
 protected:
 

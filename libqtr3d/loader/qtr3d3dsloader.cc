@@ -13,10 +13,10 @@ bool Qtr3d3dsLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3d3dsLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3d3dsLoader::loadFile(Qtr3dModel &model, const QString &filename)
 {
     Qtr3d3dsLoader loader;
-    return loader.loadModel(model,filename, factory);
+    return loader.loadModel(model,filename);
 }
 
 //-------------------------------------------------------------------------------------------------}
@@ -30,7 +30,7 @@ Qtr3d3dsLoader::Qtr3d3dsLoader()
 Qtr3d3dsLoader::~Qtr3d3dsLoader() = default;
 
 //-------------------------------------------------------------------------------------------------}
-bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename)
 {
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))

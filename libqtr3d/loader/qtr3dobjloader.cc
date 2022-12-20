@@ -13,10 +13,10 @@ bool Qtr3dObjLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dObjLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts)
+bool Qtr3dObjLoader::loadFile(Qtr3dModel &model, const QString &filename, Options opts)
 {
     Qtr3dObjLoader loader;
-    return loader.loadModel(model,filename, factory, opts);
+    return loader.loadModel(model,filename,opts);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ Qtr3dObjLoader::Qtr3dObjLoader()
 Qtr3dObjLoader::~Qtr3dObjLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts)
+bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Options opts)
 {
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))

@@ -10,7 +10,7 @@ class Qtr3dModel;
 
 namespace Qtr3dModelFactory {
 
-bool modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Qtr3dModelLoader::Options opts = Qtr3dModelLoader::DefaultOptions);
+bool modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts = Qtr3dModelLoader::DefaultOptions);
 bool meshByJson(Qtr3dMesh &mesh, const QString &filename);
 bool meshByJson(Qtr3dMesh &mesh, const QVariant &json);
 bool meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, QVector3D scale = {1,1,1}, const QString &texture = "");

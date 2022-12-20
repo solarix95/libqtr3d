@@ -15,10 +15,10 @@ bool Qtr3dGlbLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dGlbLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dGlbLoader::loadFile(Qtr3dModel &model, const QString &filename)
 {
     Qtr3dGlbLoader loader;
-    return loader.loadModel(model,filename, factory);
+    return loader.loadModel(model,filename);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Qtr3dGlbLoader::Qtr3dGlbLoader()
 Qtr3dGlbLoader::~Qtr3dGlbLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory)
+bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QString &filename)
 {
     QByteArray header = fileHeader(filename,100);
     if (header.isEmpty())

@@ -12,12 +12,12 @@ class Qtr3dObjLoader : public Qtr3dModelLoader
 {
 public:
     static bool supportsFile(const QString &filename);
-    static bool loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts = DefaultOptions);
+    static bool loadFile(Qtr3dModel &model, const QString &filename, Options opts = DefaultOptions);
 
     Qtr3dObjLoader();
     virtual ~Qtr3dObjLoader();
 
-    virtual bool loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opt = DefaultOptions);
+    virtual bool loadModel(Qtr3dModel &model, const QString &filename, Options opt = DefaultOptions);
 
 protected:
     void processObject(const QStringList &args);
