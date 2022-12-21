@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         model->setDefaultColor(Qt::red);
 
         // OBJ Model by https://github.com/nasa/NASA-3D-Resources/
-        Qtr3dModelFactory::modelByFile(*model,":/NASA3D-Z2-Spacesuit.obj", *w.factory());
+        Qtr3dModelFactory::modelByFile(*model,":/NASA3D-Z2-Spacesuit.obj");
         model->setFaceOrientation(Qtr3d::CounterClockWise);
         model->mesh(0)->material().kAmbient = { 0.1, 0.1, 0.1 };
         state = w.createState(model);

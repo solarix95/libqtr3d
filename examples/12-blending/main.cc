@@ -18,9 +18,7 @@ int main(int argc, char *argv[])
         // Create simple Cube
         auto *cube = w.createMesh();
         cube->setTexture(QImage(":/texture.jpg"));
-
-        cube->setFaceOrientation(Qtr3d::ClockWise);
-        cube->startMesh(Qtr3d::Triangle);
+        cube->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
 
         cube->addQuad({-1, 1,  1}, { 1, 1, 1}, { 1, 1,-1}, {-1, 1,-1});  // Top
         cube->addQuad({-1, 1, -1}, { 1, 1,-1}, { 1,-1,-1}, {-1,-1,-1});  // Front
@@ -39,9 +37,8 @@ int main(int argc, char *argv[])
         // Texture by https://learnopengl.com/Advanced-OpenGL/Blending
         auto *window = w.createMesh();
         window->setTexture(QImage(":/blending_transparent_window.png"));
-        window->setFaceOrientation(Qtr3d::ClockWise);
         window->setBlendingEnabled(true);           // Enable Alpha Transparency for blending_transparent_window.png
-        window->startMesh(Qtr3d::Triangle);
+        window->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
         window->addQuad({-1, 1, 0},{ 1, 1,0},{ 1,-1,0},{-1,-1,0});     // Front
         window->endMesh();
         auto *windowState = w.createState(window);
@@ -51,7 +48,7 @@ int main(int argc, char *argv[])
        auto *glas = w.createMesh();
        glas->setDefaultColor(QColor(255,0,0,127)); // 127 =~ 0.5 Opacity
        glas->setBlendingEnabled(true);             // Enable Alpha Transparency
-       glas->startMesh(Qtr3d::Triangle, Qtr3d::ClockWise);
+       glas->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
        glas->addQuad({0, 1,  1}, {0, 1,-1}, {0,-1,-1}, {0,-1, 1});  // Right
        glas->endMesh();
 

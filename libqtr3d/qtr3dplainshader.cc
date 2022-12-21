@@ -32,20 +32,9 @@ void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
+    currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
 
-    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
-    QMatrix4x4 modelWorldMatrix;
-    if (transitions.isEmpty()) {
-        modelWorldMatrix = worldMatrix * modelView;
-        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
-        drawMesh(mesh);
-    } else {
-        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
-            modelWorldMatrix = worldMatrix * modelView * t;
-            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
-            drawMesh(mesh);
-        }
-    }
+    drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -64,19 +53,8 @@ void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 
-    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
-    QMatrix4x4 modelWorldMatrix;
-    if (transitions.isEmpty()) {
-        modelWorldMatrix = worldMatrix * modelView;
-        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
-        drawMesh(mesh);
-    } else {
-        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
-            modelWorldMatrix = worldMatrix * modelView * t;
-            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
-            drawMesh(mesh);
-        }
-    }
+    currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+    drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -94,19 +72,8 @@ void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatri
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 
-    const QList<QMatrix4x4> &transitions = mesh.modelTransitions();
-    QMatrix4x4 modelWorldMatrix;
-    if (transitions.isEmpty()) {
-        modelWorldMatrix = worldMatrix * modelView;
-        currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
-        drawMesh(mesh);
-    } else {
-        for (const QMatrix4x4 &t: transitions) { // render all "blades" of a "fan"
-            modelWorldMatrix = worldMatrix * modelView * t;
-            currentProgram()->setUniformValue(mModelviewMatrix,modelWorldMatrix);
-            drawMesh(mesh);
-        }
-    }
+    currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+    drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 #include <QSurfaceFormat>
 #include <QDebug>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dvertexmesh.h>
+#include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
@@ -19,28 +19,25 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
         qDebug() << "OpenGL ready";
 
-        Qtr3dVertexMesh *mesh;
-        Qtr3dGeometryBufferState *state;
-
         // Sphere
-        auto *sphere = w.createVertexMesh();
+        auto *sphere = w.createMesh();
         Qtr3dModelFactory::meshBySphere(*sphere,60,QImage(":/planet.jpg"));
         // sphere->setMeshType(Qtr3dGeometryBuffer::Dot);
-        sphere->setFaceOrientation(Qtr3dGeometryBuffer::CounterClockWise);
-        state = w.createBufferState(sphere);
+        sphere->setFaceOrientation(Qtr3d::CounterClockWise);
+        auto *state = w.createState(sphere);
         state->setLightingType(Qtr3d::PhongLighting);
         state->setState({0,0,0},{-90,0,0},{1,1,1});
 
         // Sky
-        mesh = w.createVertexMesh();
+        auto *mesh = w.createMesh();
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,1000,Qt::white);
-        w.createBufferState(mesh)->setLightingType(Qtr3d::NoLighting);
+        w.createState(mesh)->setLightingType(Qtr3d::NoLighting);
 
-        mesh = w.createVertexMesh();
+        mesh = w.createMesh();
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
-        w.createBufferState(mesh);
+        w.createState(mesh);
 
-        auto *debugMesh = w.createVertexMesh();
+        auto *debugMesh = w.createMesh();
         Qtr3dModelFactory::normalMeshByMesh(*debugMesh,*sphere,1);
         // auto *debugState = w.createBufferState(debugMesh);
         // debugState->setState({0,0,0},{0,0,0},{1,1,1});
