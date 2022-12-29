@@ -75,23 +75,52 @@ void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, cons
     nodeTransform = parentTransform * nodeTransform;
 
     for (int m=0; m<node->mNumMeshes; m++) {
-        auto *mesh = model.context()->createMesh(false)->startMesh(Qtr3d::Triangle);
-        auto *aiMesh = scene->mMeshes[node->mMeshes[m]];
-        if (aiMesh->mMaterialIndex >= 0) {
-            auto *aiMaterial = scene->mMaterials[aiMesh->mMaterialIndex];
+        auto *mesh       = model.context()->createMesh(false)->startMesh(Qtr3d::Triangle);
+        auto *aiMesh     = scene->mMeshes[node->mMeshes[m]];
+        auto *aiMaterial = aiMesh->mMaterialIndex >= 0 ? scene->mMaterials[aiMesh->mMaterialIndex ] : nullptr;
 
-            aiColor3D color (0.f,0.f,0.f);
-            aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE,color);
-            qDebug() << color.r <<  color.g <<  color.b;
+        if (aiMaterial) {
+            aiString Path;
+            if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &Path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+                qDebug() << Path.data;
+                auto *textureData = scene->GetEmbeddedTexture(Path.data);
+                if (textureData) {
+                    QImage img;
+                    /*
+                      mHeight: If this value is zero, pcData points to an compressed texture in any format (e.g. JPEG).
+                      mWidth:  If mHeight is zero the texture is compressed in a format like JPEG. In this case mWidth specifies the size of the memory area pcData is pointing to, in bytes.
+                    */
+                    if (textureData->mHeight <= 0 && textureData->mWidth > 0) {
+                        img = QImage::fromData((const uchar *)textureData->pcData, textureData->mWidth);
+
+                        if (!img.isNull()) {
+                            mesh->setTexture(img);
+                        }
+                    }
+                }
+            }
         }
+
         for (int v=0; v<aiMesh->mNumVertices; v++) {
-            mesh->addVertex(QVector3D(aiMesh->mVertices[v].x,
-                            aiMesh->mVertices[v].y,
-                            aiMesh->mVertices[v].z),
-                            QVector3D(aiMesh->mNormals[v].x,
-                                      aiMesh->mNormals[v].y,
-                                      aiMesh->mNormals[v].z)
-                            );
+            if (mesh->hasTexture()) {
+                mesh->addVertex(QVector3D(aiMesh->mVertices[v].x,
+                                          aiMesh->mVertices[v].y,
+                                          aiMesh->mVertices[v].z),
+                                QVector3D(aiMesh->mNormals[v].x,
+                                          aiMesh->mNormals[v].y,
+                                          aiMesh->mNormals[v].z),
+                                aiMesh->mTextureCoords[0][v].x,
+                                aiMesh->mTextureCoords[0][v].y
+                                );
+            } else {
+                mesh->addVertex(QVector3D(aiMesh->mVertices[v].x,
+                                          aiMesh->mVertices[v].y,
+                                          aiMesh->mVertices[v].z),
+                                QVector3D(aiMesh->mNormals[v].x,
+                                          aiMesh->mNormals[v].y,
+                                          aiMesh->mNormals[v].z)
+                                );
+            }
         }
 
         for (int f=0; f<aiMesh->mNumFaces; f++) {

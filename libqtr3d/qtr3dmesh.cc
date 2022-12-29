@@ -217,6 +217,12 @@ void Qtr3dMesh::setTexture(const QImage &img)
 }
 
 //-------------------------------------------------------------------------------------------------
+bool Qtr3dMesh::hasTexture() const
+{
+    return (mTexture != nullptr) || (textureId() > 0);
+}
+
+//-------------------------------------------------------------------------------------------------
 int Qtr3dMesh::vertexListCount() const
 {
     return mVertices.count();

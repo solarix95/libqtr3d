@@ -36,6 +36,7 @@ public:
     void addIndex(int vi, int ni = -1);
 
     void setTexture(const QImage &img);
+    bool hasTexture() const;
 
     // reader
     int               vertexListCount() const;
