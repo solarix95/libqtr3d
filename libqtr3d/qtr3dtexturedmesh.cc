@@ -2,7 +2,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 
-#include "qtr3dshader.h"
+#include "shaders/qtr3dshader.h"
 #include "qtr3dtexturefactory.h"
 #include "qtr3dtypes.h"
 #include "qtr3dtexturedmesh.h"

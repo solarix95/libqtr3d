@@ -19,7 +19,7 @@ Qtr3dModel::~Qtr3dModel()
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &translation, Node *parent)
 {
-    Q_ASSERT(mMeshes.contains(mesh));
+    Q_ASSERT(!mesh || mMeshes.contains(mesh));
     Node *n = new Node();
     n->mMesh   = mesh;
     n->mParent = parent;

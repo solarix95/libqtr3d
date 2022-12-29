@@ -1,6 +1,6 @@
 #include "qtr3dvertexmeshshader.h"
-#include "qtr3dgeometrybufferstate.h"
-#include "qtr3dlightsource.h"
+#include "../qtr3dgeometrybufferstate.h"
+#include "../qtr3dlightsource.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dVertexMeshShader::Qtr3dVertexMeshShader(QObject *parent)

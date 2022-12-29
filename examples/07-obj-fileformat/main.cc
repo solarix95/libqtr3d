@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
         w.createState(mesh, Qtr3d::NoLighting);
 
-        float dist = model->radius()*1.5;
+        float dist = model->radius()*1.3;
         new Qtr3dCameraCycler(w.camera(),30,0.3,{0,dist,dist},{0,0,0});
         w.primaryLightSource()->setPos({0,0,dist});
     });

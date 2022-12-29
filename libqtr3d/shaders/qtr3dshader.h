@@ -8,7 +8,7 @@
 #include <QMatrix4x4>
 #include <QMap>
 
-#include "qtr3dtypes.h"
+#include "../qtr3dtypes.h"
 
 class Qtr3dMesh;
 class Qtr3dGeometryBufferState;

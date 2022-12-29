@@ -1,72 +1,49 @@
-#include "qtr3dplainshader.h"
-#include "qtr3dgeometrybufferstate.h"
-#include "qtr3dlightsource.h"
+
+#include "qtr3dtexturedmeshshader.h"
+#include "../qtr3dlightsource.h"
+#include "../qtr3dmesh.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dPlainShader::Qtr3dPlainShader(QObject *parent)
-    : Qtr3dShader(parent, "plain", "varying vec4 fragColor;", "fragColor;")
+Qtr3dTexturedShader::Qtr3dTexturedShader(QObject *parent)
+    : Qtr3dShader(parent, "textured", "varying vec2 fragTexcoords; uniform sampler2D textureId;", "texture2D( textureId, fragTexcoords );")
+    , mVertexPosition(-1)
+    , mVertexNormal(-1)
+    , mVertexTexcoords(-1)
+    , mModelviewMatrix(-1)
+    , mProjectionMatrix(-1)
 {}
-Qtr3dPlainShader::~Qtr3dPlainShader() = default;
+Qtr3dTexturedShader::~Qtr3dTexturedShader() = default;
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::onProgramChange()
+void Qtr3dTexturedShader::onProgramChange()
 {
-    // Get locations of attributes and uniforms used inside.
-    mVertexPosition   = currentProgram()->attributeLocation("vertex" );
-    mVertexNormal     = currentProgram()->attributeLocation("vnormal" );
+    mVertexPosition   = currentProgram()->attributeLocation("vertex");
+    mVertexNormal     = currentProgram()->attributeLocation("vnormal");
+    mVertexTexcoords  = currentProgram()->attributeLocation("vtexcoords");
 
-    // Vertex Shader Uniforms
-    mProjectionMatrix = currentProgram()->uniformLocation("projection" );
-    mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
-    mModelColor       = currentProgram()->uniformLocation("modelcolor" );
+    mModelviewMatrix  = currentProgram()->uniformLocation("modelview");
+    mProjectionMatrix = currentProgram()->uniformLocation("projection");
 
-    // Fragment Shader Uniforms
-    mLightPos         = currentProgram()->uniformLocation("lightpos" );
-    mLightColor       = currentProgram()->uniformLocation("lightcolor" );
-    mLightAmbient     = currentProgram()->uniformLocation("lightambientk" );
-    mLightDiffuse     = currentProgram()->uniformLocation("lightdiffusek" );
+    mTexture   = currentProgram()->uniformLocation("textureId" );
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
-    currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
-
-    drawMesh(mesh);
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
-{
-    QVector3D lightPos = worldMatrix * light.pos();
-
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mLightPos,lightPos);
-    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
-
-    currentProgram()->setUniformValue("material.ambient",mesh.cMaterial().kAmbient);
-    currentProgram()->setUniformValue("material.diffuse",mesh.cMaterial().kDiffuse);
-
-    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
-    currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
-    currentProgram()->setUniformValue("light.color",   light.colorf());
-
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
 
     currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
     currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
     currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
-    currentProgram()->setUniformValue("material.shininess",mesh.cMaterial().shininess);
+    currentProgram()->setUniformValue("material.shininess",5.0f);
 
     currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
@@ -77,7 +54,25 @@ void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatri
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
+void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+{
+    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+
+    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
+    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
+    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
+    currentProgram()->setUniformValue("material.shininess",5.0f);
+
+    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
+    currentProgram()->setUniformValue("light.color",   light.colorf());
+
+    currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+    drawMesh(mesh);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dTexturedShader::drawMesh(const Qtr3dMesh &buffer)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -98,6 +93,11 @@ void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
         f->glDisable(GL_BLEND);
     }
 
+    // Textures
+    f->glActiveTexture( GL_TEXTURE0 );
+    f->glBindTexture( GL_TEXTURE_2D, buffer.textureId() );
+    f->glUniform1i( mTexture, 0 );
+
     // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );
     f->glVertexAttribPointer(
@@ -110,7 +110,7 @@ void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
                 );
     f->glEnableVertexAttribArray( mVertexPosition );
 
-    // Normals -> lighting only
+    // Normals
     if (mVertexNormal >= 0) {
         f->glVertexAttribPointer(
                     mVertexNormal,
@@ -123,7 +123,21 @@ void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
         f->glEnableVertexAttribArray( mVertexNormal );
     }
 
+    // Texture coordinates
+    f->glBindBuffer( GL_ARRAY_BUFFER, buffer.texcoordBufferId() );
+    f->glVertexAttribPointer(
+                mVertexTexcoords,
+                2,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Qtr3dTexCoord), // sizeof(GLfloat) * 9
+                (void*)0
+                );
+    f->glEnableVertexAttribArray( mVertexTexcoords );
+
+
     // Send element buffer to GPU and draw.
+
     f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.elementBufferId() );
     f->glDrawElements(
                 buffer.bufferType(),
@@ -136,4 +150,8 @@ void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
     f->glDisableVertexAttribArray( mVertexPosition );
     if (mVertexNormal >= 0)
         f->glDisableVertexAttribArray( mVertexNormal );
+
+    f->glDisableVertexAttribArray( mVertexTexcoords );
 }
+
+

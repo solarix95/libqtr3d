@@ -2,7 +2,7 @@
 #define QTR3DPLAINSHADER_H
 
 #include "qtr3dshader.h"
-#include "qtr3dmesh.h"
+#include "../qtr3dmesh.h"
 
 class Qtr3dPlainShader : public Qtr3dShader
 {

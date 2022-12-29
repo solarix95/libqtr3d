@@ -4,17 +4,18 @@
 #include <QSurfaceFormat>
 
 #include "qtr3dgeometrybufferfactory.h"
-#include "qtr3dtexturedmeshshader.h"
-#include "qtr3dvertexmeshshader.h"
 #include "qtr3dtexturefactory.h"
 #include "qtr3dtexturedquad.h"
 #include "qtr3dlightsource.h"
-#include "qtr3dplainshader.h"
 #include "qtr3dwidget.h"
-#include "qtr3dshader.h"
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
 #include "qtr3dcontext.h"
+
+#include "shaders/qtr3dshader.h"
+#include "shaders/qtr3dtexturedmeshshader.h"
+#include "shaders/qtr3dvertexmeshshader.h"
+#include "shaders/qtr3dplainshader.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
@@ -129,6 +130,30 @@ void Qtr3dWidget::updateRequested()
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::preparePainting()
+{
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    f->glClearColor(mClearColor.redF() ,  mClearColor.greenF() ,  mClearColor.blueF() ,  1.0f ) ;
+    f->glEnable(GL_CULL_FACE) ;
+    f->glCullFace(GL_BACK);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paint3D()
+{
+    paintMeshes();
+    paintModels();
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paint2D()
+{
+
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::initializeGL()
 {
     /*
@@ -161,17 +186,21 @@ void Qtr3dWidget::initializeGL()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintGL()
 {
+    preparePainting();
+
+    // OpenGLs Meshes, Models, ...
+    paint3D();
+
+    // otherwise: can't see 2D Paintings..
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glDisable(GL_CULL_FACE);
+}
 
-    f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    f->glClearColor(mClearColor.redF() ,  mClearColor.greenF() ,  mClearColor.blueF() ,  1.0f ) ;
-    f->glEnable(GL_CULL_FACE) ;
-    f->glCullFace(GL_BACK);
-
-    paintMeshes();
-    paintModels();
-
-    f->glDisable(GL_CULL_FACE); // otherwise: can't see 2D Paintings..
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paintEvent(QPaintEvent *e)
+{
+    QOpenGLWidget::paintEvent(e);
+    paint2D();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -212,7 +241,6 @@ void Qtr3dWidget::preInitializing()
         currentFormat.setSamples(samples);
         setFormat(currentFormat);
     }
-
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -268,6 +296,8 @@ void Qtr3dWidget::paintModels()
             if (!state->enabled())
                 continue;
             for(auto *node: nodes) {
+                if (!node->mMesh)
+                    continue;
                 Qtr3dShader *shader = nullptr;
                 switch (node->mMesh->shader()) {
                 case Qtr3d::PlainShader:

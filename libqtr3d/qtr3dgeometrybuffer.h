@@ -42,14 +42,9 @@ public:
     inline QVector3D defaultColorF()  const { return QVector3D(mDefaultColor.redF(), mDefaultColor.greenF(), mDefaultColor.blueF()); }
     inline QVector4D defaultColorF4() const { return QVector4D(mDefaultColor.redF(), mDefaultColor.greenF(), mDefaultColor.blueF(), mDefaultColor.alphaF()); }
 
-    // Instances, "Blades-on-a-Turbine"-Usecase. One Mesh, multiple transitions:
-    void addModelTransition(const QMatrix4x4 &t);
-    void addModelTransition(const QVector3D &pos, const QVector3D &rotation = QVector3D());
-    inline const QList<QMatrix4x4> &modelTransitions() const { return  mTransitions; }
 
     void                 setParentBuffer(Qtr3dGeometryBuffer *parentBuffer);
     Qtr3dGeometryBuffer *parentBuffer() const;
-
 
 protected:
     void analyze(const QVector3D &v);
@@ -72,8 +67,6 @@ private:
 
     QVector3D                   mMin;
     QVector3D                   mMax;
-
-    QList<QMatrix4x4>           mTransitions;
 };
 
 typedef QList<Qtr3dGeometryBuffer> Qtr3dGeometryBuffers;

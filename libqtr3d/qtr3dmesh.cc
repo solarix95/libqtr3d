@@ -1,5 +1,5 @@
 #include "qtr3dmesh.h"
-#include "qtr3dshader.h"
+#include "shaders/qtr3dshader.h"
 #include <QVector4D>
 
 //-------------------------------------------------------------------------------------------------
@@ -192,13 +192,16 @@ void Qtr3dMesh::addNormal(const QVector3D &n)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::addIndex(int vi, int ni)
 {
-    mIndexes << (GLuint)vi;
-
     if (vi < mVertices.count() && ni >= 0 && ni < mNormals.count()) {
-        if (!mVertices[vi].n.isNull()) // TODO: re-using of vertices with different normals?
-            qWarning() << "Qtr3dMesh::addIndex: normal already in use";
+        if (!mVertices[vi].n.isNull()) { // TODO: re-using of vertices with different normals?
+            // qWarning() << "Qtr3dMesh::addIndex: normal already in use";
+            mVertices << mVertices[vi];
+            vi = mVertices.count()-1;
+        }
         mVertices[vi].n = mNormals[ni];
     }
+
+    mIndexes << (GLuint)vi;
 }
 
 //-------------------------------------------------------------------------------------------------

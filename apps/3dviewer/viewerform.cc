@@ -101,7 +101,7 @@ void ViewerForm::loadFile(const QString &filename)
     mModel = ui->viewer->createModel();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    Qtr3dModelFactory::modelByFile(*mModel,filename, *ui->viewer->factory());
+    Qtr3dModelFactory::modelByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
 
     mModelState =  ui->viewer->createState(mModel);
@@ -109,5 +109,5 @@ void ViewerForm::loadFile(const QString &filename)
     updateVertexOrientation();
 
     qDebug() << mModel->radius() << mModel->center();
-    ui->viewer->camera()->lookAt({0,0,-(float)(5*mModel->radius())}, mModel->center(), {0,1,0});
+    ui->viewer->camera()->lookAt(mModel->center() + QVector3D(0.0,0.0, mModel->radius() ), mModel->center(), {0,1,0});
 }

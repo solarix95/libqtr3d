@@ -5,7 +5,7 @@
 #include "qtr3dassimploader.h"
 
 //-------------------------------------------------------------------------------------------------
-void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory, const QMatrix4x4 &parentTransform);
+void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, const QMatrix4x4 &parentTransform);
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dAssimpLoader::Qtr3dAssimpLoader()
@@ -16,10 +16,10 @@ Qtr3dAssimpLoader::Qtr3dAssimpLoader()
 Qtr3dAssimpLoader::~Qtr3dAssimpLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dAssimpLoader::loadModel(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts)
+bool Qtr3dAssimpLoader::loadModel(Qtr3dModel &model, const QString &filename, Options opts)
 {
     Qtr3dAssimpLoader loader;
-    return loader.loadModel(model,filename, factory, opts);
+    return loader.loadModel(model,filename, opts);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ bool Qtr3dAssimpLoader::supportsFile(const QString &filename)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr3dGeometryBufferFactory &factory, Options opts)
+bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Options opts)
 {
     auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_MaxQuality);
     if (!scene)
@@ -54,13 +54,13 @@ bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename, Qtr
                              0,0,1,0,
                              0,0,0,1);
 
-    qtr3dAssimpNode(scene, scene->mRootNode, model, factory, rootTransform);
+    qtr3dAssimpNode(scene, scene->mRootNode, model, rootTransform);
     aiReleaseImport(scene);
     return false;
 }
 
 //-------------------------------------------------------------------------------------------------
-void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, Qtr3dGeometryBufferFactory &factory, const QMatrix4x4 &parentTransform)
+void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, const QMatrix4x4 &parentTransform)
 {
     Q_ASSERT(node);
 
@@ -75,9 +75,15 @@ void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, Qtr3
     nodeTransform = parentTransform * nodeTransform;
 
     for (int m=0; m<node->mNumMeshes; m++) {
-        auto *mesh = factory.createMesh()->startMesh(Qtr3d::Triangle);
+        auto *mesh = model.context()->createMesh(false)->startMesh(Qtr3d::Triangle);
         auto *aiMesh = scene->mMeshes[node->mMeshes[m]];
+        if (aiMesh->mMaterialIndex >= 0) {
+            auto *aiMaterial = scene->mMaterials[aiMesh->mMaterialIndex];
 
+            aiColor3D color (0.f,0.f,0.f);
+            aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE,color);
+            qDebug() << color.r <<  color.g <<  color.b;
+        }
         for (int v=0; v<aiMesh->mNumVertices; v++) {
             mesh->addVertex(QVector3D(aiMesh->mVertices[v].x,
                             aiMesh->mVertices[v].y,
@@ -103,10 +109,10 @@ void qtr3dAssimpNode(const aiScene *scene, aiNode *node, Qtr3dModel &model, Qtr3
             }
         }
         mesh->endMesh();
-        mesh->addModelTransition(nodeTransform);
         model.addMesh(mesh);
+        model.createNode(mesh, nodeTransform);
     }
 
     for (int i=0; i<node->mNumChildren; i++)
-        qtr3dAssimpNode(scene, node->mChildren[i], model, factory, nodeTransform);
+        qtr3dAssimpNode(scene, node->mChildren[i], model, nodeTransform);
 }

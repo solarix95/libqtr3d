@@ -32,8 +32,8 @@ private:
     void parseJsonJunk(const QByteArray &data);
     void parseBinaryJunk(const QByteArray &data);
 
-    void createNode(const QVariantMap &nodeInfo, const QMatrix4x4 &parentTranslation);
-    void createMesh(const QVariantMap &meshInfo, const QMatrix4x4 &translation);
+    void createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *parent = nullptr);
+    void createMesh(const QVariantMap &meshInfo);
 
     void splitAccessors(const QVariantList &bufferInfos);
     bool takeNextAccessor(const QVariantMap &bufferInfo);

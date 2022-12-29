@@ -2,8 +2,8 @@
 #include <QOpenGLFunctions>
 #include <QFile>
 #include "qtr3dshader.h"
-#include "qtr3dcamera.h"
-#include "qtr3dlightsource.h"
+#include "../qtr3dcamera.h"
+#include "../qtr3dlightsource.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dShader::Qtr3dShader(QObject *parent, const QString &eglFile, const QString &fragVaryingCode, const QString &fragColorCode)

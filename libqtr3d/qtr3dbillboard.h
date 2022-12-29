@@ -3,6 +3,10 @@
 
 #include <QObject>
 
+/*
+   Qtr3dBillboard: turns the visible front always to the camera
+*/
+
 class Qtr3dGeometryBufferState;
 class Qtr3dCamera;
 

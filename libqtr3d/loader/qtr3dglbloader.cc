@@ -79,6 +79,10 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
 
     QVariantList sceneNodes = scenes[sceneIndex].toMap()["nodes"].toList();
     QVariantList allNodes   = mJsonStruct["nodes"].toList();
+    QVariantList allMeshes  = mJsonStruct["meshes"].toList();
+
+    for (auto const &mesh: allMeshes)
+        createMesh(mesh.toMap());
 
     QMatrix4x4 rootMatrix;
 
@@ -91,8 +95,7 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
         int nodeIndex = node.toInt();
         if (nodeIndex < 0 || nodeIndex >= allNodes.count())
             return false;
-
-        createNode(allNodes[nodeIndex].toMap(), rootMatrix);
+        createNode(allNodes[nodeIndex].toMap());
     }
 
     return false;
@@ -131,7 +134,7 @@ void Qtr3dGlbLoader::parseBinaryJunk(const QByteArray &data)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, const QMatrix4x4 &parentTranslation)
+void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *parent)
 {
     // Optional... node could contain ONLY Children..
     int meshIndex = nodeInfo.value("mesh",-1).toInt();
@@ -141,62 +144,11 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, const QMatrix4x4 &p
     QVariantList rotation    = nodeInfo["rotation"].toList();
     QVariantList scale       = nodeInfo["scale"].toList();
 
-    float tx = 0;
-    float ty = 0;
-    float tz = 0;
+    QMatrix4x4 m(1.0, 0.0, 0.0, 0.0,
+                 0.0, 1.0, 0.0, 0.0,
+                 0.0, 0.0, 1.0, 0.0,
+                 0.0, 0.0, 0.0, 1.0);
 
-    float qx = 0;
-    float qy = 0;
-    float qz = 0;
-    float qw = 1;
-
-    float sx = 1;
-    float sy = 1;
-    float sz = 1;
-    /*
-        float tx = node->translation[0];
-        float ty = node->translation[1];
-        float tz = node->translation[2];
-
-        float qx = node->rotation[0];
-        float qy = node->rotation[1];
-        float qz = node->rotation[2];
-        float qw = node->rotation[3];
-
-        float sx = node->scale[0];
-        float sy = node->scale[1];
-        float sz = node->scale[2];
-
-        lm[0] = (1 - 2 * qy*qy - 2 * qz*qz) * sx;
-        lm[1] = (2 * qx*qy + 2 * qz*qw) * sx;
-        lm[2] = (2 * qx*qz - 2 * qy*qw) * sx;
-        lm[3] = 0.f;
-
-        lm[4] = (2 * qx*qy - 2 * qz*qw) * sy;
-        lm[5] = (1 - 2 * qx*qx - 2 * qz*qz) * sy;
-        lm[6] = (2 * qy*qz + 2 * qx*qw) * sy;
-        lm[7] = 0.f;
-
-        lm[8] = (2 * qx*qz + 2 * qy*qw) * sz;
-        lm[9] = (2 * qy*qz - 2 * qx*qw) * sz;
-        lm[10] = (1 - 2 * qx*qx - 2 * qy*qy) * sz;
-        lm[11] = 0.f;
-
-        lm[12] = tx;
-        lm[13] = ty;
-        lm[14] = tz;
-        lm[15] = 1.f;
-    */
-    QMatrix4x4 m = parentTranslation;
-    float *lm = m.data();
-
-
-    if (translation.count() == 3) // x, y, z
-    {
-         tx = translation[0].toFloat();
-         ty = translation[1].toFloat();
-         tz = translation[2].toFloat();
-    }
     if (translation.count() == 3) // x, y, z
        m.translate(translation[0].toFloat(),
                    translation[1].toFloat(),
@@ -206,58 +158,31 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, const QMatrix4x4 &p
         QVector3D v(rotation[0].toFloat(), rotation[1].toFloat(), rotation[2].toFloat());
         QQuaternion q(rotation[3].toFloat(),v); // v.normalized());
         m.rotate(q);
-        qx = rotation[0].toFloat();
-        qy = rotation[1].toFloat();
-        qz = rotation[2].toFloat();
-        qw = rotation[3].toFloat();
     }
 
-    //if (scale.count() == 3) // x, y, z
-    //    m.scale(scale[0].toFloat(), scale[1].toFloat(), scale[2].toFloat());
-#if 0
-    lm[0] = (1 - 2 * qy*qy - 2 * qz*qz) * sx;
-    lm[1] = (2 * qx*qy + 2 * qz*qw) * sx;
-    lm[2] = (2 * qx*qz - 2 * qy*qw) * sx;
-    lm[3] = 0.f;
-
-    lm[4] = (2 * qx*qy - 2 * qz*qw) * sy;
-    lm[5] = (1 - 2 * qx*qx - 2 * qz*qz) * sy;
-    lm[6] = (2 * qy*qz + 2 * qx*qw) * sy;
-    lm[7] = 0.f;
-
-    lm[8] = (2 * qx*qz + 2 * qy*qw) * sz;
-    lm[9] = (2 * qy*qz - 2 * qx*qw) * sz;
-    lm[10] = (1 - 2 * qx*qx - 2 * qy*qy) * sz;
-    lm[11] = 0.f;
-
-    lm[12] = tx;
-    lm[13] = ty;
-    lm[14] = tz;
-    lm[15] = 1.f;
-#endif
-
-    // m = parentTranslation * m;
+    if (scale.count() == 3) // x, y, z
+        m.scale(scale[0].toFloat(), scale[1].toFloat(), scale[2].toFloat());
 
     if (nodeInfo["name"] == "11 Canadarm2_04")
         qDebug() << "HA";
 
     // m = m.transposed();
-    if (meshIndex >= 0)
-        createMesh(meshInfos[meshIndex].toMap(), m);
+
+    Qtr3dModel::Node *node = mModel->createNode(meshIndex >= 0 ? mModel->mesh(meshIndex) : nullptr,m, parent);
 
     QVariantList childs       = nodeInfo["children"].toList();
     QVariantList allNodes     = mJsonStruct["nodes"].toList();
-    for (auto const &node: childs) {
-        int nodeIndex = node.toInt();
+    for (auto const &nodeInfo: childs) {
+        int nodeIndex = nodeInfo.toInt();
         if (nodeIndex < 0 || nodeIndex >= allNodes.count())
             return;
-        createNode(allNodes[nodeIndex].toMap(), m);
+        createNode(allNodes[nodeIndex].toMap(), node);
     }
 }
 
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, const QMatrix4x4 &translation)
+void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo)
 {
     QVariantList primitiveInfos = meshInfo["primitives"].toList();
     for (int i=0; i<primitiveInfos.count(); i++) {
@@ -287,8 +212,10 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, const QMatrix4x4 &t
                                      accessorInfo(indicesAcsessorIndex),
                                      accessorInfo(normalAccessorIndex));
         }
+        /*
         if (buffer)
             buffer->addModelTransition(translation);
+         */
         qDebug() << positionAccessorIndex << indicesAcsessorIndex << normalAccessorIndex << textcoordAccessorIndex;
     }
 }
@@ -403,7 +330,7 @@ Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, con
             );
 
     auto *mesh = mModel->context()->createMesh();
-    mesh->setTexture(texture);
+    mesh->setTexture(texture.mirrored());
     mesh->startMesh(Qtr3d::Triangle);
     for (int vi=0; vi < points.count(); vi++)
         mesh->addVertex(points[vi],normVectors[vi], textureCoords[vi].y(),textureCoords[vi].x());

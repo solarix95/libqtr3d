@@ -7,15 +7,16 @@ INCLUDEPATH += $$LIBQTR3D_PATH
 HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtypes.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dshader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybuffer.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferstate.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameramovement.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameracycler.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dvertexmeshshader.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dplainshader.h \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dshader.h \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dplainshader.h \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dvertexmeshshader.h \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dtexturedmeshshader.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dfreecameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelfactory.h \
@@ -23,7 +24,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphspace.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphentity.h \
-    $$LIBQTR3D_PATH/libqtr3d/physics/qtrphtimeloop.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dfpsloop.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.h \
@@ -33,24 +34,25 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dassimploader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmeshshader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.h
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dsprite.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybuffer.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferstate.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameramovement.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcameracycler.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dvertexmeshshader.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dplainshader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dshader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dvertexmeshshader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dplainshader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dtexturedmeshshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dcameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelfactory.cc \
@@ -58,7 +60,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphspace.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtrphentity.cc \
-    $$LIBQTR3D_PATH/libqtr3d/physics/qtrphloop.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dfpsloop.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.cc \
@@ -67,12 +69,12 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmeshshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.cc
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dsprite.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/misc.qrc

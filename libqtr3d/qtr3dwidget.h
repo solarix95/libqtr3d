@@ -53,9 +53,16 @@ public slots:
     void updateRequested();
 
 protected:
-    virtual void initializeGL();
-    virtual void paintGL();
-    virtual void resizeEvent(QResizeEvent *e);
+    // Subclassing
+    virtual void preparePainting();
+    virtual void paint3D();
+    virtual void paint2D();
+
+    // Qt/Opengl
+    virtual void initializeGL() override;
+    virtual void paintGL() override;
+    virtual void paintEvent(QPaintEvent *e)  override;
+    virtual void resizeEvent(QResizeEvent *e) override;
 
     // Subclassing of Factories:
     virtual Qtr3dCamera         *createCamera();

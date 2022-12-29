@@ -2,7 +2,7 @@
 #define QTR3DCOLOREDELEMENTSSHADER_H
 
 #include "qtr3dshader.h"
-#include "qtr3dmesh.h"
+#include "../qtr3dmesh.h"
 
 class Qtr3dVertexMeshShader : public Qtr3dShader
 {

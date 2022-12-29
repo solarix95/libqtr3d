@@ -1,8 +1,8 @@
 #include "qtr3dtexturedmesh.h"
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
-#include "qtr3dtexturedmeshshader.h"
-#include "qtr3dvertexmeshshader.h"
+#include "shaders/qtr3dtexturedmeshshader.h"
+#include "shaders/qtr3dvertexmeshshader.h"
 
 #include "qtr3dgeometrybufferfactory.h"
 

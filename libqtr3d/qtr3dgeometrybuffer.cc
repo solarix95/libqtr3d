@@ -11,12 +11,12 @@ Qtr3dGeometryBuffer::Qtr3dGeometryBuffer(Qtr3dContext *parent)
     , mBlending(false)
     , mDefaultColor(Qt::white)
 {
-    mMin = QVector3D( std::numeric_limits<double>::max(),
-                      std::numeric_limits<double>::max(),
-                      std::numeric_limits<double>::max() );
-    mMax = QVector3D( std::numeric_limits<double>::min(),
-                      std::numeric_limits<double>::min(),
-                      std::numeric_limits<double>::min());
+    mMin = QVector3D(  std::numeric_limits<double>::max(),
+                       std::numeric_limits<double>::max(),
+                       std::numeric_limits<double>::max() );
+    mMax = QVector3D( -std::numeric_limits<double>::max(),
+                      -std::numeric_limits<double>::max(),
+                      -std::numeric_limits<double>::max());
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ QVector3D Qtr3dGeometryBuffer::center() const
 //-------------------------------------------------------------------------------------------------
 double Qtr3dGeometryBuffer::radius() const
 {
-    return qMax(maxValues().x() - minValues().x(),qMax(maxValues().y() - minValues().y(),maxValues().z() - minValues().z()));
+    return qMax(maxValues().x() - minValues().x(),qMax(maxValues().y() - minValues().y(),maxValues().z() - minValues().z()))/2.0;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -134,25 +134,6 @@ void Qtr3dGeometryBuffer::registerBufferState(Qtr3dGeometryBufferState *s)
     Q_ASSERT(!mBufferStates.contains(s));
     mBufferStates << s;
     connect(s, &Qtr3dGeometryBufferState::destroyed, this, &Qtr3dGeometryBuffer::stateDestroyed);
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::addModelTransition(const QMatrix4x4 &t)
-{
-    mTransitions << t;
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::addModelTransition(const QVector3D &pos, const QVector3D &rotation)
-{
-    QMatrix4x4 t;
-    t.translate(pos);
-    if (!rotation.isNull()) {
-        t.rotate(rotation.x(), {1,0,0});
-        t.rotate(rotation.y(), {0,1,0});
-        t.rotate(rotation.z(), {0,0,1});
-    }
-    mTransitions << t;
 }
 
 //-------------------------------------------------------------------------------------------------
