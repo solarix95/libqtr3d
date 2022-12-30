@@ -48,6 +48,13 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dWidget::~Qtr3dWidget()
+{
+    if (mContext && (mContext->parent() == this))
+        delete mContext;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::setClearColor(QColor c)
 {
     mClearColor = c;
@@ -296,28 +303,28 @@ void Qtr3dWidget::paintModels()
             if (!state->enabled())
                 continue;
             for(auto *node: nodes) {
-                if (!node->mMesh)
-                    continue;
-                Qtr3dShader *shader = nullptr;
-                switch (node->mMesh->shader()) {
-                case Qtr3d::PlainShader:
-                    shader = mPlainShader; break;
-                case Qtr3d::ColoredShader:
-                    shader = mVertexMeshShader; break;
-                case Qtr3d::TexturedShader:
-                    shader = mTexturedMeshShader; break;
-                default: break;
+                for (auto *mesh : node->mMeshes) {
+                    Qtr3dShader *shader = nullptr;
+                    switch (mesh->shader()) {
+                    case Qtr3d::PlainShader:
+                        shader = mPlainShader; break;
+                    case Qtr3d::ColoredShader:
+                        shader = mVertexMeshShader; break;
+                    case Qtr3d::TexturedShader:
+                        shader = mTexturedMeshShader; break;
+                    default: break;
+                    }
+
+                    if (!shader)
+                        continue;
+
+                    shader->setProgram(Qtr3d::DefaultLighting);
+                    auto nextLightingTyp = state->lightingType();
+                    if (nextLightingTyp == Qtr3d::DefaultLighting)
+                        nextLightingTyp = shader->defaultLighting();
+
+                    shader->render(*mesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource());
                 }
-
-                if (!shader)
-                    continue;
-
-                shader->setProgram(Qtr3d::DefaultLighting);
-                auto nextLightingTyp = state->lightingType();
-                if (nextLightingTyp == Qtr3d::DefaultLighting)
-                    nextLightingTyp = shader->defaultLighting();
-
-                shader->render(*node->mMesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource());
             }
         }
     }

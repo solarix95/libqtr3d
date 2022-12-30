@@ -34,6 +34,7 @@ public:
 
     Qtr3dWidget(Options ops = NoOption, QWidget *parent = NULL);
     Qtr3dWidget(QWidget *parent);
+    virtual ~Qtr3dWidget();
 
     void                        setClearColor(QColor c);
     void                        setDefaultLighting(Qtr3d::LightingType t);

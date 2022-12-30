@@ -17,11 +17,24 @@ Qtr3dModel::~Qtr3dModel()
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMeshes meshes, const QMatrix4x4 &translation, Node *parent)
+{
+    Node *n = new Node();
+    n->mMeshes = meshes;
+    n->mParent = parent;
+    n->mTranslation = translation;
+
+    mNodes << n;
+
+    return n;
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &translation, Node *parent)
 {
     Q_ASSERT(!mesh || mMeshes.contains(mesh));
     Node *n = new Node();
-    n->mMesh   = mesh;
+    n->mMeshes = Qtr3dMeshes() << mesh;
     n->mParent = parent;
     n->mTranslation = translation;
 

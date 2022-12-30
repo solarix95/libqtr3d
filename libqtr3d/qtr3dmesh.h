@@ -3,6 +3,7 @@
 
 #include <QVector>
 #include <QObject>
+#include <QList>
 #include "qtr3dgeometrybuffer.h"
 #include "qtr3dtypes.h"
 
@@ -76,7 +77,6 @@ private:
     QOpenGLTexture          *mTexture;
 };
 
-
-typedef QList<Qtr3dMesh*> Qtr3dVertexMeshes;
+typedef QList<Qtr3dMesh*> Qtr3dMeshes;
 
 #endif // QTR3DCOLOREDELEMENTS_H
