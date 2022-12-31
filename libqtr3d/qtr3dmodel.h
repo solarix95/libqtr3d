@@ -16,6 +16,7 @@ public:
         QMatrix4x4  mTranslation;
         QMatrix4x4  translation () const { return mParent ? mParent->translation() * mTranslation : mTranslation; }
     };
+    typedef QList<Node*> Nodes;
 
     explicit Qtr3dModel(Qtr3dContext *context);
     virtual ~Qtr3dModel();
@@ -28,14 +29,12 @@ public:
     QVector3D center() const;
     double    radius() const;
 
-    int         meshCount() const;
-    Qtr3dMesh  *mesh(int index) const;
-
-    const QList<Node*> &nodes() const;
+    const Qtr3dMeshes &meshes() const;
+    const Nodes       &nodes() const;
 
 private:
-    QList<Qtr3dMesh*>     mMeshes;
-    QList<Node*>          mNodes;
+    Qtr3dMeshes     mMeshes;
+    Nodes           mNodes;
 };
 
 typedef QList<Qtr3dModel::Node*> Qtr3dModelNodes;

@@ -33,7 +33,7 @@ private:
     void parseBinaryJunk(const QByteArray &data);
 
     void createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *parent = nullptr);
-    void createMesh(const QVariantMap &meshInfo);
+    void createMesh(const QVariantMap &meshInfo, int meshIndex);
 
     void splitAccessors(const QVariantList &bufferInfos);
     bool takeNextAccessor(const QVariantMap &bufferInfo);
@@ -58,6 +58,8 @@ private:
     QList<QByteArray>  mBufferViews; // split from mAccessors
 
 
+    // Parser Helper (to make algorithm faster)
+    QMap<int,QList<int> > mJsonMeshes2qtrmeshes;
 };
 
 #endif // QTR3DGLBLOADER_H

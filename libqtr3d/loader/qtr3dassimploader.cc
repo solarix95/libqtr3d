@@ -37,7 +37,7 @@ bool Qtr3dAssimpLoader::supportsFile(const QString &filename)
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Options /* opts */)
 {
-    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_MaxQuality);
+    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
     if (!scene || (scene->mNumMeshes <= 0))
         return false;
 
@@ -56,6 +56,7 @@ bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Opti
 
     qtr3dAssimpNode(scene, scene->mRootNode, model);
 
+    qDebug() << "ASSIMP" << model.meshes().count() << model.nodes().count();
     aiReleaseImport(scene);
     return false;
 }
@@ -96,7 +97,6 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
             mesh->setDefaultColor(QColor(color.r * 255, color.g * 255, color.b * 255));
         }
     }
-
 
     for (unsigned v=0; v<amesh->mNumVertices; v++) {
         if (mesh->hasTexture()) {
@@ -152,8 +152,9 @@ void qtr3dAssimpNode(const aiScene *ascene, aiNode *anode, Qtr3dModel &model,  Q
                 t->d1, t->d2, t->d3, t->d4);
 
     Qtr3dMeshes meshes;
+    const Qtr3dMeshes &modelMeshes = model.meshes();
     for (unsigned i=0; i<anode->mNumMeshes; i++)
-        meshes << model.mesh(anode->mMeshes[i]);
+        meshes << modelMeshes[anode->mMeshes[i]];
 
     auto *nextNode = model.createNode(meshes, nodeTransform, parent);
 

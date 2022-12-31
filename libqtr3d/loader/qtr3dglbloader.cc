@@ -81,15 +81,10 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
     QVariantList allNodes   = mJsonStruct["nodes"].toList();
     QVariantList allMeshes  = mJsonStruct["meshes"].toList();
 
-    for (auto const &mesh: allMeshes)
-        createMesh(mesh.toMap());
-
-    QMatrix4x4 rootMatrix;
-
-    rootMatrix.data()[0] = 1.0f;
-    rootMatrix.data()[5] = 1.0f;
-    rootMatrix.data()[10] = 1.0f;
-    rootMatrix.data()[15] = 1.0f;
+    qDebug() << "NATIVE 1" << mModel->meshes().count() << allMeshes.count();
+    for (int m=0; m<allMeshes.count(); m++)
+        createMesh(allMeshes[m].toMap(), m);
+    qDebug() << "NATIVE 2" << mModel->meshes().count()  << allMeshes.count();
 
     for (auto const &node: sceneNodes) {
         int nodeIndex = node.toInt();
@@ -98,6 +93,7 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
         createNode(allNodes[nodeIndex].toMap());
     }
 
+    qDebug() << "NATIVE 3" << mModel->meshes().count()  << allMeshes.count();
     return false;
 }
 
@@ -163,12 +159,15 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
     if (scale.count() == 3) // x, y, z
         m.scale(scale[0].toFloat(), scale[1].toFloat(), scale[2].toFloat());
 
-    if (nodeInfo["name"] == "11 Canadarm2_04")
-        qDebug() << "HA";
+    m = m.transposed();
 
-    // m = m.transposed();
-
-    Qtr3dModel::Node *node = mModel->createNode(meshIndex >= 0 ? mModel->mesh(meshIndex) : nullptr,m, parent);
+    Qtr3dMeshes nodeMeshes;
+    if (meshIndex >= 0) {
+        QList<int> qtr3dMeshIndexes = mJsonMeshes2qtrmeshes[meshIndex];
+        for (auto qtrMeshIndex : qtr3dMeshIndexes)
+            nodeMeshes << mModel->meshes()[qtrMeshIndex];
+    }
+    Qtr3dModel::Node *node = mModel->createNode(nodeMeshes,m, parent);
 
     QVariantList childs       = nodeInfo["children"].toList();
     QVariantList allNodes     = mJsonStruct["nodes"].toList();
@@ -182,9 +181,12 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
 
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo)
+void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, int meshIndex)
 {
     QVariantList primitiveInfos = meshInfo["primitives"].toList();
+    if (primitiveInfos.count() == 0)
+        qDebug() << "WTF";
+
     for (int i=0; i<primitiveInfos.count(); i++) {
         int indicesAcsessorIndex  = primitiveInfos[i].toMap().value("indices",-1).toInt();
         int materialIndex         = primitiveInfos[i].toMap().value("material",-1).toInt();
@@ -212,11 +214,13 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo)
                                      accessorInfo(indicesAcsessorIndex),
                                      accessorInfo(normalAccessorIndex));
         }
+        if (buffer)
+            mJsonMeshes2qtrmeshes[meshIndex] << mModel->meshes().count()-1;
         /*
         if (buffer)
             buffer->addModelTransition(translation);
          */
-        qDebug() << positionAccessorIndex << indicesAcsessorIndex << normalAccessorIndex << textcoordAccessorIndex;
+        // qDebug() << positionAccessorIndex << indicesAcsessorIndex << normalAccessorIndex << textcoordAccessorIndex;
     }
 }
 
@@ -258,7 +262,7 @@ bool Qtr3dGlbLoader::takeNextAccessor(const QVariantMap &bufferInfo)
         componentCount = 1;
 
     int AccessorSize = componentCount * componentSize * count;
-    qDebug() << "TAKING" << AccessorSize << mAccessors.count();
+    // qDebug() << "TAKING" << AccessorSize << mAccessors.count();
     // mAccessors.remove(0,AccessorSize);
     return true;
 }

@@ -32,9 +32,9 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMeshes meshes, const QMatrix4x4 &t
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &translation, Node *parent)
 {
-    Q_ASSERT(!mesh || mMeshes.contains(mesh));
     Node *n = new Node();
-    n->mMeshes = Qtr3dMeshes() << mesh;
+    if (mesh)
+        n->mMeshes = Qtr3dMeshes() << mesh;
     n->mParent = parent;
     n->mTranslation = translation;
 
@@ -77,17 +77,9 @@ double Qtr3dModel::radius() const
 }
 
 //-------------------------------------------------------------------------------------------------
-int Qtr3dModel::meshCount() const
+const Qtr3dMeshes &Qtr3dModel::meshes() const
 {
-    return mMeshes.count();
-}
-
-//-------------------------------------------------------------------------------------------------
-Qtr3dMesh *Qtr3dModel::mesh(int index) const
-{
-    Q_ASSERT(index >= 0);
-    Q_ASSERT(index < mMeshes.count());
-    return mMeshes[index];
+    return mMeshes;
 }
 
 //-------------------------------------------------------------------------------------------------

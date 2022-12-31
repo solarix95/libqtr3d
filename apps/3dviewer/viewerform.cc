@@ -104,6 +104,16 @@ void ViewerForm::loadFile(const QString &filename)
     Qtr3dModelFactory::modelByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
 
+    qDebug() << "START";
+    for (int i=0; i<mModel->nodes().count() && i < 5; i++) {
+        qDebug() << mModel->nodes()[i]->mMeshes;
+        for (auto *mesh: mModel->nodes()[i]->mMeshes)
+            qDebug() << mesh->vertexCount() << mModel->meshes().indexOf(mesh);
+    }
+
+    //    qDebug() << mModel->mesh(i)->vertexListCount();
+    qDebug() << "END"  << mModel->meshes().count() << mModel->nodes().count();
+
     mModelState =  ui->viewer->createState(mModel);
     updateLight();
     updateVertexOrientation();
