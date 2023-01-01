@@ -24,7 +24,6 @@ private slots:
     void updateVertexOrientation();
     void updateLight();
 
-
 private:
     void loadFile(const QString &filename);
     Ui::ViewerForm *ui;

@@ -34,7 +34,6 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dassimploader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.h \
@@ -69,7 +68,6 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturedmesh.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrybufferfactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dbillboard.cc \

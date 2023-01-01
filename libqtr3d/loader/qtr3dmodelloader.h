@@ -6,7 +6,6 @@
 #include <QString>
 #include "../qtr3dmesh.h"
 #include "../qtr3dmodel.h"
-#include "../qtr3dgeometrybufferfactory.h"
 
 class Qtr3dModelLoader : public QObject
 {

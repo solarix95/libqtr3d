@@ -3,7 +3,6 @@
 #include <QResizeEvent>
 #include <QSurfaceFormat>
 
-#include "qtr3dgeometrybufferfactory.h"
 #include "qtr3dtexturefactory.h"
 #include "qtr3dtexturedquad.h"
 #include "qtr3dlightsource.h"
@@ -22,7 +21,6 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     : QOpenGLWidget(parent)
     , mOptions(ops)
     , mCamera(nullptr)
-    , mFactory(nullptr)
     , mLightSource(nullptr)
     , mContext(nullptr)
     , mPlainShader(nullptr)
@@ -37,7 +35,6 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     : QOpenGLWidget(parent)
     , mOptions(NoOption)
     , mCamera(nullptr)
-    , mFactory(nullptr)
     , mLightSource(nullptr)
     , mContext(nullptr)
     , mPlainShader(nullptr)
@@ -90,24 +87,11 @@ Qtr3dContext *Qtr3dWidget::bufferContext()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferFactory *Qtr3dWidget::factory()
-{
-    return mFactory;
-}
-
-//-------------------------------------------------------------------------------------------------
 Qtr3dLightSource *Qtr3dWidget::primaryLightSource()
 {
     if (!mLightSource)
         mLightSource = new Qtr3dLightSource({0,0,0},Qt::white);
     return mLightSource;
-}
-
-//-------------------------------------------------------------------------------------------------
-Qtr3dTexturedMesh *Qtr3dWidget::createTexturedMesh(const QString &textureName)
-{
-    makeCurrent();
-    return factory()->createTexturedMesh(textureName);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -175,7 +159,6 @@ void Qtr3dWidget::initializeGL()
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->initializeOpenGLFunctions();
 
-    // f->glEnable(GL_MULTISAMPLE); IMHO obsolete..
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LEQUAL);
 
@@ -183,9 +166,6 @@ void Qtr3dWidget::initializeGL()
     mVertexMeshShader   = new Qtr3dVertexMeshShader(this);
     mTexturedMeshShader = new Qtr3dTexturedShader(this);
     mTextures           = new Qtr3dTextureFactory();
-    mFactory            = new Qtr3dGeometryBufferFactory();
-
-    mFactory->init(mVertexMeshShader,mTexturedMeshShader,mTextures);
 
     emit initialized();
 }

@@ -151,7 +151,6 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
         QVector3D v(rotation[0].toFloat(), rotation[1].toFloat(), rotation[2].toFloat());
         QQuaternion q(rotation[3].toFloat(),v); // v.normalized());
         m.rotate(q);
-        qDebug() << m;
     }
     if (scale.count() == 3) // x, y, z
         m.scale(scale[0].toFloat(), scale[1].toFloat(), scale[2].toFloat());

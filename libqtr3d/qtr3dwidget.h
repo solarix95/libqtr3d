@@ -41,11 +41,9 @@ public:
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
     Qtr3dContext               *bufferContext();
-    Qtr3dGeometryBufferFactory *factory();
     Qtr3dLightSource           *primaryLightSource();
 
     // Factories
-    virtual Qtr3dTexturedMesh        *createTexturedMesh(const QString &textureName="");
     virtual Qtr3dMesh                *createMesh();
     virtual Qtr3dModel               *createModel();
     virtual Qtr3dGeometryBufferState *createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
@@ -80,7 +78,6 @@ private:
     Options                  mOptions;
     Qtr3dCamera             *mCamera;
     Qtr3dTextureFactory     *mTextures;
-    Qtr3dGeometryBufferFactory *mFactory;
     Qtr3dLightSource        *mLightSource;
 
     Qtr3dContext            *mContext;
