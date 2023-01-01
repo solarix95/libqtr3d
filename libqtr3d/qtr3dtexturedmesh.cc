@@ -90,7 +90,6 @@ void Qtr3dTexturedMesh::init(const QString &fname)
     mTexture         = mTextures->texture(fname);
     mVertexBufferId  = Qtr3dShader::makeBO(mVertices.data(),mVertices.count() * sizeof(Qtr3dTexturedVertex),GL_ARRAY_BUFFER,GL_STATIC_DRAW);
 
-    qDebug() << sizeof(Qtr3dTexturedVertex);
     if (mIndexes.isEmpty()) {
         for (int i=0; i<mVertices.count(); i++)
         mIndexes << i;

@@ -37,7 +37,7 @@ bool Qtr3dAssimpLoader::supportsFile(const QString &filename)
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Options /* opts */)
 {
-    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
+    auto *scene = aiImportFile(filename.toUtf8().constData(),0 ); // aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
     if (!scene || (scene->mNumMeshes <= 0))
         return false;
 

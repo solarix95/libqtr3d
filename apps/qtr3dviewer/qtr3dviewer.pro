@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 3dviewer
+TARGET = qtr3dviewer
 
 INCLUDEPATH += . ../../
 QT += core gui widgets

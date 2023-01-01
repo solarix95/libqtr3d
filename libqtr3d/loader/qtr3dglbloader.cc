@@ -81,10 +81,8 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
     QVariantList allNodes   = mJsonStruct["nodes"].toList();
     QVariantList allMeshes  = mJsonStruct["meshes"].toList();
 
-    qDebug() << "NATIVE 1" << mModel->meshes().count() << allMeshes.count();
     for (int m=0; m<allMeshes.count(); m++)
         createMesh(allMeshes[m].toMap(), m);
-    qDebug() << "NATIVE 2" << mModel->meshes().count()  << allMeshes.count();
 
     for (auto const &node: sceneNodes) {
         int nodeIndex = node.toInt();
@@ -93,7 +91,6 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
         createNode(allNodes[nodeIndex].toMap());
     }
 
-    qDebug() << "NATIVE 3" << mModel->meshes().count()  << allMeshes.count();
     return false;
 }
 
@@ -154,13 +151,18 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
         QVector3D v(rotation[0].toFloat(), rotation[1].toFloat(), rotation[2].toFloat());
         QQuaternion q(rotation[3].toFloat(),v); // v.normalized());
         m.rotate(q);
+        qDebug() << m;
     }
-
     if (scale.count() == 3) // x, y, z
         m.scale(scale[0].toFloat(), scale[1].toFloat(), scale[2].toFloat());
 
-    m = m.transposed();
-
+    /*
+       In JSON, the Meshes are defined as "Meshes contains multiple Primitives"
+       In Qtr3d: all "Primitives" are "Meshes"
+       .... so...
+       ..... here we have to revere translate the Json-Mesh-Index to the Primitive-Index (aka Mesh-Index)
+       in Qtr3dModel..
+    */
     Qtr3dMeshes nodeMeshes;
     if (meshIndex >= 0) {
         QList<int> qtr3dMeshIndexes = mJsonMeshes2qtrmeshes[meshIndex];
@@ -399,7 +401,10 @@ QList<QVector3D> Qtr3dGlbLoader::loadVectors(int componentType, int offset, int 
     reader.skip(offset);
 
     while(count) {
-        ret << QVector3D(reader.readFloat(), reader.readFloat(), reader.readFloat());
+        float x = reader.readFloat();
+        float y = reader.readFloat();
+        float z = reader.readFloat();
+        ret << QVector3D(x,y,z);
         count--;
     }
 

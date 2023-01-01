@@ -389,7 +389,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage 
 bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts)
 {
  #ifdef WITH_LIBASSIMP
-    if (Qtr3dAssimpLoader::supportsFile(filename))
+    if (0 && Qtr3dAssimpLoader::supportsFile(filename))
         return Qtr3dAssimpLoader::loadFile(model,filename);
 #endif
     if (Qtr3dStlLoader::supportsFile(filename))

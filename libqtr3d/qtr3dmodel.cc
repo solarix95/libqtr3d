@@ -25,7 +25,6 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMeshes meshes, const QMatrix4x4 &t
     n->mTranslation = translation;
 
     mNodes << n;
-
     return n;
 }
 
