@@ -21,10 +21,18 @@ public:
     using QObject::QObject;
     virtual ~Qtr3dModelLoader();
 
+    QString lastError() const;
+
     static QByteArray fileHeader(const QString &filename, int byteCount = 100);
     static QString    addPath(const QString &sourceFIle, const QString &targetFile);
     static bool       isValidExternalTexture(const QString &textureFile);
 
+protected:
+    void setErrorMsg(const QString &errorMsg);
+    bool returnError(const QString &errorMsg);
+private:
+
+    QString mLastError;
 };
 
 #endif // QTR3DMODELLOADER_H

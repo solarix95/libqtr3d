@@ -64,15 +64,43 @@ void Qtr3dModel::addMesh(Qtr3dMesh *mesh, bool createDefaultNode)
 }
 
 //-------------------------------------------------------------------------------------------------
-QVector3D Qtr3dModel::center() const
+QVector3D Qtr3dModel::minValues() const
 {
-    return mMeshes.isEmpty() ? QVector3D() : mMeshes.first()->center();
+    QVector3D val = QVector3D(  std::numeric_limits<double>::max(),
+                       std::numeric_limits<double>::max(),
+                       std::numeric_limits<double>::max() );
+
+    for (auto *m: mMeshes) {
+        QVector3D meshMin = m->minValues();
+        if (val.x() > meshMin.x())
+            val.setX(meshMin.x());
+        if (val.y() > meshMin.y())
+            val.setY(meshMin.y());
+        if (val.z() > meshMin.z())
+            val.setZ(meshMin.z());
+    }
+
+    return val;
 }
 
 //-------------------------------------------------------------------------------------------------
-double Qtr3dModel::radius() const
+QVector3D Qtr3dModel::maxValues() const
 {
-    return mMeshes.isEmpty() ? 0 : mMeshes.first()->radius();
+    QVector3D val = QVector3D(  -std::numeric_limits<double>::max(),
+                                -std::numeric_limits<double>::max(),
+                                -std::numeric_limits<double>::max() );
+
+    for (auto *m: mMeshes) {
+        QVector3D meshMax = m->maxValues();
+        if (val.x() < meshMax.x())
+            val.setX(meshMax.x());
+        if (val.y() < meshMax.y())
+            val.setY(meshMax.y());
+        if (val.z() < meshMax.z())
+            val.setZ(meshMax.z());
+    }
+
+    return val;
 }
 
 //-------------------------------------------------------------------------------------------------

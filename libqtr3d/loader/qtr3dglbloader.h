@@ -35,9 +35,6 @@ private:
     void createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *parent = nullptr);
     void createMesh(const QVariantMap &meshInfo, int meshIndex);
 
-    void splitAccessors(const QVariantList &bufferInfos);
-    bool takeNextAccessor(const QVariantMap &bufferInfo);
-
     QByteArray  bufferView(int index) const;
     QVariantMap accessorInfo(int index) const;
 

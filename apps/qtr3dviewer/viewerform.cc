@@ -65,7 +65,7 @@ void ViewerForm::load()
     static QString fileName = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
 
     fileName = QFileDialog::getOpenFileName(this,
-        tr("Open Image"), fileName, tr("3D Files (*.stl *.obj *.3ds *.glb *.ply)"));
+                                            tr("Open Image"), fileName, tr("3D Files (*.stl *.obj *.3ds *.glb *.ply)"));
 
     if (fileName.isEmpty())
         return;
@@ -104,20 +104,10 @@ void ViewerForm::loadFile(const QString &filename)
     Qtr3dModelFactory::modelByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
 
-    qDebug() << "START";
-    for (int i=0; i<mModel->nodes().count() && i < 5; i++) {
-        qDebug() << mModel->nodes()[i]->mMeshes;
-        for (auto *mesh: mModel->nodes()[i]->mMeshes)
-            qDebug() << mesh->vertexCount() << mModel->meshes().indexOf(mesh);
-    }
-
-    //    qDebug() << mModel->mesh(i)->vertexListCount();
-    qDebug() << "END"  << mModel->meshes().count() << mModel->nodes().count();
-
     mModelState =  ui->viewer->createState(mModel);
     updateLight();
     updateVertexOrientation();
 
-    qDebug() << mModel->radius() << mModel->center();
-    ui->viewer->camera()->lookAt(mModel->center() + QVector3D(0.0,0.0, mModel->radius() ), mModel->center(), {0,1,0});
+    // qDebug() << mModel->radius() << mModel->center();
+    ui->viewer->camera()->lookAt(mModel->center() + QVector3D(0.0,0.0, 2*mModel->radius() ), mModel->center(), {0,1,0});
 }

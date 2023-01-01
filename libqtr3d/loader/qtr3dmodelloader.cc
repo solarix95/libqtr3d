@@ -9,6 +9,12 @@ Qtr3dModelLoader::~Qtr3dModelLoader()
 }
 
 //-------------------------------------------------------------------------------------------------
+QString Qtr3dModelLoader::lastError() const
+{
+    return mLastError;
+}
+
+//-------------------------------------------------------------------------------------------------
 QByteArray Qtr3dModelLoader::fileHeader(const QString &filename, int byteCount)
 {
     QFile f(filename);
@@ -38,4 +44,17 @@ bool Qtr3dModelLoader::isValidExternalTexture(const QString &textureFile)
         return false;
     QImage img(textureFile);
     return img.isNull() ? false : true;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dModelLoader::setErrorMsg(const QString &errorMsg)
+{
+    mLastError = errorMsg;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelLoader::returnError(const QString &errorMsg)
+{
+    mLastError = errorMsg;
+    return mLastError.isEmpty();
 }

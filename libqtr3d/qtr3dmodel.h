@@ -26,8 +26,8 @@ public:
     virtual Node *createNode(Qtr3dMesh  *mesh, Node *parent = nullptr);
     virtual void  addMesh(Qtr3dMesh *mesh, bool createDefaultNode = false);
 
-    QVector3D center() const;
-    double    radius() const;
+    virtual QVector3D minValues() const; // lowest xyz
+    virtual QVector3D maxValues() const; // max xyz
 
     const Qtr3dMeshes &meshes() const;
     const Nodes       &nodes() const;

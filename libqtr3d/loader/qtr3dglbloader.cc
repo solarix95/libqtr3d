@@ -32,11 +32,11 @@ bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QString &filename)
 {
     QByteArray header = fileHeader(filename,100);
     if (header.isEmpty())
-        return false;
+        return returnError("Empty file");
 
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))
-        return false;
+        return returnError("Can't open file");
 
     Qtr3dBinReader reader(f.readAll());
 
@@ -44,17 +44,17 @@ bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QString &filename)
     quint32 magic   = reader.readUint32();
     quint32 version = reader.readUint32();
     quint32 length  = reader.readUint32();
+    Q_UNUSED(length);
 
-    if (magic !=  0x46546C67) { // yea... that's why it's called "magic"
-        return false;
-    }
+    if (magic !=  0x46546C67) // yea... that's why it's called "magic"
+        return returnError("Invalid GLB Magic number");
 
     mModel   = &model;
 
     if (version == 2)
         return loadGlbv2(reader);
 
-    return false;
+    return returnError("Unknown GLB Version number (only V2 is supported)");
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
     int sceneIndex = mJsonStruct.value("scene",0).toInt();
     QVariantList scenes = mJsonStruct["scenes"].toList();
     if (sceneIndex >= scenes.count())
-        return false;
+        return returnError("Invalid Scene");
 
     QVariantList sceneNodes = scenes[sceneIndex].toMap()["nodes"].toList();
     QVariantList allNodes   = mJsonStruct["nodes"].toList();
@@ -87,7 +87,7 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
     for (auto const &node: sceneNodes) {
         int nodeIndex = node.toInt();
         if (nodeIndex < 0 || nodeIndex >= allNodes.count())
-            return false;
+            return returnError("Invalid Scene");
         createNode(allNodes[nodeIndex].toMap());
     }
 
@@ -186,8 +186,6 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
 void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, int meshIndex)
 {
     QVariantList primitiveInfos = meshInfo["primitives"].toList();
-    if (primitiveInfos.count() == 0)
-        qDebug() << "WTF";
 
     for (int i=0; i<primitiveInfos.count(); i++) {
         int indicesAcsessorIndex  = primitiveInfos[i].toMap().value("indices",-1).toInt();
@@ -216,57 +214,12 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, int meshIndex)
                                      accessorInfo(indicesAcsessorIndex),
                                      accessorInfo(normalAccessorIndex));
         }
-        if (buffer)
+        if (buffer) {
             mJsonMeshes2qtrmeshes[meshIndex] << mModel->meshes().count()-1;
-        /*
-        if (buffer)
-            buffer->addModelTransition(translation);
-         */
-        // qDebug() << positionAccessorIndex << indicesAcsessorIndex << normalAccessorIndex << textcoordAccessorIndex;
+        } else {
+            qWarning() << "Qtr3dGlbLoader::createMesh: Invalid Mesh" << meshInfo << primitiveInfos;
+        }
     }
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dGlbLoader::splitAccessors(const QVariantList &bufferInfos)
-{
-    for (int i=0; i<bufferInfos.count(); i++) {
-        takeNextAccessor(bufferInfos[i].toMap());
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-bool Qtr3dGlbLoader::takeNextAccessor(const QVariantMap &bufferInfo)
-{
-    QString structType     = bufferInfo["type"].toString().toLower();
-    int     count          = bufferInfo["count"].toInt();
-    int     componentType  = bufferInfo["componentType"].toInt();
-    int     componentSize  = 0;
-    int     componentCount = 0;
-
-    switch(componentType) {
-    case GL_FLOAT          : componentSize = sizeof(qreal);    break;
-    case GL_DOUBLE         : componentSize = sizeof(double);   break;
-    case GL_UNSIGNED_INT   : componentSize = sizeof(quint32);  break;
-    case GL_INT            : componentSize = sizeof(qint32);   break;
-    case GL_UNSIGNED_SHORT : componentSize = sizeof(quint16);  break;
-    case GL_SHORT          : componentSize = sizeof(qint16);   break;
-    case GL_UNSIGNED_BYTE  : componentSize = sizeof(quint8);  break;
-    case GL_BYTE           : componentSize = sizeof(qint8);   break;
-    default: componentSize = 0;
-    }
-
-
-    if (structType == "vec3")
-        componentCount = 3;
-    else if (structType == "vec2")
-        componentCount = 2;
-    else if (structType == "scalar")
-        componentCount = 1;
-
-    int AccessorSize = componentCount * componentSize * count;
-    // qDebug() << "TAKING" << AccessorSize << mAccessors.count();
-    // mAccessors.remove(0,AccessorSize);
-    return true;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -379,8 +332,9 @@ Qtr3dMesh *Qtr3dGlbLoader::loadColoredMesh(const QVariantMap &positionInfo, cons
 
     auto *mesh = mModel->context()->createMesh();
     mesh->startMesh(Qtr3d::Triangle);
+    mesh->setDefaultColor(Qt::white);
     for (int vi=0; vi < points.count(); vi++)
-        mesh->addVertex(points[vi],normVectors[vi], Qt::red);
+        mesh->addVertex(points[vi],normVectors[vi]);
     for (auto i: faceIndexes)
         mesh->addIndex(i);
 
