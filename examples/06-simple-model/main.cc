@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
+#include <libqtr3d/qtr3dmodel.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
@@ -18,19 +19,20 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
         // Lets create just one "blade":
-        auto *mesh = w.createMesh()->startMesh(Qtr3dMesh::Triangle, Qtr3dGeometryBuffer::CounterClockWise);
+        auto *mesh = w.createMesh()->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
         mesh->addVertex({0,0,0},Qt::red);
         mesh->addVertex({-1,10,-1},Qt::green);
         mesh->addVertex({1,10,+1},Qt::blue);
         mesh->endMesh();
 
-        // .. done. now we need 16 "blades" to create one "fan"
+        // .. done. now we need to assembly 16 "blades" to create one "fan"
+        auto *fanModel = w.createModel();
         const int bladeCount = 16;
         for (int i=0; i<bladeCount; i++)
-            mesh->addModelTransition({0,0,0},{0,0,i*(360.0f/bladeCount)});
+            fanModel->createNode(mesh,{0,0,0},{0.0,0.0,i*(360.0f/bladeCount)},{1,1,1});
 
         // .. and now we create one "fan"
-        auto *turboFan = w.createState(mesh);
+        auto *turboFan = w.createState(fanModel);
 
         // ... and rotate the complete fan:
         QTimer *t = new QTimer(&w);

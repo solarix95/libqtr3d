@@ -107,16 +107,21 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
                                       amesh->mNormals[v].y,
                                       amesh->mNormals[v].z),
                             amesh->mTextureCoords[0][v].x,
-                            amesh->mTextureCoords[0][v].y
+                    amesh->mTextureCoords[0][v].y
                     );
         } else {
-            mesh->addVertex(QVector3D(amesh->mVertices[v].x,
-                                      amesh->mVertices[v].y,
-                                      amesh->mVertices[v].z),
-                            QVector3D(amesh->mNormals[v].x,
-                                      amesh->mNormals[v].y,
-                                      amesh->mNormals[v].z)
-                            );
+            if (amesh->mNormals)
+                mesh->addVertex(QVector3D(amesh->mVertices[v].x,
+                                          amesh->mVertices[v].y,
+                                          amesh->mVertices[v].z),
+                                QVector3D(amesh->mNormals[v].x,
+                                          amesh->mNormals[v].y,
+                                          amesh->mNormals[v].z)
+                                );
+            else
+                mesh->addVertex(QVector3D(amesh->mVertices[v].x,
+                                          amesh->mVertices[v].y,
+                                          amesh->mVertices[v].z));
         }
     }
 

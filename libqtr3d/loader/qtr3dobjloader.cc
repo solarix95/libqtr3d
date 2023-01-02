@@ -3,7 +3,6 @@
 #include <QDir>
 #include <QTextStream>
 
-#include "../qtr3dtexturedmesh.h"
 #include "qtr3dobjloader.h"
 
 //-------------------------------------------------------------------------------------------------

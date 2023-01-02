@@ -29,19 +29,7 @@ void Qtr3dBillboard::updateState()
     Q_ASSERT(mState);
 
     float alpha = alphaY();
-
-    // mState->setRotation({0,alpha,0});
-
-    QVector3D norm = {0,0,1};
-    QMatrix4x4 turnMatrix;
-    turnMatrix.rotate(alpha, {0,1,0});
-    norm = norm * turnMatrix;
-
-    QVector3D toCam = (mCamera->pos() - mState->pos()).normalized();
-
-    alpha = std::acos(norm.x()*toCam.x() + norm.y()*toCam.y() + norm.z()*toCam.z())/(2*3.1415)*360;
-    qDebug() << toCam << alpha;
-    //QVector3D toCam = mCamera
+    mState->setRotation({0,alpha,0});
 }
 
 //-------------------------------------------------------------------------------------------------

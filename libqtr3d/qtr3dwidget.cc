@@ -4,7 +4,6 @@
 #include <QSurfaceFormat>
 
 #include "qtr3dtexturefactory.h"
-#include "qtr3dtexturedquad.h"
 #include "qtr3dlightsource.h"
 #include "qtr3dwidget.h"
 #include "qtr3dcamera.h"

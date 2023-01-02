@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dgeometrybufferfactory.h>
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>

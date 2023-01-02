@@ -11,7 +11,7 @@ CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 
-CONFIG += with_libassimp
+# CONFIG += with_libassimp
 
 include(../../libqtr3d.pro)
 

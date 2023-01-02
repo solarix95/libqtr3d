@@ -5,7 +5,6 @@
 #include "qtr3dbinreader.h"
 #include "qtr3dglbloader.h"
 #include "../qtr3dmesh.h"
-#include "../qtr3dtexturedmesh.h"
 #include "../qtr3dtexturefactory.h"
 
 //-------------------------------------------------------------------------------------------------

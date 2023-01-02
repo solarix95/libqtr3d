@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         // OBJ Model by https://github.com/nasa/NASA-3D-Resources/
         Qtr3dModelFactory::modelByFile(*model,":/NASA3D-Z2-Spacesuit.obj");
         model->setFaceOrientation(Qtr3d::CounterClockWise);
-        model->mesh(0)->material().kAmbient = { 0.1, 0.1, 0.1 };
+        model->meshes()[0]->material().kAmbient = { 0.1, 0.1, 0.1 };
         state = w.createState(model);
         state->setState({0,-1,0},{0,0,0},{1,1,1});
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
         w.createState(mesh, Qtr3d::NoLighting);
 
-        float dist = model->radius()*1.3;
+        float dist = model->radius()*2;
         new Qtr3dCameraCycler(w.camera(),30,0.3,{0,dist,dist},{0,0,0});
         w.primaryLightSource()->setPos({0,0,dist});
     });

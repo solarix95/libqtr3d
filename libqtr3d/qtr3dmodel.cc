@@ -25,6 +25,11 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMeshes meshes, const QMatrix4x4 &t
     n->mTranslation = translation;
 
     mNodes << n;
+
+    // optional: register mesh if the app dont call "addMesh"
+    for (auto *mesh: meshes)
+        if (!mMeshes.contains(mesh))
+            addMesh(mesh,false);
     return n;
 }
 
@@ -32,14 +37,33 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMeshes meshes, const QMatrix4x4 &t
 Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &translation, Node *parent)
 {
     Node *n = new Node();
-    if (mesh)
+    if (mesh) {
         n->mMeshes = Qtr3dMeshes() << mesh;
+        if (!mMeshes.contains(mesh))
+            addMesh(mesh,false);
+    }
     n->mParent = parent;
     n->mTranslation = translation;
 
     mNodes << n;
 
     return n;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QVector3D &translation, const QVector3D &rotation, const QVector3D &scale, Node *parent)
+{
+    QMatrix4x4 transform(1,0,0,0,
+                         0,1,0,0,
+                         0,0,1,0,
+                         0,0,0,1);
+    transform.translate(translation);
+    transform.rotate(rotation.x(),{1,0,0});
+    transform.rotate(rotation.y(),{0,1,0});
+    transform.rotate(rotation.z(),{0,0,1});
+    transform.scale(scale);
+
+    return createNode(mesh,transform,parent);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -56,7 +80,9 @@ void Qtr3dModel::addMesh(Qtr3dMesh *mesh, bool createDefaultNode)
 {
     Q_ASSERT(mesh);
     Q_ASSERT(mesh->context() == this->context());
+    mesh->setParent(this);
     mesh->setParentBuffer(this);
+
     mMeshes << mesh;
 
     if (createDefaultNode)

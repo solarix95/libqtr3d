@@ -1,9 +1,8 @@
+
 #include <QApplication>
 #include <QDebug>
-#include <QSurfaceFormat>
+
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dtexturedmesh.h>
-#include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
 #include <libqtr3d/qtr3dgeometrybufferstate.h>
@@ -19,23 +18,24 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *buffer = w.createTexturedMesh(":/sun.png");
-        buffer->startMesh();
-        buffer->addQuad({-1, 1, 0}, { 1, 1, 0}, { 1,-1, 0}, {-1,-1, 0});  // Front
-        buffer->endMesh();
+        auto *sun = w.createMesh();
 
-        auto *sunState = w.createBufferState(buffer);
+        sun->startMesh(Qtr3d::Triangle);
+        sun->setTexture(QImage(":/sun.png"));
+        sun->addQuad({-1, 1, 0}, { 1, 1, 0}, { 1,-1, 0}, {-1,-1, 0});  // Front
+        sun->endMesh();
+
+        auto *sunState = w.createState(sun);
         sunState->setLightingType(Qtr3d::NoLighting);
         new Qtr3dBillboard(w.camera(),sunState);
 
         // Sky
-        auto *mesh = w.createVertexMesh();
-        Qtr3dModelFactory::meshByStarsky(*mesh,1000,1000,Qt::white);
-        w.createBufferState(mesh, Qtr3d::NoLighting);
+        auto *sky = w.createMesh();
+        Qtr3dModelFactory::meshByStarsky(*sky,1000,1000,Qt::white);
+        w.createState(sky, Qtr3d::NoLighting);
 
         w.camera()->lookAt({0,0,12},{0,0,0},{0,1,0});
         new Qtr3dFreeCameraController(&w);
-        // new Qtr3dCameraCycler(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});
     });
 
     w.show();

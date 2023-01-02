@@ -21,10 +21,11 @@ public:
     explicit Qtr3dModel(Qtr3dContext *context);
     virtual ~Qtr3dModel();
 
-    virtual Node *createNode(Qtr3dMeshes meshes, const QMatrix4x4 &translation, Node *parent = nullptr);
-    virtual Node *createNode(Qtr3dMesh  *mesh, const QMatrix4x4 &translation, Node *parent = nullptr);
+    virtual Node *createNode(Qtr3dMeshes meshes, const QMatrix4x4 &transform, Node *parent = nullptr);
+    virtual Node *createNode(Qtr3dMesh  *mesh, const QMatrix4x4 &transform, Node *parent = nullptr);
+    virtual Node *createNode(Qtr3dMesh  *mesh, const QVector3D &translation, const QVector3D &rotation, const QVector3D &scale, Node *parent = nullptr);
     virtual Node *createNode(Qtr3dMesh  *mesh, Node *parent = nullptr);
-    virtual void  addMesh(Qtr3dMesh *mesh, bool createDefaultNode = false);
+    virtual void  addMesh(Qtr3dMesh     *mesh, bool createDefaultNode = false);
 
     virtual QVector3D minValues() const; // lowest xyz
     virtual QVector3D maxValues() const; // max xyz

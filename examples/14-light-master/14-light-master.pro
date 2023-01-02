@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 09-light-master
+TARGET = 14-light-master
 
 INCLUDEPATH += . ../../
 QT += core gui widgets

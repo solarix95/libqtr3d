@@ -2,7 +2,6 @@
 #include <iostream>
 #include <iomanip>
 #include <QFile>
-#include <libqtr3d/qtr3dtexturedmesh.h>
 #include <libqtr3d/loader/qtr3dbinreader.h>
 #include "qtr3d3dsloader.h"
 

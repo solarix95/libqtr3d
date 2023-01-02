@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 11-billboard
+TARGET = 13-billboard
 INCLUDEPATH += .
 
 LIBQTR3D_PATH = ../../

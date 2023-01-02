@@ -8,7 +8,6 @@
 #include <QVariantList>
 #include "qtr3dmodelfactory.h"
 #include "qtr3dmesh.h"
-#include "qtr3dtexturedquad.h"
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
 #include "loader/qtr3dplyloader.h"
@@ -389,7 +388,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage 
 bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts)
 {
  #ifdef WITH_LIBASSIMP
-    if (0 && Qtr3dAssimpLoader::supportsFile(filename))
+    if (Qtr3dAssimpLoader::supportsFile(filename))
         return Qtr3dAssimpLoader::loadFile(model,filename);
 #endif
     if (Qtr3dStlLoader::supportsFile(filename))
