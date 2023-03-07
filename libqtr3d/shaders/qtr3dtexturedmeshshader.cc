@@ -40,10 +40,10 @@ void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMat
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
-    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
-    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
-    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
-    currentProgram()->setUniformValue("material.shininess",5.0f);
+    currentProgram()->setUniformValue("material.ambient", mesh.material().ambient().strength);
+    currentProgram()->setUniformValue("material.diffuse", mesh.material().diffuse().strength);
+    currentProgram()->setUniformValue("material.specular",mesh.material().specular().strength);
+    currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
     currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
@@ -58,10 +58,10 @@ void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMa
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
-    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
-    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
-    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
-    currentProgram()->setUniformValue("material.shininess",5.0f);
+    currentProgram()->setUniformValue("material.ambient", mesh.material().ambient().strength);
+    currentProgram()->setUniformValue("material.diffuse", mesh.material().diffuse().strength);
+    currentProgram()->setUniformValue("material.specular",mesh.material().specular().strength);
+    currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
     currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());

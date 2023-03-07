@@ -31,7 +31,7 @@ void Qtr3dPlainShader::onProgramChange()
 void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
+    currentProgram()->setUniformValue(mModelColor,mesh.material().ambient().mcolorf4());
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
 
     drawMesh(mesh);
@@ -44,10 +44,10 @@ void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix
 
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mLightPos,lightPos);
-    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
+    currentProgram()->setUniformValue(mModelColor,mesh.material().ambient().mcolorf4());
 
-    currentProgram()->setUniformValue("material.ambient",mesh.cMaterial().kAmbient);
-    currentProgram()->setUniformValue("material.diffuse",mesh.cMaterial().kDiffuse);
+    currentProgram()->setUniformValue("material.ambient",mesh.material().ambient().strength);
+    currentProgram()->setUniformValue("material.diffuse",mesh.material().diffuse().strength);
 
     currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
@@ -61,12 +61,12 @@ void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix
 void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mModelColor,mesh.defaultColorF4());
+    currentProgram()->setUniformValue(mModelColor,mesh.material().ambient().mcolorf4());
 
-    currentProgram()->setUniformValue("material.ambient", mesh.cMaterial().kAmbient);
-    currentProgram()->setUniformValue("material.diffuse", mesh.cMaterial().kDiffuse);
-    currentProgram()->setUniformValue("material.specular",mesh.cMaterial().kSpecular);
-    currentProgram()->setUniformValue("material.shininess",mesh.cMaterial().shininess);
+    currentProgram()->setUniformValue("material.ambient",  mesh.material().ambient().strength);
+    currentProgram()->setUniformValue("material.diffuse",  mesh.material().diffuse().strength);
+    currentProgram()->setUniformValue("material.specular", mesh.material().specular().strength);
+    currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
     currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());

@@ -243,10 +243,10 @@ void ViewerForm::updateLightAttrib()
     ui->viewer->primaryLightSource()->setAmbientStrength({float(ui->lightambientX->value()), float(ui->lightambientY->value()), float(ui->lightambientZ->value())});
 
     for (auto *mesh: mMeshes) {
-        mesh->material().kAmbient  = {float(ui->ambientX->value()),  float(ui->ambientY->value()),  float(ui->ambientZ->value())};
-        mesh->material().kDiffuse  = {float(ui->diffuseX->value()),  float(ui->diffuseY->value()),  float(ui->diffuseZ->value())};
-        mesh->material().kSpecular = {float(ui->specularX->value()), float(ui->specularY->value()), float(ui->specularZ->value())};
-        mesh->material().shininess = ui->shininess->value();
+        mesh->material().ambient().strength  = {float(ui->ambientX->value()),  float(ui->ambientY->value()),  float(ui->ambientZ->value())};
+        mesh->material().diffuse().strength  = {float(ui->diffuseX->value()),  float(ui->diffuseY->value()),  float(ui->diffuseZ->value())};
+        mesh->material().specular().strength = {float(ui->specularX->value()), float(ui->specularY->value()), float(ui->specularZ->value())};
+        mesh->material().setShininess(ui->shininess->value());
     }
 
     ui->viewer->update();

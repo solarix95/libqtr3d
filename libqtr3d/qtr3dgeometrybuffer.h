@@ -26,7 +26,7 @@ public:
 
     void            setDefaultColor(const QColor &c);
     Qtr3d::Material &material();
-    const Qtr3d::Material &cMaterial() const;
+    const Qtr3d::Material &material() const;
     void            setBlendingEnabled(bool enabled);
     bool            blending() const;
 
@@ -38,10 +38,6 @@ public:
     // BufferState Iteration
     virtual void registerBufferState(Qtr3dGeometryBufferState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
-    inline QColor    defaultColor()   const { return mDefaultColor; }
-    inline QVector3D defaultColorF()  const { return QVector3D(mDefaultColor.redF(), mDefaultColor.greenF(), mDefaultColor.blueF()); }
-    inline QVector4D defaultColorF4() const { return QVector4D(mDefaultColor.redF(), mDefaultColor.greenF(), mDefaultColor.blueF(), mDefaultColor.alphaF()); }
-
 
     void                 setParentBuffer(Qtr3dGeometryBuffer *parentBuffer);
     Qtr3dGeometryBuffer *parentBuffer() const;
@@ -63,7 +59,6 @@ private:
     Qtr3dGeometryBufferStates   mBufferStates;
 
     Qtr3d::Material             mMaterial;
-    QColor                      mDefaultColor;
 
     QVector3D                   mMin;
     QVector3D                   mMax;

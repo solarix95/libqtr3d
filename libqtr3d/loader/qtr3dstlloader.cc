@@ -36,7 +36,7 @@ bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename)
         return false;
 
     auto *mesh = model.context()->createMesh();
-    mesh->setDefaultColor(model.defaultColor());
+    mesh->setDefaultColor(model.material().ambient().mcolor);
 
     bool done = false;
     if (header.trimmed().startsWith("solid"))

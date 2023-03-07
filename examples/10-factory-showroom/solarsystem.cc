@@ -1,7 +1,7 @@
 #include <QTimer>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmodelfactory.h>
-#include <libqtr3d/qtr3dvertexmesh.h>
+#include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dgeometrybufferstate.h>
 #include "solarsystem.h"
 

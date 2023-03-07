@@ -291,7 +291,7 @@ void Qtr3dObjLoader::setupSimpleMesh(Qtr3dModel &model)
 {
     Qtr3dMesh *mesh = model.context()->createMesh(false);
     mesh->startMesh(Qtr3d::Triangle);
-    mesh->setDefaultColor(model.defaultColor()); // QColor("#293133"));
+    mesh->setDefaultColor(model.material().ambient().mcolor); // QColor("#293133"));
     bool colored = mVerticesColors.count() == mVertices.count();
 
     // Vertices

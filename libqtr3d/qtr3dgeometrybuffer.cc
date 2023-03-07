@@ -9,7 +9,6 @@ Qtr3dGeometryBuffer::Qtr3dGeometryBuffer(Qtr3dContext *parent)
     , mShader(Qtr3d::PlainShader)
     , mFaceOrientation(Qtr3d::DefaultOrientation)
     , mBlending(false)
-    , mDefaultColor(Qt::white)
 {
     mMin = QVector3D(  std::numeric_limits<double>::max(),
                        std::numeric_limits<double>::max(),
@@ -60,7 +59,7 @@ Qtr3d::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() const
 //-------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBuffer::setDefaultColor(const QColor &c)
 {
-    mDefaultColor = c;
+    material().ambient().mcolor = material().diffuse().mcolor = material().specular().mcolor = c;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -70,7 +69,7 @@ Qtr3d::Material &Qtr3dGeometryBuffer::material()
 }
 
 //-------------------------------------------------------------------------------------------------
-const Qtr3d::Material &Qtr3dGeometryBuffer::cMaterial() const
+const Qtr3d::Material &Qtr3dGeometryBuffer::material() const
 {
     return mMaterial;
 }

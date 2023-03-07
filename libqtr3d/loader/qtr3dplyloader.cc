@@ -42,7 +42,7 @@ bool Qtr3dPlyLoader::loadModel(Qtr3dModel &model, const QString &filename)
         return false;
 
     mMesh = model.context()->createMesh();
-    mMesh->setDefaultColor(model.defaultColor());
+    mMesh->setDefaultColor(model.material().ambient().mcolor);
 
     mMesh->startMesh(Qtr3d::Triangle);
     if (mFormat == TextFormat) {
@@ -244,7 +244,7 @@ void Qtr3dPlyLoader::appendElementAttributs(const QString &elementName, const QS
         return;
 
     Qtr3dColoredVertex v;
-    v.c   = mMesh->defaultColorF();
+    v.c   = mMesh->material().ambient().mcolorf();
     v.p.x = values.value(attributNames.indexOf("x"),0.0).toFloat();
     v.p.y = values.value(attributNames.indexOf("y"),0.0).toFloat();
     v.p.z = values.value(attributNames.indexOf("z"),0.0).toFloat();

@@ -2,9 +2,13 @@
 #define QTR3DTYPES_H
 
 #include <QVector3D>
+#include <QVector4D>
 #include <QOpenGLTexture>
 #include <QColor>
 #include <GL/gl.h>
+
+typedef GLfloat        Qtr3dScalar;
+typedef QOpenGLTexture Qtr3dTexture;
 
 namespace Qtr3d
 {
@@ -29,7 +33,6 @@ enum FaceOrientation {
     CounterClockWise
 };
 
-
 enum LightingType {
     DefaultLighting,
     NoLighting,
@@ -37,24 +40,50 @@ enum LightingType {
     PhongLighting
 };
 
-struct Material {
-    QVector3D kAmbient;
-    QVector3D kDiffuse;
-    QVector3D kSpecular;
-    float     shininess;
+struct MaterialLayer {
+    QVector3D     strength;   // lighting strength
+    QColor        mcolor;     // material color: has no effect if the vertex brings its own color or texture
+    Qtr3dTexture *texture;
+    quint32       textureId;
 
-    Material(float a = 0.0, float d=0.3, float s= 0.3, float shine = 5.0f)
-        : kAmbient(a,a,a)
-        , kDiffuse(d,d,d)
-        , kSpecular(s,s,s)
-        , shininess(shine)
+    MaterialLayer(float k, QColor c) : strength(k,k,k), mcolor(c) {};
+
+    inline QVector3D    mcolorf()  const { return QVector3D(mcolor.redF(), mcolor.greenF(), mcolor.blueF()); }
+    inline QVector4D    mcolorf4() const { return QVector4D(mcolor.redF(), mcolor.greenF(), mcolor.blueF(), mcolor.alphaF()); }
+};
+
+class Material {
+public:
+    Material(float a = 0.0, float d=0.6, float s= 0.3, float shine = 5.0f)
+        : mBaseColor(Qt::black)
+        , mAmbient(a,Qt::white)
+        , mDiffuse(d,Qt::white)
+        , mSpecular(s,Qt::white)
+        , mShininess(shine)
     {}
-    void setup(float ka, float kd, float ks, float s);
+
+    inline QColor         baseColor() const { return mBaseColor; }
+    inline MaterialLayer &ambient()  { return mAmbient;   }
+    inline MaterialLayer &diffuse()  { return mDiffuse;   }
+    inline MaterialLayer &specular() { return mSpecular;  }
+    inline const MaterialLayer &ambient() const  { return mAmbient;   }
+    inline const MaterialLayer &diffuse() const  { return mDiffuse;   }
+    inline const MaterialLayer &specular() const { return mSpecular;  }
+    inline float         shininess() const { return mShininess; }
+
+    inline void setBaseColor(const QColor &c) { mBaseColor = c; }
+    inline void setShininess(float s)         { mShininess = s; }
+
+private:
+    QColor        mBaseColor;
+    MaterialLayer mAmbient;    // No lighting or no light
+    MaterialLayer mDiffuse;    // Flat/Phong Lighting
+    MaterialLayer mSpecular;   // Phong only
+    float         mShininess;  // Phong only
+
+   //  void setup(float ka, float kd, float ks, float s);
 };
 }
-
-typedef GLfloat        Qtr3dScalar;
-typedef QOpenGLTexture Qtr3dTexture;
 
 typedef struct Qtr3dVector_t
 {
@@ -202,4 +231,6 @@ typedef struct Qtr3dTexCoord_t {
     Qtr3dTexCoord_t(const QPointF &p) : u(p.x()), v(p.y()) {}
 
 } Qtr3dTexCoord;
+
+
 #endif // QTR3DTYPES_H

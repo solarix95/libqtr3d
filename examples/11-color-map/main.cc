@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         // debugState->setState({0,0,0},{0,0,0},{1,1,1});
 
         w.primaryLightSource()->setPos({5,0,5});
-        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,0,3*sphere->radius()},{0,0,0});
+        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,0,10*sphere->radius()},{0,0,0});
     });
 
     w.show();
