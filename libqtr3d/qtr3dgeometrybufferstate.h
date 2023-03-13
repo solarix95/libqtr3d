@@ -29,6 +29,7 @@ public:
     void move(const QVector3D &pos, const QVector3D &rotation);
     void setState(const QVector3D &pos, const QVector3D &rotation, const QVector3D &scale = {1,1,1});
     void setScale(const QVector3D &scale);
+    void setScale(float xyzScale);
     void setRotation(const QVector3D &rotationAngles);
 
     inline const QMatrix4x4 modelView() const { return mParent ? (mParent->modelView() * mModelView) : mModelView; }

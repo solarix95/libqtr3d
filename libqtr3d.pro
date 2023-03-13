@@ -18,6 +18,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dvertexmeshshader.h \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dtexturedmeshshader.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dfreecameracontroller.h \
+    $$LIBQTR3D_PATH/libqtr3d/debug/qtr3degocameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.h \
@@ -52,6 +53,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dplainshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dtexturedmeshshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dcameracontroller.cc \
+    $$LIBQTR3D_PATH/libqtr3d/debug/qtr3degocameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelfactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.cc \

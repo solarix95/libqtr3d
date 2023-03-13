@@ -83,6 +83,12 @@ void Qtr3dGeometryBufferState::setScale(const QVector3D &scale)
 }
 
 //------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBufferState::setScale(float xyzScale)
+{
+    setScale({xyzScale,xyzScale,xyzScale});
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBufferState::setRotation(const QVector3D &rotationAngles)
 {
     mRot = rotationAngles;
