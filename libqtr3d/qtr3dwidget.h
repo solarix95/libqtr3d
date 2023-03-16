@@ -36,6 +36,7 @@ public:
     Qtr3dWidget(QWidget *parent);
     virtual ~Qtr3dWidget();
 
+    void                        setOptions(Options ops);
     void                        setClearColor(QColor c);
     void                        setDefaultLighting(Qtr3d::LightingType t);
     Qtr3dCamera                *camera();

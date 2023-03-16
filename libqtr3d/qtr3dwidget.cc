@@ -51,6 +51,24 @@ Qtr3dWidget::~Qtr3dWidget()
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::setOptions(Options ops)
+{
+    int samples = 0;
+    if (ops.testFlag(MSAA4))
+        samples = 4;
+    else if (ops.testFlag(MSAA16))
+        samples = 16;
+
+    if (samples > 0) {
+        QSurfaceFormat currentFormat = format();
+        currentFormat.setSamples(samples);
+        setFormat(currentFormat);
+    }
+
+    mOptions = ops;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::setClearColor(QColor c)
 {
     mClearColor = c;
@@ -216,17 +234,7 @@ void Qtr3dWidget::preInitializing()
     if (!mContext)
         mContext = new Qtr3dContext(this);
 
-    int samples = 0;
-    if (mOptions.testFlag(MSAA4))
-        samples = 4;
-    else if (mOptions.testFlag(MSAA16))
-        samples = 16;
-
-    if (samples > 0) {
-        QSurfaceFormat currentFormat = format();
-        currentFormat.setSamples(samples);
-        setFormat(currentFormat);
-    }
+    setOptions(mOptions);
 }
 
 //-------------------------------------------------------------------------------------------------

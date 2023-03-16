@@ -324,9 +324,16 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
 
+            QVector3D p(r*x + cx, r*y + cy, radius*z + cz);
+            mesh.addVertex(p,
+                           p.normalized(),
+                           getColor(1-s/(float)sectors,1.f/sectors));
+
+            /*
             mesh.addVertex({r*x + cx, r*y + cy, radius*z + cz},
                            QVector3D(x,y,z).normalized(),
                            getColor(1-s/(float)sectors,1.f/sectors));
+           */
 
             mesh.addIndex(s+1);
             mesh.addIndex(0); // all polygons to the top center
@@ -344,16 +351,22 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
 
+            QVector3D p(r*x + cx, r*y + cy, radius*z + cz);
+            mesh.addVertex(p,
+                           p.normalized(),
+                           getColor(1-s/(float)sectors,(ring+2.f)/sectors));
+            /*
             mesh.addVertex({r*x + cx, r*y + cy, radius*z + cz},
                            QVector3D(x,y,z),
                            getColor(1-s/(float)sectors,(ring+2.f)/sectors));
+            */
 
         }
     }
 
     /* Button */
     mesh.addVertex({cx, cy, cz - radius},
-                   QVector3D(0.f,0.f,-1.f), getColor(0.5,1));
+                   QVector3D(cx, cy, cz - radius).normalized(), getColor(0.5,1));
 
     for (int ring = 0; ring<sectors-3; ring++) {
         for (int s=0; s<sectors; s++) {
