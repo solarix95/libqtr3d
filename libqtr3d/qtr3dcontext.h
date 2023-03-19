@@ -26,6 +26,7 @@ public:
 
     const QList<Qtr3dMesh*>  &meshes() const;
     const QList<Qtr3dModel*> &models() const;
+    Qtr3dEnvironment         &environment();
 
 private:
     Qtr3dMesh  *registerMesh(Qtr3dMesh *mesh);
@@ -33,6 +34,7 @@ private:
 
     QList<Qtr3dMesh*>  mRootMeshes;
     QList<Qtr3dModel*> mModels;
+    Qtr3dEnvironment   mEnvironment;
 };
 
 #endif // QTR3DCONTEXT_H

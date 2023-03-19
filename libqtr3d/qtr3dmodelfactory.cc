@@ -444,7 +444,7 @@ bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourc
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, QVector3D scale, const QString &texture)
+bool Qtr3dModelFactory::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QString &texture, QVector3D scale)
 {
     QImage highmapImg;
     if (!highmapImg.load(highmapImageName))

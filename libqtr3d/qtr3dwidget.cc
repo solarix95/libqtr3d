@@ -24,7 +24,6 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     , mContext(nullptr)
     , mPlainShader(nullptr)
     , mTexturedMeshShader(nullptr)
-    , mClearColor(Qt::black)
 {
     preInitializing();
 }
@@ -38,7 +37,6 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     , mContext(nullptr)
     , mPlainShader(nullptr)
     , mTexturedMeshShader(nullptr)
-    , mClearColor(Qt::black)
 {
     preInitializing();
 }
@@ -66,12 +64,6 @@ void Qtr3dWidget::setOptions(Options ops)
     }
 
     mOptions = ops;
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dWidget::setClearColor(QColor c)
-{
-    mClearColor = c;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -143,7 +135,8 @@ void Qtr3dWidget::preparePainting()
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    f->glClearColor(mClearColor.redF() ,  mClearColor.greenF() ,  mClearColor.blueF() ,  1.0f ) ;
+    QColor clearColor = bufferContext()->environment().clearColor();
+    f->glClearColor(clearColor.redF() ,  clearColor.greenF() ,  clearColor.blueF() ,  1.0f ) ;
     f->glEnable(GL_CULL_FACE) ;
     f->glCullFace(GL_BACK);
 }
@@ -268,7 +261,7 @@ void Qtr3dWidget::paintMeshes()
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = shader->defaultLighting();
-            shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource());
+            shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
         }
     }
 }
@@ -310,7 +303,7 @@ void Qtr3dWidget::paintModels()
                     if (nextLightingTyp == Qtr3d::DefaultLighting)
                         nextLightingTyp = shader->defaultLighting();
 
-                    shader->render(*mesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource());
+                    shader->render(*mesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
                 }
             }
         }

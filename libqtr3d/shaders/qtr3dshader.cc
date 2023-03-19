@@ -54,9 +54,13 @@ void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light)
+void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
 {
     setProgram(lighting);
+
+    currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
+    currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
+
     switch(lighting) {
     case Qtr3d::NoLighting:
         drawBuffer_NoLight(mesh, modelView, camera.projection() , camera.worldMatrix());

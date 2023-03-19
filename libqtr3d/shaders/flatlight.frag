@@ -13,6 +13,12 @@ struct Light {
     vec3  ambient;
 };
 
+struct Fog {
+    vec4  color;
+    float distance;
+};
+
+uniform Fog      fog;
 uniform Material material;
 uniform Light    light;
 
@@ -22,6 +28,11 @@ varying vec3 fragNormal;
 varying vec4 fragPos;
 
 void main() {
+        // fog shortcut
+        float distance = length(fragPos);
+        if (fog.distance > 0.0 && distance > fog.distance)
+            discard;
+
         // easy ambient color calculation
         vec4  inColor  = #QTR3D_FRAGMENT_COLOR
         vec3  ambient  = (light.ambient * light.color * inColor.rgb) + (material.ambient * inColor.rgb);
@@ -32,7 +43,13 @@ void main() {
         float diff     = max(dot(norm, lightDir), 0.0);
         vec3  diffuse  = diff * material.diffuse * inColor.rgb * light.color;
 
+        vec3  finalColor = (ambient + diffuse);
+
+        // fog color mixer
+        if (fog.distance > 0.0)
+            finalColor = mix(finalColor, fog.color.rgb, distance/fog.distance);
+
         // Final output
-        gl_FragColor.rgb = (ambient + diffuse);
+        gl_FragColor.rgb = finalColor;
         gl_FragColor.a   = inColor.a;
 }

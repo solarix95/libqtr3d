@@ -37,7 +37,6 @@ public:
     virtual ~Qtr3dWidget();
 
     void                        setOptions(Options ops);
-    void                        setClearColor(QColor c);
     void                        setDefaultLighting(Qtr3d::LightingType t);
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
@@ -86,8 +85,6 @@ private:
     Qtr3dPlainShader        *mPlainShader;
     Qtr3dVertexMeshShader   *mVertexMeshShader;
     Qtr3dTexturedShader     *mTexturedMeshShader;
-
-    QColor                   mClearColor;
 };
 
 #endif

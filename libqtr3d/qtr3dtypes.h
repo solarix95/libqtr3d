@@ -232,5 +232,20 @@ typedef struct Qtr3dTexCoord_t {
 
 } Qtr3dTexCoord;
 
+class Qtr3dEnvironment {
+public:
+    Qtr3dEnvironment() : mClearColor(Qt::black), mFogDistance(-1) {}
+    inline QColor    clearColor()  const  { return mClearColor;  }
+    inline QVector4D clearColor4f() const { return QVector4D(mClearColor.redF(),mClearColor.greenF(), mClearColor.blueF(), 1.0); }
+
+    inline float  fogDistance() const { return mFogDistance; }
+
+    inline void   setClearColor(QColor c) { mClearColor = c; }
+    inline void   setFogDistance(float f) { mFogDistance= f; }
+
+private:
+    QColor mClearColor;
+    float  mFogDistance;
+};
 
 #endif // QTR3DTYPES_H

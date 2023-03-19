@@ -42,6 +42,12 @@ const QList<Qtr3dModel*> &Qtr3dContext::models() const
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dEnvironment &Qtr3dContext::environment()
+{
+    return mEnvironment;
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dMesh *Qtr3dContext::registerMesh(Qtr3dMesh *mesh)
 {
     Q_ASSERT(mesh);

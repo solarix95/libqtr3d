@@ -28,6 +28,7 @@ private slots:
     void updateLightAttrib();
     void updateModelPos();
     void selectLightColor();
+    void selectFogColor();
 
 private:
     Ui::ViewerForm *ui;

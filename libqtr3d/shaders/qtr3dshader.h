@@ -26,7 +26,7 @@ public:
 
     void setProgram(Qtr3d::LightingType lightType);
 
-    void render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light);
+    void render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env);
 
     // static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER);
     static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER, int accessFlags = GL_STATIC_DRAW);
