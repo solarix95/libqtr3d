@@ -3,7 +3,7 @@
 #include <QSurfaceFormat>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
-#include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dcamera.h>
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
         // Debug-Mesh:
         auto *mesh2 = w.createMesh();
-        Qtr3dModelFactory::normalMeshByMesh(*mesh2, *mesh, 1, Qt::red);
+        Qtr3d::normalMeshByMesh(*mesh2, *mesh, 1, Qt::red);
         auto *state2 = w.createState(mesh2, Qtr3d::NoLighting);
 
         w.primaryLightSource()->setPos({0,5,0});

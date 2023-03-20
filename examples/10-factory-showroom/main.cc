@@ -4,7 +4,7 @@
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
-#include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include "solarsystem.h"
 
@@ -32,26 +32,26 @@ int main(int argc, char *argv[])
         //w.createBufferState(mesh)->setFlat(false);
 
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshByXyzAxis(*mesh);
+        Qtr3d::meshByXyzAxis(*mesh);
         w.createState(mesh, Qtr3d::NoLighting);
 
         // Cycle
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshByCycle(*mesh,13,Qt::red);
+        Qtr3d::meshByCycle(*mesh,13,Qt::red);
         state = w.createState(mesh);
         state->setState(showRoomPos,{0,0,45});
         showRoomPos = showRoomRotate * showRoomPos;
 
         // Sphere
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshBySphere(*mesh,13,Qt::red);
+        Qtr3d::meshBySphere(*mesh,13,Qt::red);
         state = w.createState(mesh);
         state->setState(showRoomPos,{0,0,0});
         showRoomPos = showRoomRotate * showRoomPos;
 
         // Cylinder
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshByCylinder(*mesh,13,false,false,Qt::red);
+        Qtr3d::meshByCylinder(*mesh,13,false,false,Qt::red);
         state = w.createState(mesh);
         state->setState(showRoomPos,{0,0,0});
         showRoomPos = showRoomRotate * showRoomPos;
@@ -63,11 +63,11 @@ int main(int argc, char *argv[])
 
         // Sky
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshByStarsky(*mesh,1000,1000,Qt::white);
+        Qtr3d::meshByStarsky(*mesh,1000,1000,Qt::white);
         w.createState(mesh);
 
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
+        Qtr3d::meshByStarsky(*mesh,1000,100,Qt::blue);
         w.createState(mesh);
 
         new Qtr3dCameraCycler(w.camera(),30,0.3,{0,2,5},{0,0,0});

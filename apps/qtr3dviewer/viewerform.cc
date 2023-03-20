@@ -25,6 +25,7 @@ ViewerForm::ViewerForm(QWidget *parent)
 {
     ui->setupUi(this);
     ui->btnLoad->setEnabled(false);
+    ui->viewer->setOptions(Qtr3dWidget::MSAA4);
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
         ui->viewer->primaryLightSource()->setAmbientStrength(0.7);

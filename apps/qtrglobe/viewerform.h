@@ -2,6 +2,7 @@
 #define VIEWERFORM_H
 
 #include <QWidget>
+#include <QVector3D>
 
 namespace Ui {
 class ViewerForm;
@@ -23,11 +24,14 @@ private:
     void setupSolarSystem();
     void setupStarDatabase();
 
+    static double angleFromTime(const QString &time, bool firstIsGrad);
+
     Ui::ViewerForm *ui;
 
     Qtr3dModel               *mModel;
     Qtr3dGeometryBufferState *mModelState;
     Qtr3dCameraMovement      *mCameraMove;
+    QVector3D                 mPolar;
 };
 
 #endif // VIEWERFORM_H

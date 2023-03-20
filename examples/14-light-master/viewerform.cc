@@ -16,7 +16,7 @@
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
-#include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
@@ -83,19 +83,19 @@ ViewerForm::ViewerForm(QWidget *parent)
 
         // Create Textured Sphere
         auto *sphereMesh1 = ui->viewer->createMesh();
-        Qtr3dModelFactory::meshBySphere(*sphereMesh1,60,QImage(":/pebbles_texture.jpg"));
+        Qtr3d::meshBySphere(*sphereMesh1,60,QImage(":/pebbles_texture.jpg"));
         sphereMesh1->setFaceOrientation(Qtr3d::CounterClockWise);
         mSphereState1 = ui->viewer->createState(sphereMesh1);
         mMeshes << sphereMesh1;
 
         auto *sphereMesh2 = ui->viewer->createMesh();
-        Qtr3dModelFactory::meshBySphere(*sphereMesh2,60,Qt::black);
+        Qtr3d::meshBySphere(*sphereMesh2,60,Qt::black);
         sphereMesh2->setFaceOrientation(Qtr3d::CounterClockWise);
         mSphereState2 = ui->viewer->createState(sphereMesh2);
         mMeshes << sphereMesh2;
 
         auto *sphereMesh3 = ui->viewer->createMesh();
-        Qtr3dModelFactory::meshBySphere(*sphereMesh3,60,Qt::white);
+        Qtr3d::meshBySphere(*sphereMesh3,60,Qt::white);
         sphereMesh3->setFaceOrientation(Qtr3d::CounterClockWise);
         mSphereState3 = ui->viewer->createState(sphereMesh3);
         mMeshes << sphereMesh2;
@@ -192,8 +192,6 @@ ViewerForm::ViewerForm(QWidget *parent)
 
         connect(ui->btnPickColor, &QPushButton::clicked, this, &ViewerForm::selectLightColor);
         connect(ui->btnPickFog,   &QPushButton::clicked, this, &ViewerForm::selectFogColor);
-
-
     });
 }
 

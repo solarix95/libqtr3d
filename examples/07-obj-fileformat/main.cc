@@ -5,7 +5,7 @@
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
-#include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/qtr3dlightsource.h>
 
 int main(int argc, char *argv[])
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     w.setGeometry(10,10,500,500);
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
-        qDebug() << "OpenGL ready";
+
         w.setDefaultLighting(Qtr3d::FlatLighting);
 
         Qtr3dModel *model;
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         model->setDefaultColor(Qt::red);
 
         // OBJ Model by https://github.com/nasa/NASA-3D-Resources/
-        Qtr3dModelFactory::modelByFile(*model,":/NASA3D-Z2-Spacesuit.obj");
+        Qtr3d::modelByFile(*model,":/NASA3D-Z2-Spacesuit.obj");
         model->setFaceOrientation(Qtr3d::CounterClockWise);
         model->meshes()[0]->material().ambient().strength = { 0.1, 0.1, 0.1 };
         state = w.createState(model);
@@ -36,11 +36,11 @@ int main(int argc, char *argv[])
 
         // Sky
         auto *mesh = w.createMesh();
-        Qtr3dModelFactory::meshByStarsky(*mesh,1000,1000,Qt::white);
+        Qtr3d::meshByStarsky(*mesh,1000,1000,Qt::white);
         w.createState(mesh, Qtr3d::NoLighting);
 
         mesh = w.createMesh();
-        Qtr3dModelFactory::meshByStarsky(*mesh,1000,100,Qt::blue);
+        Qtr3d::meshByStarsky(*mesh,1000,100,Qt::blue);
         w.createState(mesh, Qtr3d::NoLighting);
 
         float dist = model->radius()*2;

@@ -6,7 +6,7 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QVariantList>
-#include "qtr3dmodelfactory.h"
+#include "qtr3dfactory.h"
 #include "qtr3dmesh.h"
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
@@ -48,13 +48,13 @@ static QVariant sLoadJson(const QString &filename) {
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByJson(Qtr3dMesh &mesh, const QString &filename)
+bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QString &filename)
 {
     return meshByJson(mesh, sLoadJson(filename));
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
+bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
 {
     QVariantMap map = json.toMap();
 
@@ -80,7 +80,7 @@ bool Qtr3dModelFactory::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByStarsky(Qtr3dMesh &mesh, float radius, int starCount, const QColor &color)
+bool Qtr3d::meshByStarsky(Qtr3dMesh &mesh, float radius, int starCount, const QColor &color)
 {
     mesh.setDefaultColor(color);
     mesh.startMesh(Qtr3d::Dot);
@@ -99,7 +99,7 @@ bool Qtr3dModelFactory::meshByStarsky(Qtr3dMesh &mesh, float radius, int starCou
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color)
+bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color)
 {
     float       radius = 1.0f;
     float       cx = 0.0f;
@@ -189,7 +189,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor 
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color)
+bool Qtr3d::meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color)
 {
     float       radius = 1.0f;
     QVector3D   center = {0.f, 0.f, 0.f};
@@ -222,7 +222,7 @@ bool Qtr3dModelFactory::meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByXyzAxis(Qtr3dMesh &mesh)
+bool Qtr3d::meshByXyzAxis(Qtr3dMesh &mesh)
 {
     mesh.startMesh(Qtr3d::Line);
 
@@ -248,7 +248,7 @@ bool Qtr3dModelFactory::meshByXyzAxis(Qtr3dMesh &mesh)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
+bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
 {
     if (sectors < 3)
         return false;
@@ -289,7 +289,7 @@ bool Qtr3dModelFactory::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClo
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
+bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
 {
     if (sectors < 3 || colorMap.isNull())
         return false;
@@ -400,7 +400,7 @@ bool Qtr3dModelFactory::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage 
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts)
+bool Qtr3d::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts)
 {
 #ifdef WITH_LIBASSIMP
     if (Qtr3dAssimpLoader::supportsFile(filename))
@@ -424,7 +424,7 @@ bool Qtr3dModelFactory::modelByFile(Qtr3dModel &model, const QString &filename, 
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float vectorLenght, QColor color)
+bool Qtr3d::normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float vectorLenght, QColor color)
 {
     mesh.startMesh(Qtr3d::Line);
     mesh.setDefaultColor(color);
@@ -444,7 +444,7 @@ bool Qtr3dModelFactory::normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourc
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelFactory::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QString &texture, QVector3D scale)
+bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QString &colorMapImageName, QVector3D scale)
 {
     QImage highmapImg;
     if (!highmapImg.load(highmapImageName))
@@ -454,7 +454,7 @@ bool Qtr3dModelFactory::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapIma
         return false;
 
     QImage textureImg;
-    if (!textureImg.load(texture))
+    if (!textureImg.load(colorMapImageName))
         return false;
 
     if ((textureImg.width() * textureImg.height()) <= 0)
@@ -511,4 +511,73 @@ bool Qtr3dModelFactory::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapIma
 
     mesh.endMesh();
     return true;
+}
+
+bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QImage &texture, QVector3D scale)
+{
+    QImage highmapImg;
+    if (!highmapImg.load(highmapImageName))
+        return false;
+
+    if ((highmapImg.width() * highmapImg.height()) <= 0)
+        return false;
+
+    if (texture.isNull())
+        return false;
+
+    if ((texture.width() * texture.height()) <= 0)
+        return false;
+
+    int w  = highmapImg.width();
+    int h  = highmapImg.height();
+
+    mesh.startMesh(Qtr3d::Triangle, Qtr3d::ClockWise);
+    mesh.setTexture(texture.mirrored());
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            float fx = scale.x() * ((-w/2.0f) + x);
+            float fz = scale.z() * ((-h/2.0f) + y);
+            float fy = scale.y() * (qGray(highmapImg.pixel(x,y))/255.0f);
+            QVector3D normal = {0.0f,1.0f,0.0f};
+            if ((y > 0) && (x > 0) && (y < (h-1)) && (x < (w-1))) {
+                float topHigh    = qGray(highmapImg.pixel(x,y-1))/255.0f;
+                float bottomHigh = qGray(highmapImg.pixel(x,y+1))/255.0f;
+
+                float rightHigh  = qGray(highmapImg.pixel(x+1,y))/255.0f;
+                float leftHigh   = qGray(highmapImg.pixel(x-1,y))/255.0f;
+
+                QVector3D horiz = { scale.x()*2, scale.y()*(rightHigh-leftHigh), 0};
+                QVector3D verti = { 0,           scale.y()*(bottomHigh-topHigh), scale.z()*2};
+
+                normal = QVector3D::crossProduct(verti,horiz).normalized();
+            }
+
+            // mesh.addVertex({fx,fy,fz},normal, y/(float)h, x/(float)w);
+            mesh.addVertex({fx,fy,fz},normal, x/(float)w, y/(float)h);
+        }
+    }
+
+    for (int y = 0; y < h-1; y++) {
+        for (int x = 0; x < w-1; x++) {
+            int topLeftIndex     = ((y+0)*w) + x + 0;
+            int topRightIndex    = ((y+0)*w) + x + 1;
+            int bottomLeftIndex  = ((y+1)*w) + x + 0;
+            int bottomRightIndex = ((y+1)*w) + x + 1;
+
+            // Triangle 1
+            mesh.addIndex(topLeftIndex);
+            mesh.addIndex(topRightIndex);
+            mesh.addIndex(bottomLeftIndex);
+
+            // Triangle 2
+            mesh.addIndex(topRightIndex);
+            mesh.addIndex(bottomRightIndex);
+            mesh.addIndex(bottomLeftIndex);
+        }
+    }
+
+    mesh.endMesh();
+    return true;
+
 }

@@ -6,17 +6,21 @@ failedlist=""
 for next in $list
 do
   echo $next
-  cd $next
-  qmake
-  make distclean
-  qmake
-  make -j15
-  ./${next}
-  if [ $? -ne 0 ]; then
-    echo $ṇext FAILED
-    failedlist="${failedlist} ${next}"
+  if [ -f ${next}/${next}.pro ]; then
+    cd $next
+    qmake
+    make distclean
+    qmake
+    make -j15
+    ./${next}
+    if [ $? -ne 0 ]; then
+      echo $ṇext FAILED
+      failedlist="${failedlist} ${next}"
+    fi
+    cd ..
+  else
+    echo ${next} not a qt project
   fi
-  cd ..
 done
 
 echo Failed: ${failedlist}

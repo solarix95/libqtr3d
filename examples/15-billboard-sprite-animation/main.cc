@@ -9,6 +9,11 @@
 #include <libqtr3d/qtr3dbillboard.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 
+/*
+
+                     SORRY - NOT YET IMPLEMENTED
+
+*/
 int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);

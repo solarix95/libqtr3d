@@ -5,7 +5,7 @@
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
-#include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/qtr3dlightsource.h>
 
 int main(int argc, char *argv[])
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         stlMesh->setDefaultColor(Qt::white);
 
         // STL Model by https://en.wikipedia.org/wiki/STL_(file_format)
-        Qtr3dModelFactory::modelByFile(*stlMesh,":/Utah_teapot.stl");
+        Qtr3d::modelByFile(*stlMesh,":/Utah_teapot.stl");
 
         Qtr3dGeometryBufferState *state;
         state = w.createState(stlMesh);
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
         // Sky
         Qtr3dMesh *mesh = w.createMesh();
-        Qtr3dModelFactory::meshByStarsky(*mesh,stlMesh->radius()*10,1000,Qt::white);
+        Qtr3d::meshByStarsky(*mesh,stlMesh->radius()*10,1000,Qt::white);
         w.createState(mesh);
 
         w.primaryLightSource()->setPos({100,100,0});
