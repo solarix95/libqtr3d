@@ -1,4 +1,6 @@
 
+#include <QDebug>
+#include <QWheelEvent>
 #include <QMatrix4x4>
 #include "qtr3dcameracycler.h"
 #include "qtr3dcamera.h"
@@ -9,6 +11,7 @@ Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngle
  , mDeltaAngle(QVector3D(0,deltaAngleY,0))
  , mCurrentAngle(QVector3D(0,0,0))
  , mStartPos(startPos)
+ , mTargetPos(startPos)
  , mLookAt(lookAt)
 {
 }
@@ -19,9 +22,9 @@ Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D 
     , mDeltaAngle(deltaAngle)
     , mCurrentAngle(QVector3D(0,0,0))
     , mStartPos(startPos)
+    , mTargetPos(startPos)
     , mLookAt(lookAt)
 {
-
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -30,6 +33,11 @@ void Qtr3dCameraCycler::process()
     mCurrentAngle.setX(mCurrentAngle.x() + mDeltaAngle.x());
     mCurrentAngle.setY(mCurrentAngle.y() + mDeltaAngle.y());
     mCurrentAngle.setZ(mCurrentAngle.z() + mDeltaAngle.z());
+
+    if ((mTargetPos-mStartPos).lengthSquared() < mDeltaPos.lengthSquared())
+        mDeltaPos = QVector3D(0,0,0);
+
+    mStartPos = mStartPos + mDeltaPos;
 
     mCurrentAngle += mDeltaAngle;
     QVector3D pointer = mStartPos-mLookAt;
@@ -41,5 +49,20 @@ void Qtr3dCameraCycler::process()
     pointer = pointer * matrix;
 
     camera()->lookAt(mLookAt + pointer,mLookAt,{0,1,0});
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dCameraCycler::eventFilter(QObject */*obj*/, QEvent *event)
+{
+    if (event->type() == QEvent::Wheel) {
+        QWheelEvent *we = static_cast<QWheelEvent *>(event);
+
+        float factor = 120/we->angleDelta().y();
+        mDeltaPos  = factor*(mLookAt - mStartPos)*0.05;
+        mTargetPos = mStartPos + mDeltaPos;
+        mDeltaPos  = mDeltaPos/fps();
+    }
+
+    return false;
 }
 

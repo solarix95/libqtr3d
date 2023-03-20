@@ -10,7 +10,7 @@
 #include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
-#include <libqtr3d/qtr3dmodelfactory.h>
+#include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/debug/qtr3dfreecameracontroller.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
@@ -101,7 +101,7 @@ void ViewerForm::loadFile(const QString &filename)
     mModel = ui->viewer->createModel();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    Qtr3dModelFactory::modelByFile(*mModel,filename);
+    Qtr3d::modelByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
 
     mModelState =  ui->viewer->createState(mModel);

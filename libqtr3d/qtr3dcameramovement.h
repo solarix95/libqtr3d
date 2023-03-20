@@ -11,6 +11,7 @@ public:
     Qtr3dCameraMovement(Qtr3dCamera *cam, int fps);
 
     inline Qtr3dCamera *camera() const { return mCamera; }
+    inline int          fps() const    { return mFps;    }
 
 signals:
     void updated();
@@ -23,6 +24,7 @@ private slots:
 
 private:
     Qtr3dCamera *mCamera;
+    int          mFps;
 };
 
 #endif // QTR3DCAMERAMOVEMENT_H

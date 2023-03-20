@@ -12,8 +12,7 @@ int main(int argc, char *argv[])
     QApplication app(argc,argv);
 
     Qtr3dWidget w(Qtr3dWidget::MSAA4);
-    w.setGeometry(50,50,500,500);
-
+    w.setGeometry(50,50,2.35*500,500);
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
         w.bufferContext()->environment().setClearColor(QColor("#87ceeb"));
@@ -21,6 +20,7 @@ int main(int argc, char *argv[])
 
         auto *mesh = w.createMesh();
 
+        // by https://heightmap.skydark.pl/ LOVE IT!!
         QString hightmap  = ":/heightmap.png";
         QString colormap  = ":/texture.png";
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
         w.createState(mesh)->setLightingType(Qtr3d::NoLighting);
 
-        new Qtr3dCameraCycler(w.camera(),50,0.05,{0,200,500},{0,0,0});
+        w.installEventFilter(new Qtr3dCameraCycler(w.camera(),50,0.05,{0,200,500},{0,0,0}));
     });
 
     w.show();
