@@ -28,6 +28,11 @@ Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D 
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dCameraCycler::~Qtr3dCameraCycler()
+{
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dCameraCycler::process()
 {
     mCurrentAngle.setX(mCurrentAngle.x() + mDeltaAngle.x());

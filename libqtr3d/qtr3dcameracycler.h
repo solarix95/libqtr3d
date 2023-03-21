@@ -15,6 +15,7 @@ public:
     Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D &deltaAngle,
                       const QVector3D &startPos,
                       const QVector3D &lookAt);
+    virtual ~Qtr3dCameraCycler();
 
 protected:
     virtual void process();
