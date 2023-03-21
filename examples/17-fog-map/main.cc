@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
         // by https://heightmap.skydark.pl/ LOVE IT!!
         QString hightmap  = ":/heightmap.png";
-        QString colormap  = ":/texture.png";
+        QString colormap  = ":/texture.jpg";
 
         if (app.arguments().count() == 3) {
             hightmap = app.arguments()[1];
