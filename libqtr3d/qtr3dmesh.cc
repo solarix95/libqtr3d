@@ -70,15 +70,16 @@ void Qtr3dMesh::endMesh(bool doTrim)
     }
 
     // Auto-Normal
-    /*
-    if (mMeshType == Triangle || mMeshType == Quad) {
+    if (mMeshType == Qtr3d::Triangle || mMeshType == Qtr3d::Quad) {
+        int numFaces = (mMeshType == Qtr3d::Triangle) ? 3 : 4;
         for (int i=0; i<mIndexes.count();) {
+            // qDebug() << i << mIndexes[i] << mVertices.at(mIndexes[i]).n.toQVector();
             if (mVertices.at(mIndexes[i]).n.isNull())
-                calculateFaceNormal(mIndexes[i], mIndexes[i+1], mIndexes[i+2]);
-            i += (mMeshType == Triangle ? 3 : 4);
+                calculateFaceNormal(mIndexes[i], mIndexes[i+1], mIndexes[numFaces-1]);
+            i += numFaces;
         }
     }
-    */
+
 
     selectShader();
 
@@ -321,11 +322,10 @@ void Qtr3dMesh::calculateFaceNormal(int vi1, int vi2, int vi3)
 
     QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
 
-    Q_ASSERT(0);
     // TODO: Refactor
-    // mVertices[vi1].n = normal;
-    // mVertices[vi2].n = normal;
-    // mVertices[vi3].n = normal;
+    mVertices[vi1].n = normal;
+    mVertices[vi2].n = normal;
+    mVertices[vi3].n = normal;
 
 }
 

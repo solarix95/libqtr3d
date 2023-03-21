@@ -178,10 +178,20 @@ bool Qtr3dStlLoader::fromBinary(Qtr3dMesh &mesh, QFile &f)
     mMesh->startMesh(Qtr3d::Triangle);
 
     while (numOfTriangles > 0) {
-        QVector3D normal(reader.readFloat(), reader.readFloat(),reader.readFloat());
-        QVector3D v1(reader.readFloat(), reader.readFloat(),reader.readFloat());
-        QVector3D v2(reader.readFloat(), reader.readFloat(),reader.readFloat());
-        QVector3D v3(reader.readFloat(), reader.readFloat(),reader.readFloat());
+        float x,y,z;
+
+        x = reader.readFloat(); y = reader.readFloat(); z = reader.readFloat();
+        QVector3D normal(x,y,z);
+
+        x = reader.readFloat(); y = reader.readFloat(); z = reader.readFloat();
+        QVector3D v1(x,y,z);
+
+        x = reader.readFloat(); y = reader.readFloat(); z = reader.readFloat();
+        QVector3D v2(x,y,z);
+
+        x = reader.readFloat(); y = reader.readFloat(); z = reader.readFloat();
+        QVector3D v3(x,y,z);
+
         mMesh->addVertex(v1,normal);
         mMesh->addVertex(v2,normal);
         mMesh->addVertex(v3,normal);
