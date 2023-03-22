@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Earth_1_12756.glb</file>
+        <file>ISS_stationary.glb</file>
+        <file>sun.jpg</file>
+        <file>bsc5p_min.json</file>
+        <file>BSC.json</file>
+    </qresource>
+</RCC>
