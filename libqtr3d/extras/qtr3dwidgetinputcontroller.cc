@@ -57,12 +57,12 @@ bool Qtr3dWidgetInputController::eventFilter(QObject *o, QEvent *event)
 }
 
 //---------------------------------------------------------------------------------------
-void Qtr3dWidgetInputController::parentKeyPress(QKeyEvent *ke)
+void Qtr3dWidgetInputController::parentKeyPress(QKeyEvent *)
 {
 }
 
 //---------------------------------------------------------------------------------------
-void Qtr3dWidgetInputController::parentKeyRelease(QKeyEvent *ke)
+void Qtr3dWidgetInputController::parentKeyRelease(QKeyEvent *)
 {
 }
 

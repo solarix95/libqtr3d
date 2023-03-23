@@ -7,7 +7,7 @@
 #include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/qtr3dgeometrybufferstate.h>
 #include <libqtr3d/qtr3dbillboard.h>
-#include <libqtr3d/debug/qtr3dfreecameracontroller.h>
+#include <libqtr3d/extras/qtr3dfreecameracontroller.h>
 
 /*
 

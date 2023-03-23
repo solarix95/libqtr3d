@@ -4,9 +4,8 @@
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dmodel.h>
-#include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
-#include <libqtr3d/debug/qtr3dfreecameracontroller.h>
+#include <libqtr3d/extras/qtr3dfreecameracontroller.h>
 
 int main(int argc, char *argv[])
 {

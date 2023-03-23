@@ -176,6 +176,13 @@ typedef struct Qtr3dVertex_t {
     Qtr3dScalar w;   // "weight", add extra dimension to point for matrix multiplication
     Qtr3dVector n;   // Normal
 
+    inline Qtr3dVertex_t operator=(const Qtr3dVertex_t &other) {
+        p = other.p;
+        w = other.w;
+        n = other.n;
+        return other;
+    }
+
     Qtr3dVertex_t() {
         p = {0.0f, 0.0f, 0.0f};
         w = 1.0f;

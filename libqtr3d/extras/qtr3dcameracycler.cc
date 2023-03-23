@@ -3,7 +3,7 @@
 #include <QWheelEvent>
 #include <QMatrix4x4>
 #include "qtr3dcameracycler.h"
-#include "qtr3dcamera.h"
+#include "../qtr3dcamera.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngleY, const QVector3D &startPos, const QVector3D &lookAt)

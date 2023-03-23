@@ -37,5 +37,11 @@ void Qtr3dFollowCamera::follow()
 
    // float dist = (mCamera->pos() - mCamera->lookAtCenter()).length();
 
+    bool posIsStable = ((mCamera->pos() - newCameraPos).length()    < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);
+    bool cenIsStable = ((mState->pos()  - newCameraCenter).length() < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);
+
+    if (posIsStable && cenIsStable)
+        return;
+
     mCamera->lookAt(newCameraPos,newCameraCenter, {0,1,0});
 }

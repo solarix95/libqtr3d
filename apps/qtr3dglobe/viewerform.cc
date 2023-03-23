@@ -12,12 +12,11 @@
 
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmodel.h>
-#include <libqtr3d/qtr3dcameracycler.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
-#include <libqtr3d/debug/qtr3dfreecameracontroller.h>
-#include <libqtr3d/debug/qtr3dfollowcamera.h>
+#include <libqtr3d/extras/qtr3dfreecameracontroller.h>
+#include <libqtr3d/extras/qtr3dfollowcamera.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
 
