@@ -17,6 +17,7 @@ public:
     void setPosition(const QVector3D &pos);
     void move(float dx, float dy, float dz);
     void setFov(float angle);
+    void setFov(float angle, float zNear, float zFar);
     void setGeometry(float width, float height);
     QVector3D pos() const;
     QVector3D lookAtCenter() const;
@@ -45,6 +46,8 @@ private:
 
     QVector3D  mPos;
     float      mFov;    // Field of View
+    float      mZNear;
+    float      mZFar;
     float      mWidth;
     float      mHeight;
 

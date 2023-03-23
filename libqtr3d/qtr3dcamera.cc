@@ -5,6 +5,8 @@ Qtr3dCamera::Qtr3dCamera()
  : QObject()
  , mPos(QVector3D(0,0,0))
  , mFov(45.0)
+ , mZNear(0.001)
+ , mZFar(10000)
  , mWidth(16)
  , mHeight(9)
  , mLookAt(QVector3D(0,0,1))
@@ -44,6 +46,15 @@ void Qtr3dCamera::move(float dx, float dy, float dz)
 void Qtr3dCamera::setFov(float angle)
 {
     mFov = angle;
+    updatePerspectiveMatrix();
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dCamera::setFov(float angle, float zNear, float zFar)
+{
+    mFov   = angle;
+    mZNear = zNear;
+    mZFar  = zFar;
     updatePerspectiveMatrix();
 }
 
@@ -120,13 +131,7 @@ void Qtr3dCamera::updatePerspectiveMatrix()
 {
     mWorldMatrix = mProjectionMatrix = QMatrix4x4();
 
-    mProjectionMatrix.perspective(mFov,mWidth/(float)mHeight,0.1,10000);
-
-    // float height = 2;
-    // float width  = height * (mWidth/(float)mHeight);
-
-    // mProjectionMatrix.frustum(-width/2,width/2,-height/2,height/2,10,-10);
-    // qDebug() << mWidth << mHeight << width << height;
+    mProjectionMatrix.perspective(mFov,mWidth/(float)mHeight,mZNear,mZFar);
 
     switch(mMode) {
     case Fixed: {

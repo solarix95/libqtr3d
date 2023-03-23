@@ -20,6 +20,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dfreecameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3degocameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.h \
+    $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dfollowcamera.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.h \
@@ -55,6 +56,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dcameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3degocameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dwidgetinputcontroller.cc \
+    $$LIBQTR3D_PATH/libqtr3d/debug/qtr3dfollowcamera.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dfactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.cc \

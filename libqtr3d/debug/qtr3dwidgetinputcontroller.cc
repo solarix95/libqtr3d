@@ -9,10 +9,17 @@
 Qtr3dWidgetInputController::Qtr3dWidgetInputController(Qtr3dWidget *parent)
     : QObject(parent)
     , mIsDragging(false)
+    , mCurrentModifier(Qt::NoModifier)
 {
     Q_ASSERT(parent);
     parent->installEventFilter(this);
     parent->setMouseTracking(true);
+}
+
+//---------------------------------------------------------------------------------------
+Qt::KeyboardModifiers Qtr3dWidgetInputController::modifiers() const
+{
+    return mCurrentModifier;
 }
 
 //---------------------------------------------------------------------------------------
@@ -24,10 +31,12 @@ bool Qtr3dWidgetInputController::eventFilter(QObject *o, QEvent *event)
     switch(event->type()) {
     case QEvent::KeyPress: {
         QKeyEvent *ke = dynamic_cast<QKeyEvent*>(event); Q_ASSERT(ke);
+        mCurrentModifier = ke->modifiers();
         parentKeyPress(ke);
     } break;
     case QEvent::KeyRelease: {
         QKeyEvent *ke = dynamic_cast<QKeyEvent*>(event); Q_ASSERT(ke);
+        mCurrentModifier = ke->modifiers();
         parentKeyRelease(ke);
     } break;
     case QEvent::MouseMove:
@@ -48,12 +57,12 @@ bool Qtr3dWidgetInputController::eventFilter(QObject *o, QEvent *event)
 }
 
 //---------------------------------------------------------------------------------------
-void Qtr3dWidgetInputController::parentKeyPress(QKeyEvent*)
+void Qtr3dWidgetInputController::parentKeyPress(QKeyEvent *ke)
 {
 }
 
 //---------------------------------------------------------------------------------------
-void Qtr3dWidgetInputController::parentKeyRelease(QKeyEvent*)
+void Qtr3dWidgetInputController::parentKeyRelease(QKeyEvent *ke)
 {
 }
 

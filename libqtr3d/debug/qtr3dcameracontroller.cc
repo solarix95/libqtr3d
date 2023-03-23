@@ -29,15 +29,19 @@ void Qtr3dFreeCameraController::parentKeyPress(QKeyEvent *e)
         mCamera->move(-0.1,0,0);
     if (e->key() == Qt::Key_Right)
         mCamera->move(0.1,0,0);
+    Qtr3dWidgetInputController::parentKeyPress(e);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dFreeCameraController::parentMouseWheel(float delta)
 {
-    float correctionFactor = (360+(-1*delta))/360.0;
+    float correctionFactor = delta/120;
 
-    QVector3D vpos = correctionFactor * (mCamera->pos() - mCamera->lookAtCenter());
-    mCamera->setPosition(mCamera->lookAtCenter() + vpos);
+    if (modifiers().testFlag(Qt::ControlModifier))
+        correctionFactor *= 0.1;
+
+    QVector3D vpos = 0.1*(mCamera->lookAtCenter() - mCamera->pos());
+    mCamera->setPosition(mCamera->pos() + (correctionFactor*vpos));
     emit positionChanged(mCamera->pos());
 }
 

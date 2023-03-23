@@ -2,6 +2,7 @@
 #include <QOpenGLFunctions>
 #include <QFile>
 #include "qtr3dshader.h"
+#include "../qtr3dmesh.h"
 #include "../qtr3dcamera.h"
 #include "../qtr3dlightsource.h"
 
@@ -56,6 +57,9 @@ void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
 {
+    if (mesh.meshType() < Qtr3d::Triangle) // No Lighing for dots and lines... otherwise you can't see basic shapes in complex models...
+        lighting = Qtr3d::NoLighting;
+
     setProgram(lighting);
 
     currentProgram()->setUniformValue("fog.color",     env.clearColor4f());

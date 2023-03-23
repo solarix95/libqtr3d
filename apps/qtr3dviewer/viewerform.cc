@@ -28,7 +28,6 @@ ViewerForm::ViewerForm(QWidget *parent)
     ui->viewer->setOptions(Qtr3dWidget::MSAA4);
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
-        ui->viewer->primaryLightSource()->setAmbientStrength(0.7);
 
         ui->btnLoad->setEnabled(true);
         connect(new Qtr3dFreeCameraController(ui->viewer), &Qtr3dFreeCameraController::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
@@ -40,7 +39,7 @@ ViewerForm::ViewerForm(QWidget *parent)
             }
         }
 
-        ui->viewer->primaryLightSource()->setAmbientStrength(0.1);
+        ui->viewer->primaryLightSource()->setAmbientStrength(0.5);
         connect(ui->viewer->camera(), &Qtr3dCamera::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
 
     });

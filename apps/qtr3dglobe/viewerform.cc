@@ -21,6 +21,8 @@
 #include "viewerform.h"
 #include "ui_viewerform.h"
 
+#define EARTH_START_POSITION {100,0,0}
+
 //-------------------------------------------------------------------------------------------------
 ViewerForm::ViewerForm(QWidget *parent)
     : QWidget(parent)
@@ -31,8 +33,8 @@ ViewerForm::ViewerForm(QWidget *parent)
     , mTimePlayerStep(0)
 {
     ui->setupUi(this);
-    ui->viewer->setOptions(Qtr3dWidget::MSAA4);
-
+    ui->viewer->setOptions(Qtr3dWidget::MSAA16);
+    ui->viewer->setFocus();
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
 
@@ -60,20 +62,20 @@ ViewerForm::ViewerForm(QWidget *parent)
             mTimePlayerStep = mTimePlayerStep < 0 ? mTimePlayerStep*10 : -1;
         });
 
+        new Qtr3dFreeCameraController(ui->viewer);
+        auto *follower = new Qtr3dFollowCamera(ui->viewer,mModelState);
+
         QTimer *t = new QTimer(ui->viewer);
-        connect(t, &QTimer::timeout, this, [this]() {
+        connect(t, &QTimer::timeout, this, [this, follower]() {
             if (ui->checkBox->isChecked()) {
                 ui->dateTimeEdit->setDateTime(QDateTime::currentDateTimeUtc());
                 mTimePlayerStep = 0;
             } else
                 ui->dateTimeEdit->setDateTime(ui->dateTimeEdit->dateTime().addSecs(mTimePlayerStep*60));
-
+            follower->process();
             updateSolarSystem();
         });
         t->start(1000/30);
-
-        new Qtr3dFreeCameraController(ui->viewer);
-        new Qtr3dFollowCamera(ui->viewer,mModelState);
     });
 
     connect(ui->dateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &ViewerForm::updateSolarSystem);
@@ -103,28 +105,29 @@ void ViewerForm::updateSolarSystem()
 
    QMatrix4x4 earthMatrix;
 
-   earthMatrix.translate(QVector3D({100,0,0}) * earthYearMatrix);
-   earthMatrix.rotate(23.44, {0,0,1});    // Earth Axis: https://en.wikipedia.org/wiki/Axial_tilt
+   earthMatrix.translate(QVector3D(EARTH_START_POSITION) * earthYearMatrix);
+   earthMatrix.rotate(23.44, {0,0,1});       // Earth Axis: https://en.wikipedia.org/wiki/Axial_tilt
 
    earthMatrix.rotate(dayAngle-90, {0,1,0}); // 90Deg: Correction of the 3DModel reference...
    earthMatrix.scale(1.0/mModel->radius());
    mModelState->setModelView(earthMatrix);
 
-   float issAngle = 360*((utc.time().hour()*3600 + utc.time().minute()*60 + utc.time().second()) % 5760)/float(5760);
-
+   // Calculate ISS, orbit: 15x per day (~5760s)
+   float issAngle = 360*((utc.time().hour()*3600*1000 + utc.time().minute()*60*1000 + utc.time().second()*1000 + utc.time().msec()) % 5760000)/float(5760000);
    QMatrix4x4 issMatrix;
-   issMatrix.translate(mModelState->pos() + QVector3D({0.6,0,0}));
-   issMatrix.rotate(23.44+52, {0,0,1});
+   issMatrix.rotate(24+52,{0,0,1}); // 34: Earth-Axis + 52: ISS Inclination
    issMatrix.rotate(issAngle,{0,1,0});
 
+   issMatrix.translate(QVector3D({0.6,0,0})); // Earth: 0.5 .. so 0.6 "near Earth.."
 
-   mIssState->setPos(mModelState->pos() + QVector3D({0.6,0,0}));
+   mIssState->setPos(mModelState->pos() + issMatrix*(QVector3D({0,0,0})));
    ui->viewer->update();
 }
 
 //-------------------------------------------------------------------------------------------------
 void ViewerForm::setupSolarSystem()
 {
+    // Sun: center {0,0,0}
     {
         auto *mesh = ui->viewer->createMesh();
         Qtr3d::meshBySphere(*mesh,256,QImage(":/sun.jpg"));
@@ -132,7 +135,7 @@ void ViewerForm::setupSolarSystem()
         auto *state = ui->viewer->createState(mesh);
         state->setLightingType(Qtr3d::NoLighting);
         state->setRotation({90,0,0});
-        state->setScale(1.0/mesh->radius());
+        state->setScale(3.0/mesh->radius());
     }
 
     // Globe
@@ -178,7 +181,7 @@ void ViewerForm::setupSolarSystem()
     setupStarDatabase();
 
     // Earth
-    ui->viewer->camera()->lookAt(QVector3D(100-2*mModel->radius(),0,0), {100,0,0}, {0,1,0});
+    ui->viewer->camera()->lookAt(QVector3D(EARTH_START_POSITION) + QVector3D(5,0,0), EARTH_START_POSITION, {0,1,0});
 
     // Sun
     // ui->viewer->camera()->lookAt(QVector3D(100,0,0), {0,0,0}, {0,1,0});
@@ -219,9 +222,9 @@ void ViewerForm::setupStarDatabase()
             if (magnitude > maxMag)
                 continue;
 
-            double x = 1000 * cos((latitude/360.0)*2*3.1415) * cos((longitude/360.0)*2*3.1415);
-            double y = 1000 * cos((latitude/360.0)*2*3.1415) * sin((longitude/360.0)*2*3.1415);
-            double z = 1000 * sin((latitude/360.0)*2*3.1415);
+            double x = 10000 * cos((latitude/360.0)*2*3.1415) * cos((longitude/360.0)*2*3.1415);
+            double y = 10000 * cos((latitude/360.0)*2*3.1415) * sin((longitude/360.0)*2*3.1415);
+            double z = 10000 * sin((latitude/360.0)*2*3.1415);
 
             // minMag = qMin(minMag,magnitude);
             // maxMag = qMax(maxMag,magnitude);
@@ -251,10 +254,8 @@ void ViewerForm::setupStarDatabase()
             matrix.rotate(dec,QVector3D::crossProduct(pos,{0,1,0}));
             pos = pos * matrix;
 
-            double expMin = exp(minMag);
-            double expMax = exp(maxMag);
-            double expMag = exp(qMin(maxMag,magnitude));
 
+            // Just Debugging... 424 is Polaris...
             if (map.value("harvard_ref_#").toInt() == 424) {
 
                 ra   = angleFromTime(map.value("RA").toString(), false);
@@ -283,12 +284,9 @@ void ViewerForm::setupStarDatabase()
                 mesh->addVertex(mPolar,Qt::red);
             } else {
                 float color = qMin(qMax((maxMag-magnitude)/maxMag,0.0),1.0);
-                mesh->addVertex(1000*pos,QColor(color*255,color*255,color*255));
+                mesh->addVertex(10000*pos,QColor(color*255,color*255,color*255));
             }
-
-
         }
-
     }
 
     mesh->endMesh(true);

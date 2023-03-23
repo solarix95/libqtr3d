@@ -79,7 +79,11 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
    <item>
-    <widget class="Qtr3dWidget" name="viewer" native="true"/>
+    <widget class="Qtr3dWidget" name="viewer" native="true">
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">

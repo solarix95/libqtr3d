@@ -11,11 +11,11 @@ class Qtr3dGeometryBuffer;
 //-------------------------------------------------------------------------------------------------
 class Qtr3dGeometryBufferState : public QObject
 {
+    Q_OBJECT
 public:
     Qtr3dGeometryBufferState(QObject *parent, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
     Qtr3dGeometryBufferState(QObject *parent, const QVector3D &pos, const QVector3D &rotation);
 
-    void setParent(Qtr3dGeometryBufferState *state);
     void setLightingType(Qtr3d::LightingType ltype);
     Qtr3d::LightingType lightingType() const;
     void setEnabled(bool enabled);
@@ -31,8 +31,12 @@ public:
     void setScale(const QVector3D &scale);
     void setScale(float xyzScale);
     void setRotation(const QVector3D &rotationAngles);
+    void setModelView(const QMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
 
-    inline const QMatrix4x4 modelView() const { return mParent ? (mParent->modelView() * mModelView) : mModelView; }
+    inline const QMatrix4x4 modelView() const { return mModelView; }
+
+signals:
+    void updated();
 
 private:
     void updateMatrix();
@@ -44,8 +48,6 @@ private:
     QVector3D   mScale;
 
     Qtr3d::LightingType mLightingType;
-
-    Qtr3dGeometryBufferState *mParent;
 };
 
 //-------------------------------------------------------------------------------------------------

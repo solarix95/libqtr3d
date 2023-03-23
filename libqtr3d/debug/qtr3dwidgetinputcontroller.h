@@ -17,6 +17,7 @@ public:
     virtual ~Qtr3dWidgetInputController();
 
 protected:
+    Qt::KeyboardModifiers modifiers() const;
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
     virtual void parentKeyPress(QKeyEvent *e);
@@ -34,6 +35,7 @@ private:
 
     bool   mIsDragging;
     QPoint mLastDragPos;
+    Qt::KeyboardModifiers mCurrentModifier;
 };
 
 #endif // QTR3DWIDGETINPUTCONTROLLER_H

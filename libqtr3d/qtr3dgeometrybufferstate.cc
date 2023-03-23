@@ -5,7 +5,6 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, Qtr3d::Light
  : QObject(parent)
  , mEnabled(true)
  , mLightingType(ltype)
- , mParent(nullptr)
 {
     setState({0,0,0},{0,0,0},{1,1,1});
 }
@@ -15,15 +14,8 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, const QVecto
  : QObject(parent)
  , mEnabled(true)
  , mLightingType(Qtr3d::DefaultLighting)
- , mParent(nullptr)
 {
     setState(pos,rotation,{1,1,1});
-}
-
-//------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setParent(Qtr3dGeometryBufferState *state)
-{
-    mParent = state;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -96,6 +88,17 @@ void Qtr3dGeometryBufferState::setRotation(const QVector3D &rotationAngles)
 }
 
 //------------------------------------------------------------------------------------------------
+void Qtr3dGeometryBufferState::setModelView(const QMatrix4x4 &modelView)
+{
+    if (mModelView == modelView)
+        return;
+
+    mModelView = modelView;
+    mPos       = mModelView * QVector3D(0,0,0);
+    emit updated();
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dGeometryBufferState::updateMatrix()
 {
     mModelView = QMatrix4x4();
@@ -108,4 +111,5 @@ void Qtr3dGeometryBufferState::updateMatrix()
     mModelView.rotate(mRot.z(),0,0,1);
 
     mModelView.scale(mScale);
+    emit updated();
 }

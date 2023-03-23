@@ -60,6 +60,7 @@ void Qtr3dWidget::setOptions(Options ops)
     if (samples > 0) {
         QSurfaceFormat currentFormat = format();
         currentFormat.setSamples(samples);
+        currentFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
         setFormat(currentFormat);
     }
 
@@ -151,7 +152,6 @@ void Qtr3dWidget::paint3D()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paint2D()
 {
-
 }
 
 //-------------------------------------------------------------------------------------------------
