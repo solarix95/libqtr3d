@@ -1,8 +1,10 @@
+#include "qtr3dgeometrybuffer.h"
 #include "qtr3dgeometrybufferstate.h"
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, Qtr3d::LightingType ltype)
+Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3dGeometryBuffer *parent, Qtr3d::LightingType ltype)
  : QObject(parent)
+ , mBuffer(*parent)
  , mEnabled(true)
  , mLightingType(ltype)
 {
@@ -10,8 +12,9 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, Qtr3d::Light
 }
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(QObject *parent, const QVector3D &pos, const QVector3D &rotation)
+Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3dGeometryBuffer *parent, const QVector3D &pos, const QVector3D &rotation)
  : QObject(parent)
+ , mBuffer(*parent)
  , mEnabled(true)
  , mLightingType(Qtr3d::DefaultLighting)
 {
@@ -96,6 +99,12 @@ void Qtr3dGeometryBufferState::setModelView(const QMatrix4x4 &modelView)
     mModelView = modelView;
     mPos       = mModelView * QVector3D(0,0,0);
     emit updated();
+}
+
+//------------------------------------------------------------------------------------------------
+float Qtr3dGeometryBufferState::radius() const
+{
+    return qMax(mScale.x(), qMax(mScale.y(), mScale.z())) * mBuffer.radius();
 }
 
 //------------------------------------------------------------------------------------------------

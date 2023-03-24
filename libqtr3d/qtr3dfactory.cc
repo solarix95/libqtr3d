@@ -3,6 +3,9 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QImage>
+#include <QFont>
+#include <QFontMetrics>
+#include <QPainter>
 #include <QVariant>
 #include <QVariantMap>
 #include <QVariantList>
@@ -513,6 +516,7 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, cons
     return true;
 }
 
+//-------------------------------------------------------------------------------------------------
 bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QImage &texture, QVector3D scale)
 {
     QImage highmapImg;
@@ -580,4 +584,44 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, cons
     mesh.endMesh();
     return true;
 
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByText(Qtr3dMesh &mesh, const QString &text, QFont font, const QColor &frontColor, const QColor &back)
+{
+   if (text.isEmpty())
+       return false;
+
+    QFontMetrics fm(font);
+    int height = fm.height();
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
+    int width  = fm.width(text);
+#else
+    int width  = fm.horizontalAdvance(text);
+#endif
+
+    if (width <= 0)
+        return false;
+
+    QImage img(QSize(width,height),QImage::Format_ARGB32);
+    img.fill(back);
+    QPainter p(&img);
+    p.setFont(font);
+    p.setPen(frontColor);
+    p.setBrush(frontColor);
+    p.drawText(QRect(0,0,width,height),Qt::AlignCenter,text);
+
+    mesh.startMesh(Qtr3d::Quad);
+    float normWidth = width/float(height);
+
+    mesh.addVertex(QVector3D(-normWidth/2, -0.5, 0.0),{0,1,0},0,0);
+    mesh.addVertex(QVector3D(-normWidth/2,  0.5, 0.0),{0,1,0},0,1);
+    mesh.addVertex(QVector3D(normWidth/2,   0.5, 0.0),{0,1,0},1,1);
+    mesh.addVertex(QVector3D(normWidth/2,  -0.5, 0.0),{0,1,0},1,0);
+
+    mesh.setTexture(img);
+    mesh.endMesh(true);
+
+    return true;
 }

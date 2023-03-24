@@ -83,6 +83,7 @@ void Qtr3dMesh::endMesh(bool doTrim)
         }
     }
     */
+
     if (mMeshType == Qtr3d::Triangle || mMeshType == Qtr3d::Quad) {
         int numFaces = (mMeshType == Qtr3d::Triangle) ? 3 : 4;
         for (int i=0; i<mIndexes.count();) {

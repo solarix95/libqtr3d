@@ -41,6 +41,10 @@ ViewerForm::ViewerForm(QWidget *parent)
         ui->viewer->primaryLightSource()->setAmbientStrength(0.5);
         connect(ui->viewer->camera(), &Qtr3dCamera::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
 
+
+        auto *center = ui->viewer->createMesh();
+        Qtr3d::meshByXyzAxis(*center);
+        ui->viewer->createState(center)->setLightingType(Qtr3d::NoLighting);
     });
 
     connect(ui->btnLoad, &QPushButton::clicked, this, &ViewerForm::load);
@@ -106,6 +110,6 @@ void ViewerForm::loadFile(const QString &filename)
     updateLight();
     updateVertexOrientation();
 
-    // qDebug() << mModel->radius() << mModel->center();
-    ui->viewer->camera()->lookAt(mModel->center() + QVector3D(0.0,0.0, 2*mModel->radius() ), mModel->center(), {0,1,0});
+    mModelState->setScale(1/mModel->radius());
+    ui->viewer->camera()->lookAt(mModelState->pos() + QVector3D(0.0,0.0, -2*mModelState->radius() ), mModelState->pos(), {0,1,0});
 }

@@ -34,6 +34,7 @@ ViewerForm::ViewerForm(QWidget *parent)
     ui->setupUi(this);
     ui->viewer->setOptions(Qtr3dWidget::MSAA16);
     ui->viewer->setFocus();
+    ui->viewer->camera()->setFov(45,0.001,20000);
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
 

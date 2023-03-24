@@ -24,7 +24,7 @@ Qtr3dModel *Qtr3dContext::createModel()
 //-------------------------------------------------------------------------------------------------
 Qtr3dGeometryBufferState *Qtr3dContext::createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype)
 {
-    auto *ret = new Qtr3dGeometryBufferState(this, ltype);
+    auto *ret = new Qtr3dGeometryBufferState(buffer, ltype);
     buffer->registerBufferState(ret);
     return ret;
 }

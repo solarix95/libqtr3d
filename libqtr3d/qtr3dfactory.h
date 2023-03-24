@@ -22,7 +22,7 @@ bool meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClo
 bool meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color);
 bool meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap);
 bool meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color);
-
+bool meshByText(Qtr3dMesh &mesh, const QString &text,QFont font, const QColor &frontColor, const QColor &back = Qt::transparent);
 
 bool normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float vectorLenght, QColor color = Qt::red);
 }
