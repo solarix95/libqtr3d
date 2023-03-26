@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 
         // STL Model by https://en.wikipedia.org/wiki/STL_(file_format)
         Qtr3d::modelByFile(*stlMesh,":/Utah_teapot.stl");
+        stlMesh->setFaceOrientation(Qtr3d::CounterClockWise);
 
         Qtr3dGeometryBufferState *state;
         state = w.createState(stlMesh);
