@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>demodata.json</file>
+        <file>mesh-lines.json</file>
+        <file>mesh-colored-cube.json</file>
+        <file>C130.jpg</file>
     </qresource>
 </RCC>

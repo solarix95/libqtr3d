@@ -60,24 +60,70 @@ bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QString &filename)
 bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
 {
     QVariantMap map = json.toMap();
-
-    QString      meshType = map.value("type").toString();
-    QVariantList vertices = map.value("vertices").toList();
-    if (meshType.isEmpty() || vertices.isEmpty())
+    if (!map.contains("mesh"))
         return false;
+
+    map = map["mesh"].toMap();
+
+
+    // Mesh Type Processing
+    QString      meshTypeString = map.value("type").toString();
+    Qtr3d::MeshType meshType = Qtr3d::UnknownMesh;
+    if (meshTypeString == "dot")
+        meshType = Qtr3d::Dot;
+    else if (meshTypeString == "line")
+        meshType = Qtr3d::Line;
+    else if (meshTypeString == "triangle")
+        meshType = Qtr3d::Triangle;
+    else if (meshTypeString == "quad")
+        meshType = Qtr3d::Quad;
+
+    if (meshType == Qtr3d::UnknownMesh)
+        return false;
+
+    // Vertices Processing
+    QVariantList vertices = map.value("vertices").toList();
+    if (vertices.isEmpty())
+        return false;
+
+    mesh.startMesh(meshType);
 
     QString defaultColorName = map.value("defaultColor").toString();
     if (!defaultColorName.isEmpty())
         mesh.setDefaultColor(QColor(defaultColorName));
-    mesh.startMesh(Qtr3d::Line);
+
+    QString faceOrientationName = map.value("faceOrientation").toString();
+    mesh.setFaceOrientation(faceOrientationName == "ccw" ? Qtr3d::CounterClockWise : Qtr3d::ClockWise);
+
+
     foreach(QVariant vertex, vertices) {
+
+        // [ x , y,  z ]
         QVariantList list = vertex.toList();
-        if (list.count() != 3) {
-            mesh.reset();
-            return false;
-        }
-        mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()});
+        if (list.count() == 3)
+            mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()});
+
+        // [ x , y,  z, color ]
+        if (list.count() == 4)
+            mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()}, QColor(list[3].toString()));
+
+        // [ x , y,  z, , nx, ny, nz]
+        if (list.count() == 6)
+            mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()}, QVector3D({list[3].toFloat(), list[4].toFloat(), list[5].toFloat()}));
+
+        // [ x , y,  z, , nx, ny, nz, color]
+        if (list.count() == 7)
+            mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()}, QVector3D({list[3].toFloat(), list[4].toFloat(), list[5].toFloat()}), QColor(list[6].toString()));
+
+        // [ x , y,  z, , nx, ny, nz, tu, tv]
+        if (list.count() == 8)
+            mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()}, QVector3D({list[3].toFloat(), list[4].toFloat(), list[5].toFloat()}), list[6].toFloat(), list[7].toFloat());
     }
+
+    QString textureName = map.value("texture").toString();
+    if (!textureName.isEmpty())
+        mesh.setDefaultColor(QColor(defaultColorName));
+
     mesh.endMesh();
     return true; // TODO: Validation?
 }

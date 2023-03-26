@@ -15,20 +15,45 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        auto *mesh = w.createMesh();
-        Qtr3d::meshByJson(*mesh,QString(":/demodata.json")); // Yea I know.. more feature needed!
-        w.createState(mesh);
+        QList<Qtr3dGeometryBuffer*> buffers;
+
+        {
+            auto *mesh = w.createMesh();
+            Qtr3d::meshByJson(*mesh,QString(":/mesh-lines.json"));
+            buffers << mesh;
+        }
+
+
+        {
+            auto *mesh = w.createMesh();
+            Qtr3d::meshByJson(*mesh,QString(":/mesh-colored-cube.json"));
+            buffers << mesh;
+        }
+
+
+        // Align Models in a cycle
+        float      deltaAngle = 360 / buffers.count();
+        float      showRoomRadius = 5;
+        QVector3D  showRoomPos(0,0,showRoomRadius);
+        QMatrix4x4 showRoomRotate;
+
+        for (auto *buffer: buffers) {
+            auto *state = w.createState(buffer);
+
+            showRoomRotate.rotate(deltaAngle,{0,1,0});
+            state->setScale(1/buffer->radius());
+            state->setPos(showRoomRotate * showRoomPos);
+        }
 
         // Sky
-        mesh = w.createMesh();
-        Qtr3d::meshByStarsky(*mesh,1000,1000,Qt::white);
-        w.createState(mesh);
+        {
+            auto *mesh = w.createMesh();
+            Qtr3d::meshByStarsky(*mesh,1000,1000,Qt::white);
+            w.createState(mesh);
+        }
 
-        mesh = w.createMesh();
-        Qtr3d::meshByStarsky(*mesh,1000,100,Qt::blue);
-        w.createState(mesh);
 
-        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,3,12},{0,0,0});
+        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,showRoomRadius,showRoomRadius*3},{0,0,0});
     });
 
     w.show();
