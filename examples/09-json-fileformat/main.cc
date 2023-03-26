@@ -19,16 +19,24 @@ int main(int argc, char *argv[])
 
         {
             auto *mesh = w.createMesh();
-            Qtr3d::meshByJson(*mesh,QString(":/mesh-lines.json"));
+            Qtr3d::meshByJson(*mesh,QString(":/demodata/mesh-lines.json"));
             buffers << mesh;
         }
 
 
         {
             auto *mesh = w.createMesh();
-            Qtr3d::meshByJson(*mesh,QString(":/mesh-colored-cube.json"));
+            Qtr3d::meshByJson(*mesh,QString(":/demodata/mesh-colored-cube.json"));
             buffers << mesh;
         }
+
+        {
+            // Texture by wikimedia: https://commons.wikimedia.org/wiki/Category:Textures#/media/File:C130_ge%C3%A4tzt_1000x.tif
+            auto *mesh = w.createMesh();
+            Qtr3d::meshByJson(*mesh,QString(":/demodata/mesh-textured-cube.json"));
+            buffers << mesh;
+        }
+
 
 
         // Align Models in a cycle

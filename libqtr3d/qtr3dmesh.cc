@@ -221,6 +221,9 @@ void Qtr3dMesh::addIndex(int vi, int ni)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::setTexture(const QImage &img)
 {
+    if (img.isNull())
+        return;
+
     if (mTexture)
         delete mTexture;
 

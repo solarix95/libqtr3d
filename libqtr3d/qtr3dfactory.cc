@@ -2,7 +2,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QFileInfo>
 #include <QImage>
+#include <QDir>
 #include <QFont>
 #include <QFontMetrics>
 #include <QPainter>
@@ -53,11 +55,11 @@ static QVariant sLoadJson(const QString &filename) {
 //-------------------------------------------------------------------------------------------------
 bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QString &filename)
 {
-    return meshByJson(mesh, sLoadJson(filename));
+    return meshByJson(mesh, sLoadJson(filename), filename);
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
+bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json, const QString &sourceFilenameOrPath)
 {
     QVariantMap map = json.toMap();
     if (!map.contains("mesh"))
@@ -96,6 +98,10 @@ bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
     mesh.setFaceOrientation(faceOrientationName == "ccw" ? Qtr3d::CounterClockWise : Qtr3d::ClockWise);
 
 
+    QString textureName = map.value("texture").toString();
+    if (!textureName.isEmpty())
+        mesh.setTexture(textureByPath(sourceFilenameOrPath,textureName));
+
     foreach(QVariant vertex, vertices) {
 
         // [ x , y,  z ]
@@ -119,10 +125,6 @@ bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json)
         if (list.count() == 8)
             mesh.addVertex({list[0].toFloat(), list[1].toFloat(), list[2].toFloat()}, QVector3D({list[3].toFloat(), list[4].toFloat(), list[5].toFloat()}), list[6].toFloat(), list[7].toFloat());
     }
-
-    QString textureName = map.value("texture").toString();
-    if (!textureName.isEmpty())
-        mesh.setDefaultColor(QColor(defaultColorName));
 
     mesh.endMesh();
     return true; // TODO: Validation?
@@ -670,4 +672,40 @@ bool Qtr3d::meshByText(Qtr3dMesh &mesh, const QString &text, QFont font, const Q
     mesh.endMesh(true);
 
     return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+QImage Qtr3d::textureByPath(const QString &localPathOrFile, const QString &textureName)
+/*
+   Loading a texture (local PNG/JPG-File) from a "base-file" (like json, or OBJ, ...)
+*/
+{
+    /*
+       Variants:
+
+         * /tmp/          + textureName
+         * /tmp           + textureName
+         * /tmp/test.json + textureName
+         * :/test.json    + textureName
+    */
+
+    QImage ret;
+
+    const QChar sep = QDir::separator();
+
+    // "/tmp" + "texture.png"
+    ret = QImage(localPathOrFile + sep + textureName);
+    if (!ret.isNull())
+        return ret;
+
+    // ":/test.json" + "texture.png"
+    int pos = localPathOrFile.lastIndexOf("/");
+    if (pos >= 0) {
+        QString textureFileName = localPathOrFile.mid(0,pos+1) + textureName;
+        ret = QImage(textureFileName);
+        if (!ret.isNull())
+            return ret;
+
+    }
+    return ret;
 }
