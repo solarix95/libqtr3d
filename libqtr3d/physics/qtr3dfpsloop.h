@@ -16,6 +16,7 @@ public:
 
 signals:
     void step(float ms, float normalizedSpeed);
+    void stepDone();
 
 private slots:
     void process();

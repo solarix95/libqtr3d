@@ -17,7 +17,6 @@ void Qtr3dFpsLoop::setFps(int fps)
     if (fps <= 0)
         return;
 
-
     mTimer.start(1000/fps);
 }
 
@@ -39,4 +38,5 @@ void Qtr3dFpsLoop::process()
 
     mStopWatch.start();
     emit step(elapsedMs*(mSpeed/100), mSpeed*normalizedSpeed);
+    emit stepDone();
 }

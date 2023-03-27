@@ -1,10 +1,15 @@
+
 #include "qtr3dcontext.h"
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
+#include "physics/qtr3dfpsloop.h"
+#include "physics/qtrphspace.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dContext::Qtr3dContext(QObject *parent)
  : QOpenGLContext(parent)
+ , mLoop(nullptr)
+ , mSpace(nullptr)
 {
 }
 
@@ -19,6 +24,27 @@ Qtr3dMesh *Qtr3dContext::createMesh(bool root)
 Qtr3dModel *Qtr3dContext::createModel()
 {
     return registerModel(new Qtr3dModel(this));
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dContext::setLoop(Qtr3dFpsLoop *loop)
+{
+    Q_ASSERT(loop);
+    if (mLoop)
+        mLoop->deleteLater();
+    mLoop = loop;
+    connect(mLoop, &Qtr3dFpsLoop::step, &space(), &QtrPhSpace::process, Qt::UniqueConnection);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dContext::setSpace(QtrPhSpace *space)
+{
+    Q_ASSERT(space);
+    if (mSpace)
+        mSpace->deleteLater();
+    mSpace = space;
+    connect(&loop(), &Qtr3dFpsLoop::step,mSpace, &QtrPhSpace::process, Qt::UniqueConnection);
+
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -45,6 +71,26 @@ const QList<Qtr3dModel*> &Qtr3dContext::models() const
 Qtr3dEnvironment &Qtr3dContext::environment()
 {
     return mEnvironment;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dFpsLoop &Qtr3dContext::loop()
+{
+    if (!mLoop) {
+        mLoop = new Qtr3dFpsLoop(this);
+        connect(mLoop, &Qtr3dFpsLoop::step, &space(), &QtrPhSpace::process, Qt::UniqueConnection);
+    }
+    return *mLoop;
+}
+
+//-------------------------------------------------------------------------------------------------
+QtrPhSpace &Qtr3dContext::space()
+{
+    if (!mSpace) {
+        mSpace = new QtrPhSpace(this);
+        connect(&loop(), &Qtr3dFpsLoop::step, mSpace, &QtrPhSpace::process, Qt::UniqueConnection);
+    }
+    return *mSpace;
 }
 
 //-------------------------------------------------------------------------------------------------
