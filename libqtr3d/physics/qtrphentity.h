@@ -5,6 +5,7 @@
 #include <QList>
 #include <QVector3D>
 
+class QtrPhSpace;
 class QtrPhEntity : public QObject
 {
     Q_OBJECT
@@ -13,10 +14,14 @@ public:
     QtrPhEntity(QVector3D pos, QVector3D lookAt, QVector3D up, QObject *parent = nullptr);
     virtual ~QtrPhEntity();
 
-    inline float     collisionRadius() const { return mCollisionRadius; }
-    inline QVector3D pos()         const     { return mPos;    }
-    inline QVector3D lookAt()      const     { return mLookAt; }
-    inline QVector3D up()          const     { return mUp;     }
+    inline void      setSpace(QtrPhSpace *space) { mSpace = space;          }
+    inline float     collisionRadius() const     { return mCollisionRadius; }
+    inline QVector3D pos()         const         { return mPos;             }
+    inline QVector3D lookAt()      const         { return mLookAt;          }
+    inline QVector3D up()          const         { return mUp;              }
+    inline QVector3D movement()    const         { return mMovement;        }
+
+    inline void      setMovement(const QVector3D &v) { mMovement = v;   }
 
     virtual bool setPos(const QVector3D &newPos);
     virtual bool process(float ms, float normalizedSpeed);
@@ -33,7 +38,9 @@ private:
     QVector3D mUp;
     QVector3D mMovement;
 
-    float     mCollisionRadius;
+    float       mCollisionRadius;
+    QtrPhSpace *mSpace;
+
 };
 
 typedef QList<QtrPhEntity*> QtrPhEntities;

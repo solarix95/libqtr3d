@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>metal_texture_800.jpg</file>
+    </qresource>
+</RCC>

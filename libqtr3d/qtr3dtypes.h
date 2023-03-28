@@ -48,8 +48,9 @@ struct MaterialLayer {
 
     MaterialLayer(float k, QColor c) : strength(k,k,k), mcolor(c) {};
 
-    inline QVector3D    mcolorf()  const { return QVector3D(mcolor.redF(), mcolor.greenF(), mcolor.blueF()); }
-    inline QVector4D    mcolorf4() const { return QVector4D(mcolor.redF(), mcolor.greenF(), mcolor.blueF(), mcolor.alphaF()); }
+    inline void         setStrength(float s) { strength = QVector3D(s,s,s); }
+    inline QVector3D    mcolorf()  const     { return QVector3D(mcolor.redF(), mcolor.greenF(), mcolor.blueF()); }
+    inline QVector4D    mcolorf4() const     { return QVector4D(mcolor.redF(), mcolor.greenF(), mcolor.blueF(), mcolor.alphaF()); }
 };
 
 class Material {

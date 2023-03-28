@@ -180,21 +180,39 @@ void Qtr3dMesh::addVertex(const Qtr3dColoredVertex &v)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n)
 {
-    addVertex(p1,n);
-    addVertex(p2,n);
-    addVertex(p3,n);
+    switch(mMeshType) {
+    case Qtr3d::Triangle: {
+        addVertex(p1,n);
+        addVertex(p2,n);
+        addVertex(p3,n);
 
-    addVertex(p1,n);
-    addVertex(p3,n);
-    addVertex(p4,n);
+        addVertex(p1,n);
+        addVertex(p3,n);
+        addVertex(p4,n);
 
-    mTextureCoords << Qtr3dTexCoord(1,0);
-    mTextureCoords << Qtr3dTexCoord(0,0);
-    mTextureCoords << Qtr3dTexCoord(0,1);
+        mTextureCoords << Qtr3dTexCoord(1,0);
+        mTextureCoords << Qtr3dTexCoord(0,0);
+        mTextureCoords << Qtr3dTexCoord(0,1);
 
-    mTextureCoords << Qtr3dTexCoord(1,0);
-    mTextureCoords << Qtr3dTexCoord(0,1);
-    mTextureCoords << Qtr3dTexCoord(1,1);
+        mTextureCoords << Qtr3dTexCoord(1,0);
+        mTextureCoords << Qtr3dTexCoord(0,1);
+        mTextureCoords << Qtr3dTexCoord(1,1);
+    } break;
+    case Qtr3d::Quad: {
+        addVertex(p1,n);
+        addVertex(p2,n);
+        addVertex(p3,n);
+        addVertex(p4,n);
+
+        mTextureCoords << Qtr3dTexCoord(0,0);
+        mTextureCoords << Qtr3dTexCoord(0,1);
+        mTextureCoords << Qtr3dTexCoord(1,1);
+        mTextureCoords << Qtr3dTexCoord(1,0);
+
+    } break;
+    default:
+        qWarning() << "Qtr3dMesh::addQuad: invalid Mesh Type";
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

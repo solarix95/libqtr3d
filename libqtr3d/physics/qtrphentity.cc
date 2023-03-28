@@ -1,4 +1,6 @@
 #include "qtrphentity.h"
+#include "qtrphspace.h"
+#include "qtr3dforcefield.h"
 
 //-------------------------------------------------------------------------------------------------
 QtrPhEntity::QtrPhEntity(QVector3D pos, QVector3D lookAt, QVector3D up, QObject *parent)
@@ -27,8 +29,15 @@ bool QtrPhEntity::process(float /*ms*/, float normalizedSpeed)
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhEntity::centerForces(QList<QVector3D> &/*forces*/) const
+void QtrPhEntity::setCollisionRadius(float radius)
 {
+    mCollisionRadius = radius;
+}
+
+//-------------------------------------------------------------------------------------------------
+void QtrPhEntity::centerForces(QList<QVector3D> &forces) const
+{
+    mSpace->forceField()->forceVector(pos(),forces);
 }
 
 //-------------------------------------------------------------------------------------------------

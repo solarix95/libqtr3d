@@ -160,6 +160,7 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color)
 
     mesh.setDefaultColor(color);
     mesh.startMesh(Qtr3d::Triangle);
+    mesh.setFaceOrientation(Qtr3d::CounterClockWise);
 
     /* top */
     QVector3D p(cx,cy,cz + radius);

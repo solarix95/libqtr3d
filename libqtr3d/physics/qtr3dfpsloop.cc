@@ -29,7 +29,7 @@ void Qtr3dFpsLoop::setSpeed(int procent)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dFpsLoop::process()
 {
-    if (mStopWatch.isValid()) { // skip first interval
+    if (!mStopWatch.isValid()) { // skip first interval
         mStopWatch.start();
         return;
     }

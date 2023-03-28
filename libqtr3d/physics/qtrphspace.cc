@@ -1,8 +1,10 @@
 #include "qtrphspace.h"
+#include "qtr3dforcefield.h"
 
 //-------------------------------------------------------------------------------------------------
 QtrPhSpace::QtrPhSpace(QObject *parent)
  : QObject(parent)
+ , mForceField(nullptr)
 {
 }
 
@@ -19,6 +21,21 @@ void QtrPhSpace::append(QtrPhEntity *entity)
     connect(entity, &QtrPhEntity::destroyed, this, [this,entity ](){
         mEntities.removeOne(entity);
     });
+    entity->setSpace(this);
+}
+
+//-------------------------------------------------------------------------------------------------
+void QtrPhSpace::setForceField(Qtr3dForceField *field)
+{
+    mForceField = field;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dForceField *QtrPhSpace::forceField()
+{
+    if (!mForceField)
+        mForceField = new Qtr3dForceField();
+    return mForceField;
 }
 
 //-------------------------------------------------------------------------------------------------
