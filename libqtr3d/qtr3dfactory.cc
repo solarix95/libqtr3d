@@ -710,3 +710,24 @@ QImage Qtr3d::textureByPath(const QString &localPathOrFile, const QString &textu
     }
     return ret;
 }
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByTexture(Qtr3dMesh &mesh, const QImage &texture, float width, float height)
+{
+    if (texture.isNull())
+        return false;
+
+    if (width <= 0)
+        width = texture.width();
+    if (height <= 0)
+        height = width * texture.height()/float(texture.width());
+
+    float x = width/2;
+    float z = height/2;
+    mesh.startMesh(Qtr3d::Quad);
+    mesh.setTexture(texture);
+    mesh.addQuad({-x,0,z},{-x,0,-z},{x,0,-z}, {x,0,z},{1,1,0});
+    mesh.endMesh(true);
+
+    return true;
+}

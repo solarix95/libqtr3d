@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>medfighter.png</file>
+        <file>385447-wallpaper.jpg</file>
+    </qresource>
+</RCC>
