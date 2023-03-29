@@ -34,9 +34,9 @@ void Qtr3dFpsLoop::process()
         return;
     }
     int   elapsedMs       = mStopWatch.elapsed();
-    float normalizedSpeed = elapsedMs/mTimer.interval();
+    float normalizedSpeed = elapsedMs/float(mTimer.interval());
 
     mStopWatch.start();
-    emit step(elapsedMs*(mSpeed/100), mSpeed*normalizedSpeed);
+    emit step(float(elapsedMs)*(mSpeed/100), mSpeed*normalizedSpeed);
     emit stepDone();
 }

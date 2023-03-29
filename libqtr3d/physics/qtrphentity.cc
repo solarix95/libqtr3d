@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "qtrphentity.h"
 #include "qtrphspace.h"
 #include "qtr3dforcefield.h"
@@ -17,13 +18,13 @@ QtrPhEntity::~QtrPhEntity()
 }
 
 //-------------------------------------------------------------------------------------------------
-bool QtrPhEntity::process(float /*ms*/, float normalizedSpeed)
+bool QtrPhEntity::process(float ms, float normalizedSpeed)
 {
     QList<QVector3D> forces;
     centerForces(forces);
 
     for (auto f:forces)
-        mMovement += normalizedSpeed*f;
+        mMovement += ms*f;
 
     return setPos(mPos + mMovement);
 }

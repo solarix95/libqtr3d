@@ -22,43 +22,58 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
         w.bufferContext()->environment().setClearColor(Qt::white);
+        w.setDefaultLighting(Qtr3d::PhongLighting);
 
+        // Let's create the graphic models and states first:
+        // *************************************************
         // Create the ball model
         auto *mesh = w.createMesh();
-        Qtr3d::meshBySphere(*mesh,32,Qt::green);
+        Qtr3d::meshBySphere(*mesh,64,QImage(":/rubber_texture_400.jpg")); // by Webtreats: https://www.flickr.com/photos/webtreatsetc/5643615278/
         mesh->material().ambient().setStrength(0.3);
         mesh->material().diffuse().setStrength(0.0);
         mesh->material().specular().setStrength(0.7);
         auto *ball = w.createState(mesh);
-        ball->setLightingType(Qtr3d::PhongLighting);
         ball->setPos({0,5,0});
 
         // Create the floor
         mesh = w.createMesh();
         mesh->startMesh(Qtr3d::Quad);
-        mesh->setTexture(QImage(":/metal_texture_800.jpg"));
+        mesh->setTexture(QImage(":/metal_texture_800.jpg"));              // by Webtreats 8 Fabulous Free Metal Textures: https://www.flickr.com/photos/webtreatsetc/4324648760
         mesh->addQuad({-10,0,10},{-10,0,-10},{10,0,-10}, {10,0,10},{1,1,0});
         mesh->endMesh();
-        w.createState(mesh)->setLightingType(Qtr3d::PhongLighting);
+        w.createState(mesh);
 
         w.primaryLightSource()->setPos({30,30,0});
         w.primaryLightSource()->setAmbientStrength(0.1);
-        w.camera()->lookAt({0,10,20},{0,0,0}, {0,1,0});
         new Qtr3dCameraCycler(w.camera(),50,0.1,{0,10,20},{0,0,0});
 
-        w.bufferContext()->space().forceField()->setConstantForce({0,-0.0001,0});
-        auto *ballEntity = new Qtr3dEntity(*ball);
-        ballEntity->setPos({0,5,0});
+        // Now let's add physic animation:
+        // *************************************************
 
-        w.bufferContext()->space().append(ballEntity);
+        // Basic Physic + Animation Setup
         w.bufferContext()->loop().setFps(50);
+        w.bufferContext()->space().forceField()->setConstantForce({0,-0.001,0}); // Simulate "Gravitation"
+
+        // Create the "physical" representation of the ball:
+        auto *ballEntity = new Qtr3dEntity(*ball);
+        w.bufferContext()->space().append(ballEntity);
+        ballEntity->setPos({0,5,0}); // the "enity" controls now the graphical "state" and updates the position
+
+        // Simple physical constrains:
         QObject::connect(&w.bufferContext()->loop(),&Qtr3dFpsLoop::stepDone, ballEntity, [ballEntity]() {
+
+            // Floor: "Bounce-Reaction"
             if (ballEntity->pos()[1] < ballEntity->collisionRadius()) {
+                ballEntity->setPos({0,ballEntity->collisionRadius(),0});
                 if (ballEntity->movement()[1] < 0)
-                    ballEntity->setMovement(-ballEntity->movement());
+                    ballEntity->setMovement(0.9 * -ballEntity->movement()); // reverse and "dampering" the movement
+            }
+
+            // "Kick" at the end of the animation:
+            if ((abs((ballEntity->pos().length() - ballEntity->collisionRadius())) < 0.01) && (ballEntity->movement().length() < 0.01)) {
+                ballEntity->setMovement({0,0.5,0});
             }
         });
-
     });
 
     w.show();
