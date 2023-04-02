@@ -1,8 +1,8 @@
 #include "qtr3dcontext.h"
-#include "qtr3dgeometrybuffer.h"
+#include "qtr3dgeometry.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer::Qtr3dGeometryBuffer(Qtr3dContext *parent)
+Qtr3dGeometry::Qtr3dGeometry(Qtr3dContext *parent)
     : QObject(parent)
     , mContext(parent)
     , mParentBuffer(nullptr)
@@ -19,31 +19,31 @@ Qtr3dGeometryBuffer::Qtr3dGeometryBuffer(Qtr3dContext *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer::~Qtr3dGeometryBuffer()
+Qtr3dGeometry::~Qtr3dGeometry()
 {
     qDeleteAll(mBufferStates);
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dContext *Qtr3dGeometryBuffer::context()
+Qtr3dContext *Qtr3dGeometry::context()
 {
     return mContext;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3d::ShaderType Qtr3dGeometryBuffer::shader() const
+Qtr3d::ShaderType Qtr3dGeometry::shader() const
 {
     return mShader;
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::setFaceOrientation(Qtr3d::FaceOrientation orientation)
+void Qtr3dGeometry::setFaceOrientation(Qtr3d::FaceOrientation orientation)
 {
     mFaceOrientation = orientation;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3d::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() const
+Qtr3d::FaceOrientation Qtr3dGeometry::faceOrientation() const
 {
     Qtr3d::FaceOrientation ret = mFaceOrientation;
 
@@ -57,61 +57,61 @@ Qtr3d::FaceOrientation Qtr3dGeometryBuffer::faceOrientation() const
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::setDefaultColor(const QColor &c)
+void Qtr3dGeometry::setDefaultColor(const QColor &c)
 {
     material().ambient().mcolor = material().diffuse().mcolor = material().specular().mcolor = c;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3d::Material &Qtr3dGeometryBuffer::material()
+Qtr3d::Material &Qtr3dGeometry::material()
 {
     return mMaterial;
 }
 
 //-------------------------------------------------------------------------------------------------
-const Qtr3d::Material &Qtr3dGeometryBuffer::material() const
+const Qtr3d::Material &Qtr3dGeometry::material() const
 {
     return mMaterial;
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::setBlendingEnabled(bool enabled)
+void Qtr3dGeometry::setBlendingEnabled(bool enabled)
 {
     mBlending = enabled;
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dGeometryBuffer::blending() const
+bool Qtr3dGeometry::blending() const
 {
     return mBlending;
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::setParentBuffer(Qtr3dGeometryBuffer *buffer)
+void Qtr3dGeometry::setParentBuffer(Qtr3dGeometry *buffer)
 {
     mParentBuffer = buffer;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBuffer *Qtr3dGeometryBuffer::parentBuffer() const
+Qtr3dGeometry *Qtr3dGeometry::parentBuffer() const
 {
     return mParentBuffer;
 }
 
 //-------------------------------------------------------------------------------------------------
-QVector3D Qtr3dGeometryBuffer::minValues() const
+QVector3D Qtr3dGeometry::minValues() const
 {
     return mMin;
 }
 
 //-------------------------------------------------------------------------------------------------
-QVector3D Qtr3dGeometryBuffer::maxValues() const
+QVector3D Qtr3dGeometry::maxValues() const
 {
     return mMax;
 }
 
 //-------------------------------------------------------------------------------------------------
-QVector3D Qtr3dGeometryBuffer::center() const
+QVector3D Qtr3dGeometry::center() const
 {
     return QVector3D(
                 (maxValues().x() + minValues().x())/2,
@@ -121,22 +121,22 @@ QVector3D Qtr3dGeometryBuffer::center() const
 }
 
 //-------------------------------------------------------------------------------------------------
-double Qtr3dGeometryBuffer::radius() const
+double Qtr3dGeometry::radius() const
 {
     return qMax(maxValues().x() - minValues().x(),qMax(maxValues().y() - minValues().y(),maxValues().z() - minValues().z()))/2.0;
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::registerBufferState(Qtr3dGeometryBufferState *s)
+void Qtr3dGeometry::registerBufferState(Qtr3dGeometryState *s)
 {
     Q_ASSERT(s);
     Q_ASSERT(!mBufferStates.contains(s));
     mBufferStates << s;
-    connect(s, &Qtr3dGeometryBufferState::destroyed, this, &Qtr3dGeometryBuffer::stateDestroyed);
+    connect(s, &Qtr3dGeometryState::destroyed, this, &Qtr3dGeometry::stateDestroyed);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::analyze(const QVector3D &v)
+void Qtr3dGeometry::analyze(const QVector3D &v)
 {
     if (v.x() > mMax.x())
         mMax.setX(v.x());
@@ -158,14 +158,14 @@ void Qtr3dGeometryBuffer::analyze(const QVector3D &v)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::setShader(Qtr3d::ShaderType t)
+void Qtr3dGeometry::setShader(Qtr3d::ShaderType t)
 {
     mShader = t;
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBuffer::stateDestroyed(QObject *state)
+void Qtr3dGeometry::stateDestroyed(QObject *state)
 {
-    mBufferStates.removeOne((Qtr3dGeometryBufferState*)state);
+    mBufferStates.removeOne((Qtr3dGeometryState*)state);
 }
 

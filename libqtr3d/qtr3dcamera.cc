@@ -18,13 +18,13 @@ Qtr3dCamera::Qtr3dCamera()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dCamera::setPosition(float x, float y, float z)
+void Qtr3dCamera::setPos(float x, float y, float z)
 {
-    setPosition(QVector3D(x,y,z));
+    setPos(QVector3D(x,y,z));
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dCamera::setPosition(const QVector3D &pos)
+void Qtr3dCamera::setPos(const QVector3D &pos)
 {
     if (mPos == pos)
         return;

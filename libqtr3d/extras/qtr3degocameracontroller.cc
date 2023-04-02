@@ -37,14 +37,13 @@ void Qtr3dEgoCameraController::parentMouseWheel(float delta)
     float correctionFactor = (360+(-1*delta))/360.0;
 
     QVector3D vpos = correctionFactor * (mCamera->pos() - mCamera->lookAtCenter());
-    mCamera->setPosition(mCamera->lookAtCenter() + vpos);
+    mCamera->setPos(mCamera->lookAtCenter() + vpos);
     emit positionChanged(mCamera->pos());
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dEgoCameraController::parentDraggingRel(QPointF delta)
 {
-    qDebug() << delta;
     static double angleY = 0;
     static double angleZ = 0;
     angleY += 50*delta.x();

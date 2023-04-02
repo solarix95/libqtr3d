@@ -7,13 +7,13 @@
    Qtr3dBillboard: turns the visible front always to the camera
 */
 
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 class Qtr3dCamera;
 
 class Qtr3dBillboard : public QObject
 {
 public:
-    Qtr3dBillboard(Qtr3dCamera *camera, Qtr3dGeometryBufferState *state, QObject *parent = nullptr);
+    Qtr3dBillboard(Qtr3dCamera *camera, Qtr3dGeometryState *state, QObject *parent = nullptr);
 
 private slots:
     void updateState();
@@ -25,7 +25,7 @@ private:
     float alphaZ() const;
 
     Qtr3dCamera              *mCamera;
-    Qtr3dGeometryBufferState *mState;
+    Qtr3dGeometryState *mState;
 };
 
 #endif // QTR3DBILLBOARD_H

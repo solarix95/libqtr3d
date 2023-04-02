@@ -6,16 +6,16 @@
 #include "qtr3dtypes.h"
 
 class Qtr3dCamera;
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 class Qtr3dSprite : public QObject
 {
 public:
-    Qtr3dSprite(Qtr3dGeometryBufferState *state, QList<Qtr3dTexture*> textures, Qtr3dCamera *camera = nullptr, bool billboard = true);
+    Qtr3dSprite(Qtr3dGeometryState *state, QList<Qtr3dTexture*> textures, Qtr3dCamera *camera = nullptr, bool billboard = true);
 
     void setTexture(int index); // Texture-Animation
 
 private:
-    Qtr3dGeometryBufferState *mState;
+    Qtr3dGeometryState *mState;
     QList<Qtr3dTexture*>      mTextures;
     int                       mTextureIndex;
 };

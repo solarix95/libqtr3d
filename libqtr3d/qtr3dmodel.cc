@@ -5,7 +5,7 @@
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel::Qtr3dModel(Qtr3dContext *context)
-    : Qtr3dGeometryBuffer(context)
+    : Qtr3dGeometry(context)
 {
 }
 

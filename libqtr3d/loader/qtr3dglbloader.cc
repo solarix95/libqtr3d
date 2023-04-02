@@ -200,7 +200,7 @@ void Qtr3dGlbLoader::createMesh(const QVariantMap &meshInfo, int meshIndex)
         Q_ASSERT(indicesAcsessorIndex >= 0);
         Q_ASSERT(normalAccessorIndex >= 0);
 
-        Qtr3dGeometryBuffer *buffer = nullptr;
+        Qtr3dGeometry *buffer = nullptr;
         if (textcoordAccessorIndex >= 0) {
             buffer = loadTexturedMesh(accessorInfo(positionAccessorIndex),
                                       accessorInfo(indicesAcsessorIndex),

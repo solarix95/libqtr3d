@@ -1,7 +1,8 @@
 #include "qtr3dforcefield.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dForceField::Qtr3dForceField()
+Qtr3dForceField::Qtr3dForceField(QObject *parent)
+ : QObject(parent)
 {
 }
 

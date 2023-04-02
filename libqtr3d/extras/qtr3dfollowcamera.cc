@@ -1,12 +1,12 @@
 #include <QTimer>
 #include "../qtr3dcamera.h"
 #include "../qtr3dwidget.h"
-#include "../qtr3dgeometrybufferstate.h"
+#include "../qtr3dgeometrystate.h"
 
 #include "qtr3dfollowcamera.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryBufferState *followState)
+Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryState *followState)
  : QObject(widget)
  , mState(followState)
 {

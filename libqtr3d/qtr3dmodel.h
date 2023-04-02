@@ -3,10 +3,10 @@
 
 #include <QObject>
 #include "qtr3dmesh.h"
-#include "qtr3dgeometrybuffer.h"
+#include "qtr3dgeometry.h"
 
 class Qtr3dContext;
-class Qtr3dModel : public Qtr3dGeometryBuffer
+class Qtr3dModel : public Qtr3dGeometry
 {
     Q_OBJECT
 public:

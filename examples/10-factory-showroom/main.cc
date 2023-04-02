@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         showRoomRotate.rotate(360/itemsCount,{0,1,0});
 
         Qtr3dMesh *mesh;
-        Qtr3dGeometryBufferState *state;
+        Qtr3dGeometryState *state;
 
         //mesh = w.createVertexMesh();
         //Qtr3dModelFactory::meshBySphere(*mesh,13,Qt::red);

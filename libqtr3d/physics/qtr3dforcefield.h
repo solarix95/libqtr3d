@@ -1,13 +1,14 @@
 #ifndef QTR3DFORCEFIELD_H
 #define QTR3DFORCEFIELD_H
 
+#include <QObject>
 #include <QVector3D>
 #include <QList>
 
-class Qtr3dForceField
+class Qtr3dForceField : public QObject
 {
 public:
-    Qtr3dForceField();
+    Qtr3dForceField(QObject *parent = nullptr);
 
     void setConstantForces(const QList<QVector3D> &forces);
     void setConstantForce(const QVector3D &force);

@@ -9,9 +9,9 @@ class ViewerForm;
 }
 
 class Qtr3dModel;
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 class Qtr3dCameraMovement;
-class Qtr3dGeometryBuffer;
+class Qtr3dGeometry;
 
 class ViewerForm : public QWidget
 {
@@ -33,13 +33,13 @@ private slots:
 private:
     Ui::ViewerForm *ui;
 
-    QList<Qtr3dGeometryBuffer*>   mMeshes;
-    Qtr3dGeometryBufferState *mFloorState;
-    Qtr3dGeometryBufferState *mCubeState;
-    Qtr3dGeometryBufferState *mSphereState1;
-    Qtr3dGeometryBufferState *mSphereState2;
-    Qtr3dGeometryBufferState *mSphereState3;
-    Qtr3dGeometryBufferState *mLightState;
+    QList<Qtr3dGeometry*>   mMeshes;
+    Qtr3dGeometryState *mFloorState;
+    Qtr3dGeometryState *mCubeState;
+    Qtr3dGeometryState *mSphereState1;
+    Qtr3dGeometryState *mSphereState2;
+    Qtr3dGeometryState *mSphereState3;
+    Qtr3dGeometryState *mLightState;
 
 };
 

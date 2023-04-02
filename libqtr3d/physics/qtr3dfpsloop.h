@@ -13,6 +13,7 @@ public:
 
     void setFps(int fps);
     void setSpeed(int procent);
+    bool isActive() const;
 
 signals:
     void step(float ms, float normalizedSpeed);

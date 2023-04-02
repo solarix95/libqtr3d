@@ -5,10 +5,10 @@
 #include <QMatrix4x4>
 #include "qtr3dbillboard.h"
 #include <libqtr3d/qtr3dcamera.h>
-#include <libqtr3d/qtr3dgeometrybufferstate.h>
+#include <libqtr3d/qtr3dgeometrystate.h>
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dBillboard::Qtr3dBillboard(Qtr3dCamera *camera, Qtr3dGeometryBufferState *state, QObject *parent)
+Qtr3dBillboard::Qtr3dBillboard(Qtr3dCamera *camera, Qtr3dGeometryState *state, QObject *parent)
  : QObject(parent)
  , mCamera(camera)
  , mState(state)
@@ -16,7 +16,7 @@ Qtr3dBillboard::Qtr3dBillboard(Qtr3dCamera *camera, Qtr3dGeometryBufferState *st
     Q_ASSERT(mCamera);
     Q_ASSERT(mState);
 
-    connect(mState, &Qtr3dGeometryBufferState::destroyed, this, &Qtr3dBillboard::stateDeleted);
+    connect(mState, &Qtr3dGeometryState::destroyed, this, &Qtr3dBillboard::stateDeleted);
     connect(mCamera,&Qtr3dCamera::positionChanged, this, &Qtr3dBillboard::updateState);
 
     updateState();

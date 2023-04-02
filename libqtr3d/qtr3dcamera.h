@@ -13,8 +13,8 @@ public:
     Qtr3dCamera();
 
     // Minimal Setup
-    void setPosition(float x, float y, float z);
-    void setPosition(const QVector3D &pos);
+    void setPos(float x, float y, float z);
+    void setPos(const QVector3D &pos);
     void move(float dx, float dy, float dz);
     void setFov(float angle);
     void setFov(float angle, float zNear, float zFar);

@@ -9,8 +9,8 @@ class Qtr3dTexturedShader;
 class Qtr3dMesh;
 class Qtr3dVertexMeshShader;
 class Qtr3dPlainShader;
-class Qtr3dGeometryBuffer;
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometry;
+class Qtr3dGeometryState;
 class Qtr3dTextureFactory;
 class Qtr3dCamera;
 class Qtr3dModel;
@@ -46,7 +46,7 @@ public:
     // Factories
     virtual Qtr3dMesh                *createMesh();
     virtual Qtr3dModel               *createModel();
-    virtual Qtr3dGeometryBufferState *createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
+    virtual Qtr3dGeometryState *createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
 
 public slots:
     void updateRequested();

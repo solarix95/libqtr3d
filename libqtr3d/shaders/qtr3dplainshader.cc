@@ -1,5 +1,5 @@
 #include "qtr3dplainshader.h"
-#include "../qtr3dgeometrybufferstate.h"
+#include "../qtr3dgeometrystate.h"
 #include "../qtr3dlightsource.h"
 
 //-------------------------------------------------------------------------------------------------

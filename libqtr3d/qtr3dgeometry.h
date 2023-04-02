@@ -1,23 +1,23 @@
-#ifndef QTR3DGEOMETRYBUFFER_H
-#define QTR3DGEOMETRYBUFFER_H
+#ifndef QTR3DGEOMETRY_H
+#define QTR3DGEOMETRY_H
 
 #include <QObject>
 #include <QList>
 #include <QVector3D>
 #include <QVector4D>
-#include "qtr3dgeometrybufferstate.h"
+#include "qtr3dgeometrystate.h"
 #include "qtr3dcontext.h"
 #include "qtr3dtypes.h"
 
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 
 //-------------------------------------------------------------------------------------------------
-class Qtr3dGeometryBuffer : public QObject
+class Qtr3dGeometry : public QObject
 {
     Q_OBJECT
 public:
-    Qtr3dGeometryBuffer(Qtr3dContext *parent);
-    virtual ~Qtr3dGeometryBuffer();
+    Qtr3dGeometry(Qtr3dContext *parent);
+    virtual ~Qtr3dGeometry();
 
     Qtr3dContext        *context();
     Qtr3d::ShaderType   shader() const;
@@ -36,11 +36,11 @@ public:
     virtual double    radius() const;
 
     // BufferState Iteration
-    virtual void registerBufferState(Qtr3dGeometryBufferState *s);
+    virtual void registerBufferState(Qtr3dGeometryState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
 
-    void                 setParentBuffer(Qtr3dGeometryBuffer *parentBuffer);
-    Qtr3dGeometryBuffer *parentBuffer() const;
+    void                 setParentBuffer(Qtr3dGeometry *parentBuffer);
+    Qtr3dGeometry *parentBuffer() const;
 
 protected:
     void analyze(const QVector3D &v);
@@ -51,7 +51,7 @@ private slots:
 
 private:
     Qtr3dContext               *mContext;
-    Qtr3dGeometryBuffer        *mParentBuffer;
+    Qtr3dGeometry        *mParentBuffer;
 
     Qtr3d::ShaderType           mShader;
     Qtr3d::FaceOrientation      mFaceOrientation;
@@ -64,6 +64,6 @@ private:
     QVector3D                   mMax;
 };
 
-typedef QList<Qtr3dGeometryBuffer> Qtr3dGeometryBuffers;
+typedef QList<Qtr3dGeometry> Qtr3dGeometryBuffers;
 
-#endif // QTR3DGEOMETRYBUFFER_H
+#endif // QTR3DGEOMETRY_H

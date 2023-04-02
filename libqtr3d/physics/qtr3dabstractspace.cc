@@ -1,80 +1,72 @@
-#include "qtrphspace.h"
+#include "qtr3dabstractentity.h"
+#include "qtr3dabstractspace.h"
 #include "qtr3dforcefield.h"
 
 //-------------------------------------------------------------------------------------------------
-QtrPhSpace::QtrPhSpace(QObject *parent)
+Qtr3dAbstractSpace::Qtr3dAbstractSpace(QObject *parent)
  : QObject(parent)
  , mForceField(nullptr)
 {
 }
 
 //-------------------------------------------------------------------------------------------------
-QtrPhSpace::~QtrPhSpace()
-{
-    reset();
-}
+Qtr3dAbstractSpace::~Qtr3dAbstractSpace() = default;
+
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::append(QtrPhEntity *entity)
+void Qtr3dAbstractSpace::append(Qtr3dAbstractEntity *entity)
 {
     mEntities << entity;
-    connect(entity, &QtrPhEntity::destroyed, this, [this,entity ](){
+    connect(entity, &Qtr3dAbstractEntity::destroyed, this, [this,entity ](){
         mEntities.removeOne(entity);
     });
     entity->setSpace(this);
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::setForceField(Qtr3dForceField *field)
+void Qtr3dAbstractSpace::reset()
 {
-    mForceField = field;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dForceField *QtrPhSpace::forceField()
+Qtr3dForceField &Qtr3dAbstractSpace::forceField()
 {
     if (!mForceField)
-        mForceField = new Qtr3dForceField();
-    return mForceField;
+        mForceField = new Qtr3dForceField(this);
+    return *mForceField;
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::reset()
+const Qtr3dAbstractEntities &Qtr3dAbstractSpace::entities()
 {
-    qDeleteAll(mEntities);
-    mEntities.clear();
+    return mEntities;
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::process(float ms, float normalizedSpeed)
+void Qtr3dAbstractSpace::process(float ms, float normalizedSpeed)
 {
     preProcessing();
-    processEntities(mEntities, ms, normalizedSpeed);
+    processEntities(ms,normalizedSpeed);
     postProcessing();
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::preProcessing()
+void Qtr3dAbstractSpace::preProcessing()
 {
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::processEntities(QList<QtrPhEntity *> &entities, float ms, float normalizedSpeed)
+void Qtr3dAbstractSpace::processEntities(float ms, float normalizedSpeed)
 {
-    QtrPhEntities movedEntities;
-    for (auto *e: entities) {
+    Qtr3dAbstractEntities movedEntities;
+    for (auto *e: mEntities) {
         if (e->process(ms, normalizedSpeed))
             movedEntities << e;
     }
-    processDynamicEntities(movedEntities, ms, normalizedSpeed);
+   // processDynamicEntities(movedEntities, ms, normalizedSpeed);
 }
 
 //-------------------------------------------------------------------------------------------------
-void QtrPhSpace::processDynamicEntities(QtrPhEntities &entities, float ms, float normalizedSpeed)
-{
-}
-
-//-------------------------------------------------------------------------------------------------
-void QtrPhSpace::postProcessing()
+void Qtr3dAbstractSpace::postProcessing()
 {
 }

@@ -6,9 +6,9 @@
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/extras/qtr3dcameracycler.h>
-#include <libqtr3d/physics/qtrphspace.h>
+#include <libqtr3d/physics/qtr3dabstractspace.h>
 #include <libqtr3d/physics/qtr3dforcefield.h>
-#include <libqtr3d/physics/qtr3dentity.h>
+#include <libqtr3d/physics/qtr3dstandardentity.h>
 #include <libqtr3d/physics/qtr3dfpsloop.h>
 
 int main(int argc, char *argv[])
@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
 
         // Basic Physic + Animation Setup
         w.bufferContext()->loop().setFps(50);
-        w.bufferContext()->space().forceField()->setConstantForce({0,-0.001,0}); // Simulate "Gravitation"
+        w.bufferContext()->space().forceField().setConstantForce({0,-0.001,0}); // Simulate "Gravitation"
 
         // Create the "physical" representation of the ball:
-        auto *ballEntity = new Qtr3dEntity(*ball);
+        auto *ballEntity = new Qtr3dStandardEntity(*ball,{0,5,0});
         w.bufferContext()->space().append(ballEntity);
         ballEntity->setPos({0,5,0}); // the "enity" controls now the graphical "state" and updates the position
 
@@ -74,6 +74,8 @@ int main(int argc, char *argv[])
                 ballEntity->setMovement({0,0.5,0});
             }
         });
+
+        QObject::connect(&w.bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, &w,[&]() { w.update(); });
     });
 
     w.show();

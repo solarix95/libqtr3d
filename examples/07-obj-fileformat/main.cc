@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         w.setDefaultLighting(Qtr3d::FlatLighting);
 
         Qtr3dModel *model;
-        Qtr3dGeometryBufferState *state;
+        Qtr3dGeometryState *state;
 
         // OBJ-File
         model = w.createModel();

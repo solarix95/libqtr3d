@@ -11,7 +11,7 @@
 #include "../qtr3dtypes.h"
 
 class Qtr3dMesh;
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 class Qtr3dCamera;
 class Qtr3dLightSource;
 

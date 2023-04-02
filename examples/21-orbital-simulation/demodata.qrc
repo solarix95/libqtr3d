@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Alpine.png</file>
+        <file>Savannah.png</file>
+        <file>Swamp.png</file>
+        <file>Tropical.png</file>
+        <file>sun.jpg</file>
+    </qresource>
+</RCC>

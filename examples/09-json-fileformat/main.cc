@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        QList<Qtr3dGeometryBuffer*> buffers;
+        QList<Qtr3dGeometry*> buffers;
 
         {
             auto *mesh = w.createMesh();
@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
             Qtr3d::meshByJson(*mesh,QString(":/demodata/mesh-textured-cube.json"));
             buffers << mesh;
         }
-
 
 
         // Align Models in a cycle

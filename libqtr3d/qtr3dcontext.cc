@@ -3,7 +3,7 @@
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
 #include "physics/qtr3dfpsloop.h"
-#include "physics/qtrphspace.h"
+#include "physics/qtr3dabstractspace.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dContext::Qtr3dContext(QObject *parent)
@@ -33,24 +33,23 @@ void Qtr3dContext::setLoop(Qtr3dFpsLoop *loop)
     if (mLoop)
         mLoop->deleteLater();
     mLoop = loop;
-    connect(mLoop, &Qtr3dFpsLoop::step, &space(), &QtrPhSpace::process, Qt::UniqueConnection);
+    connect(mLoop, &Qtr3dFpsLoop::step, &space(), &Qtr3dAbstractSpace::process, Qt::UniqueConnection);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dContext::setSpace(QtrPhSpace *space)
+void Qtr3dContext::setSpace(Qtr3dAbstractSpace *space)
 {
     Q_ASSERT(space);
     if (mSpace)
         mSpace->deleteLater();
     mSpace = space;
-    connect(&loop(), &Qtr3dFpsLoop::step,mSpace, &QtrPhSpace::process, Qt::UniqueConnection);
-
+    connect(&loop(), &Qtr3dFpsLoop::step,mSpace, &Qtr3dAbstractSpace::process, Qt::UniqueConnection);
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState *Qtr3dContext::createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype)
+Qtr3dGeometryState *Qtr3dContext::createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype)
 {
-    auto *ret = new Qtr3dGeometryBufferState(buffer, ltype);
+    auto *ret = new Qtr3dGeometryState(buffer, ltype);
     buffer->registerBufferState(ret);
     return ret;
 }
@@ -78,17 +77,17 @@ Qtr3dFpsLoop &Qtr3dContext::loop()
 {
     if (!mLoop) {
         mLoop = new Qtr3dFpsLoop(this);
-        connect(mLoop, &Qtr3dFpsLoop::step, &space(), &QtrPhSpace::process, Qt::UniqueConnection);
+        connect(mLoop, &Qtr3dFpsLoop::step, &space(), &Qtr3dAbstractSpace::process, Qt::UniqueConnection);
     }
     return *mLoop;
 }
 
 //-------------------------------------------------------------------------------------------------
-QtrPhSpace &Qtr3dContext::space()
+Qtr3dAbstractSpace &Qtr3dContext::space()
 {
     if (!mSpace) {
-        mSpace = new QtrPhSpace(this);
-        connect(&loop(), &Qtr3dFpsLoop::step, mSpace, &QtrPhSpace::process, Qt::UniqueConnection);
+        mSpace = new Qtr3dAbstractSpace(this);
+        connect(&loop(), &Qtr3dFpsLoop::step, mSpace, &Qtr3dAbstractSpace::process, Qt::UniqueConnection);
     }
     return *mSpace;
 }

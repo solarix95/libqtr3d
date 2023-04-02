@@ -4,11 +4,11 @@
 #include <QVector>
 #include <QObject>
 #include <QList>
-#include "qtr3dgeometrybuffer.h"
+#include "qtr3dgeometry.h"
 #include "qtr3dtypes.h"
 
 class QOpenGLTexture;
-class Qtr3dMesh : public Qtr3dGeometryBuffer
+class Qtr3dMesh : public Qtr3dGeometry
 {
 public:
     Qtr3dMesh(Qtr3dContext *parent);

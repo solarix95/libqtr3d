@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         Qtr3d::modelByFile(*stlMesh,":/Utah_teapot.stl");
         stlMesh->setFaceOrientation(Qtr3d::CounterClockWise);
 
-        Qtr3dGeometryBufferState *state;
+        Qtr3dGeometryState *state;
         state = w.createState(stlMesh);
         state->setState({0,-1,0},{0,0,0},{1,1,1});
         state->setLightingType(Qtr3d::FlatLighting);

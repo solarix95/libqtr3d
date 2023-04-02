@@ -5,13 +5,13 @@
 
 class Qtr3dWidget;
 class Qtr3dCamera;
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 
 class Qtr3dFollowCamera : public QObject
 {
     Q_OBJECT
 public:
-    Qtr3dFollowCamera(Qtr3dWidget *parent, Qtr3dGeometryBufferState *followState);
+    Qtr3dFollowCamera(Qtr3dWidget *parent, Qtr3dGeometryState *followState);
     virtual ~Qtr3dFollowCamera();
 
 public slots:
@@ -22,7 +22,7 @@ private slots:
 
 private:
     Qtr3dCamera              *mCamera;
-    Qtr3dGeometryBufferState *mState;
+    Qtr3dGeometryState *mState;
 };
 
 #endif // QTR3DFOLLOWCAMERA_H

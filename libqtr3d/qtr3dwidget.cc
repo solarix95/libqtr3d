@@ -9,7 +9,7 @@
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
 #include "qtr3dcontext.h"
-
+#include "physics/qtr3dfpsloop.h"
 #include "shaders/qtr3dshader.h"
 #include "shaders/qtr3dtexturedmeshshader.h"
 #include "shaders/qtr3dvertexmeshshader.h"
@@ -119,7 +119,7 @@ Qtr3dModel *Qtr3dWidget::createModel()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState *Qtr3dWidget::createState(Qtr3dGeometryBuffer *buffer, Qtr3d::LightingType ltype)
+Qtr3dGeometryState *Qtr3dWidget::createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype)
 {
     return bufferContext()->createState(buffer, ltype);
 }
@@ -127,6 +127,9 @@ Qtr3dGeometryBufferState *Qtr3dWidget::createState(Qtr3dGeometryBuffer *buffer, 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::updateRequested()
 {
+    if (bufferContext()->loop().isActive())
+        return;
+
     update();
 }
 

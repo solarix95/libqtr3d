@@ -1,8 +1,8 @@
-#include "qtr3dgeometrybuffer.h"
-#include "qtr3dgeometrybufferstate.h"
+#include "qtr3dgeometry.h"
+#include "qtr3dgeometrystate.h"
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3dGeometryBuffer *parent, Qtr3d::LightingType ltype)
+Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, Qtr3d::LightingType ltype)
  : QObject(parent)
  , mBuffer(*parent)
  , mEnabled(true)
@@ -12,7 +12,7 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3dGeometryBuffer *parent, 
 }
 
 //------------------------------------------------------------------------------------------------
-Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3dGeometryBuffer *parent, const QVector3D &pos, const QVector3D &rotation)
+Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, const QVector3D &pos, const QVector3D &rotation)
  : QObject(parent)
  , mBuffer(*parent)
  , mEnabled(true)
@@ -22,39 +22,39 @@ Qtr3dGeometryBufferState::Qtr3dGeometryBufferState(Qtr3dGeometryBuffer *parent, 
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setLightingType(Qtr3d::LightingType ltype)
+void Qtr3dGeometryState::setLightingType(Qtr3d::LightingType ltype)
 {
     mLightingType = ltype;
 }
 
 //------------------------------------------------------------------------------------------------
-Qtr3d::LightingType Qtr3dGeometryBufferState::lightingType() const
+Qtr3d::LightingType Qtr3dGeometryState::lightingType() const
 {
     return mLightingType;
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setEnabled(bool enabled)
+void Qtr3dGeometryState::setEnabled(bool enabled)
 {
     mEnabled = enabled;
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setPos(const QVector3D &pos)
+void Qtr3dGeometryState::setPos(const QVector3D &pos)
 {
     mPos = pos;
     updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::move(const QVector3D &pos)
+void Qtr3dGeometryState::move(const QVector3D &pos)
 {
     mPos = pos;
     updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::move(const QVector3D &pos, const QVector3D &rotation)
+void Qtr3dGeometryState::move(const QVector3D &pos, const QVector3D &rotation)
 {
     mPos = pos;
     mRot = rotation;
@@ -62,7 +62,7 @@ void Qtr3dGeometryBufferState::move(const QVector3D &pos, const QVector3D &rotat
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setState(const QVector3D &pos, const QVector3D &rotation, const QVector3D &scale)
+void Qtr3dGeometryState::setState(const QVector3D &pos, const QVector3D &rotation, const QVector3D &scale)
 {
     mPos = pos;
     mRot = rotation;
@@ -71,27 +71,27 @@ void Qtr3dGeometryBufferState::setState(const QVector3D &pos, const QVector3D &r
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setScale(const QVector3D &scale)
+void Qtr3dGeometryState::setScale(const QVector3D &scale)
 {
     mScale = scale;
     updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setScale(float xyzScale)
+void Qtr3dGeometryState::setScale(float xyzScale)
 {
     setScale({xyzScale,xyzScale,xyzScale});
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setRotation(const QVector3D &rotationAngles)
+void Qtr3dGeometryState::setRotation(const QVector3D &rotationAngles)
 {
     mRot = rotationAngles;
     updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::setModelView(const QMatrix4x4 &modelView)
+void Qtr3dGeometryState::setModelView(const QMatrix4x4 &modelView)
 {
     if (mModelView == modelView)
         return;
@@ -102,13 +102,13 @@ void Qtr3dGeometryBufferState::setModelView(const QMatrix4x4 &modelView)
 }
 
 //------------------------------------------------------------------------------------------------
-float Qtr3dGeometryBufferState::radius() const
+float Qtr3dGeometryState::radius() const
 {
     return qMax(mScale.x(), qMax(mScale.y(), mScale.z())) * mBuffer.radius();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryBufferState::updateMatrix()
+void Qtr3dGeometryState::updateMatrix()
 {
     mModelView = QMatrix4x4();
     mModelView.data()[15] = 1.0;

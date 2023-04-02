@@ -41,7 +41,7 @@ void Qtr3dFreeCameraController::parentMouseWheel(float delta)
         correctionFactor *= 0.1;
 
     QVector3D vpos = 0.1*(mCamera->lookAtCenter() - mCamera->pos());
-    mCamera->setPosition(mCamera->pos() + (correctionFactor*vpos));
+    mCamera->setPos(mCamera->pos() + (correctionFactor*vpos));
     emit positionChanged(mCamera->pos());
 }
 
