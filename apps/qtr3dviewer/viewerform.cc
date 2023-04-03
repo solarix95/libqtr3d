@@ -43,7 +43,7 @@ ViewerForm::ViewerForm(QWidget *parent)
 
 
         auto *center = ui->viewer->createMesh();
-        Qtr3d::meshByXyzAxis(*center);
+        Qtr3d::meshByXyzAxis(*center, 5);
         ui->viewer->createState(center)->setLightingType(Qtr3d::NoLighting);
     });
 

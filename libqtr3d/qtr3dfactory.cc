@@ -274,15 +274,15 @@ bool Qtr3d::meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3d::meshByXyzAxis(Qtr3dMesh &mesh)
+bool Qtr3d::meshByXyzAxis(Qtr3dMesh &mesh, float length)
 {
     mesh.startMesh(Qtr3d::Line);
 
     // 4 Dots
     mesh.addVertex({0,0,0}, Qt::white);
-    mesh.addVertex({1,0,0}, Qt::red);
-    mesh.addVertex({0,1,0}, Qt::green);
-    mesh.addVertex({0,0,1}, Qt::blue);
+    mesh.addVertex({length,0,0}, Qt::red);
+    mesh.addVertex({0,length,0}, Qt::green);
+    mesh.addVertex({0,0,length}, Qt::blue);
 
     // 3 Lines
     mesh.addIndex(0);

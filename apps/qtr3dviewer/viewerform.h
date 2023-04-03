@@ -8,7 +8,7 @@ class ViewerForm;
 }
 
 class Qtr3dModel;
-class Qtr3dGeometryBufferState;
+class Qtr3dGeometryState;
 class Qtr3dCameraMovement;
 
 class ViewerForm : public QWidget
@@ -29,7 +29,7 @@ private:
     Ui::ViewerForm *ui;
 
     Qtr3dModel               *mModel;
-    Qtr3dGeometryBufferState *mModelState;
+    Qtr3dGeometryState       *mModelState;
     Qtr3dCameraMovement      *mCameraMove;
 };
 

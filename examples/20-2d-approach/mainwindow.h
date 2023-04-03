@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <libqtr3d/qtr3dwidget.h>
-#include <libqtr3d/qtr3dgeometrybufferstate.h>
+#include <libqtr3d/qtr3dgeometrystate.h>
 
 class MainWindow : public Qtr3dWidget
 {
@@ -13,7 +13,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
-    Qtr3dGeometryBufferState *mState;
+    Qtr3dGeometryState *mState;
 };
 
 #endif // MAINWINDOW_H
