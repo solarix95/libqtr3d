@@ -1,5 +1,6 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
+#include <QPainter>
 #include <QResizeEvent>
 #include <QSurfaceFormat>
 
@@ -14,6 +15,18 @@
 #include "shaders/qtr3dtexturedmeshshader.h"
 #include "shaders/qtr3dvertexmeshshader.h"
 #include "shaders/qtr3dplainshader.h"
+
+//-------------------------------------------------------------------------------------------------
+struct pQtr3dStateZ {
+    float z;
+    Qtr3dGeometryState *state;
+    pQtr3dStateZ(float az, Qtr3dGeometryState *as): z(az), state(as) {}
+};
+
+bool stateZLessThan(const pQtr3dStateZ &d1, const pQtr3dStateZ &d2)
+{
+    return d1.z > d2.z;
+}
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
@@ -194,6 +207,7 @@ void Qtr3dWidget::paintGL()
     // otherwise: can't see 2D Paintings..
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glDisable(GL_CULL_FACE);
+    f->glDisable(GL_BLEND);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -236,7 +250,9 @@ void Qtr3dWidget::preInitializing()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintMeshes()
 {
-    const QList<Qtr3dMesh*> rootBuffers = bufferContext()->meshes();
+    const auto rootBuffers = bufferContext()->meshes();
+
+    QList<pQtr3dStateZ> blendRenderPipeline;
 
     for(auto *mesh: rootBuffers) {
         if (mesh->bufferStates().isEmpty())
@@ -256,28 +272,63 @@ void Qtr3dWidget::paintMeshes()
         if (!shader)
             continue;
 
-        const Qtr3dGeometryBufferStates &states = mesh->bufferStates();
+        const auto &states = mesh->bufferStates();
         shader->setProgram(Qtr3d::DefaultLighting);
         for(auto *state: states) {
             if (!state->enabled())
                 continue;
+
+            QVector3D previewCenter = (camera()->projection() * state->modelView() * camera()->worldMatrix()) * state->pos();
+            if (previewCenter.z() < -10)
+                continue;
+
+            if (mesh->blending()) {
+                blendRenderPipeline << pQtr3dStateZ((state->pos() - camera()->pos()).length(),state);
+                continue;
+            }
+
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = shader->defaultLighting();
             shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
         }
     }
+
+    // now Render the Z-Ordered Blending Pipeline
+    qSort(blendRenderPipeline.begin(), blendRenderPipeline.end(), stateZLessThan);
+    for(const auto &zInfo: blendRenderPipeline) {
+        const auto &geometry = zInfo.state->buffer();
+        const auto *mesh = dynamic_cast<const Qtr3dMesh*>(&geometry);
+        Q_ASSERT(mesh);
+
+        Qtr3dShader *shader = nullptr;
+        switch (mesh->shader()) {
+        case Qtr3d::PlainShader:
+            shader = mPlainShader; break;
+        case Qtr3d::ColoredShader:
+            shader = mVertexMeshShader; break;
+        case Qtr3d::TexturedShader:
+            shader = mTexturedMeshShader; break;
+        default: break;
+        }
+
+        Q_ASSERT(shader);
+        auto nextLightingTyp = zInfo.state->lightingType();
+        if (nextLightingTyp == Qtr3d::DefaultLighting)
+            nextLightingTyp = shader->defaultLighting();
+        shader->render(*mesh,zInfo.state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintModels()
 {
-    const QList<Qtr3dModel*> models = bufferContext()->models();
+    const auto models = bufferContext()->models();
 
     for(auto *model: models) {
 
-        const Qtr3dGeometryBufferStates &states = model->bufferStates();
-        const Qtr3dModelNodes           &nodes  = model->nodes();
+        const auto &states = model->bufferStates();
+        const auto &nodes  = model->nodes();
 
         if (states.isEmpty() || nodes.isEmpty())
             continue;

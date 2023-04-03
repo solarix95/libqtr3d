@@ -34,7 +34,7 @@ public:
     void setModelView(const QMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
     float radius() const; // scaled buffer radius
 
-    inline const QMatrix4x4 modelView()        const  { return mModelView; };
+    inline const QMatrix4x4 modelView()  const  { return mModelView; };
     inline const Qtr3dGeometry &buffer() const  { return mBuffer;    };
 
 signals:

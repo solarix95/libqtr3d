@@ -96,6 +96,7 @@ void Qtr3dMesh::endMesh(bool doTrim)
 
     selectShader();
 
+
     // Transfer Modeldata to Graphic-Memory
     mVerticesBufferId  = Qtr3dShader::makeBO(mVertices.data(),mVertices.count() * sizeof(Qtr3dVertex));
     mElementBufferId   = Qtr3dShader::makeBO(mIndexes.data(),mIndexes.count() * sizeof(GLuint), GL_ELEMENT_ARRAY_BUFFER);

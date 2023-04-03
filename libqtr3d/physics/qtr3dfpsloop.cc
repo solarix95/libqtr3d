@@ -34,6 +34,20 @@ bool Qtr3dFpsLoop::isActive() const
 }
 
 //-------------------------------------------------------------------------------------------------
+int Qtr3dFpsLoop::interval() const
+{
+    return mTimer.interval();
+}
+
+//-------------------------------------------------------------------------------------------------
+int Qtr3dFpsLoop::targetFps() const
+{
+    if (mTimer.interval() <= 0)
+        return 0;
+    return 1000/mTimer.interval();
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dFpsLoop::process()
 {
     if (!mStopWatch.isValid()) { // skip first interval
