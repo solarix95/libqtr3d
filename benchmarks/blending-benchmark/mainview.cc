@@ -21,11 +21,6 @@ MainView::MainView(QWidget *parent)
 
         bufferContext()->environment().setClearColor(Qt::black);
 
-        // Sky
-        auto *mesh = createMesh();
-        Qtr3d::meshByStarsky(*mesh,1000,10000,Qt::white);
-        createState(mesh, Qtr3d::NoLighting);
-
         auto *redModel = createMesh();
         Qtr3d::meshByText(*redModel,"R",QFont("Arial",200),QColor("#77FF0000"));
         redModel->setBlendingEnabled(true);
@@ -47,7 +42,7 @@ MainView::MainView(QWidget *parent)
             float alpha = ((qrand() % 1000)/1000.0)*360;
             QMatrix4x4 m;
             m.rotate(alpha,{0,1,0});
-            QVector3D v = {0,-5 + (qrand()%1000)/100.0 ,-5 - (qrand()%10000)/100.0};
+            QVector3D v = {0.0,float(-5 + (qrand()%1000)/100.0) ,float(-5 - (qrand()%10000)/100.0)};
             v = m*v;
             auto *state = createState(meshes[qrand()%meshes.count()]);
             state->setPos(v);

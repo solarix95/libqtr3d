@@ -32,6 +32,11 @@ public:
     Qtr3dFpsLoop             &loop();
     Qtr3dAbstractSpace       &space();
 
+    // Statistics only
+    int totalModelCount()     const;
+    int totalMeshCount()      const;
+    int totalVerticesCount()  const;
+
 private:
     Qtr3dMesh  *registerMesh(Qtr3dMesh *mesh);
     Qtr3dModel *registerModel(Qtr3dModel *model);

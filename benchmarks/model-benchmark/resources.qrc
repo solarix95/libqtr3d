@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ISS_stationary.glb</file>
+    </qresource>
+</RCC>

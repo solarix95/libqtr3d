@@ -9,6 +9,7 @@ CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 
+# CONFIG += with_libassimp
 include(../../libqtr3d.pro)
 
 # The following define makes your compiler warn you if you use any

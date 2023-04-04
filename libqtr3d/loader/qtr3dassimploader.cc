@@ -1,3 +1,5 @@
+#include <QFile>
+#include <QFileInfo>
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -37,7 +39,19 @@ bool Qtr3dAssimpLoader::supportsFile(const QString &filename)
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Options /* opts */)
 {
-    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_MaxQuality ); // aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
+#if load_from_memory
+    QFile f(filename);
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+    QByteArray fileBuffer = f.readAll();
+    if (fileBuffer.isEmpty())
+        return false;
+
+    QFileInfo fi(filename);
+    auto *scene = aiImportFileFromMemory(fileBuffer.constData(),fileBuffer.length(),aiProcessPreset_TargetRealtime_MaxQuality,fi.completeSuffix().toUtf8().constData());
+#else
+    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_Fast ); // aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
+#endif
     if (!scene || (scene->mNumMeshes <= 0))
         return false;
 

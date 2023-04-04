@@ -279,8 +279,8 @@ void Qtr3dWidget::paintMeshes()
             if (!state->enabled())
                 continue;
 
-            QVector3D previewCenter = (camera()->projection() * state->modelView() * camera()->worldMatrix()) * state->pos();
-            if (previewCenter.z() < -10)
+            QVector3D previewCenter = camera()->worldMatrix() * state->pos();
+            if (previewCenter.z() > 0)
                 continue;
 
             if (mesh->blending()) {
@@ -326,7 +326,7 @@ void Qtr3dWidget::paintMeshes()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintModels()
 {
-    const auto models = bufferContext()->models();
+    const auto &models = bufferContext()->models();
 
     for(auto *model: models) {
 
@@ -339,6 +339,12 @@ void Qtr3dWidget::paintModels()
         for(auto *state: states) {
             if (!state->enabled())
                 continue;
+
+            QVector3D previewCenter = camera()->worldMatrix() * state->pos();
+            if (previewCenter.z() > 0) {
+                continue;
+            }
+
             for(auto *node: nodes) {
                 for (auto *mesh : node->mMeshes) {
                     Qtr3dShader *shader = nullptr;

@@ -22,6 +22,7 @@ bool   meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomC
 bool   meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color);
 bool   meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap);
 bool   meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color);
+bool   meshByParticleTriangle(Qtr3dMesh &mesh, const QColor &color, float radius = 1.0, bool doublesSided = true);
 bool   meshByText(Qtr3dMesh &mesh, const QString &text,QFont font, const QColor &frontColor, const QColor &back = Qt::transparent);
 bool   meshByTexture(Qtr3dMesh &mesh, const QImage &texture, float width = -1, float height = -1);
 

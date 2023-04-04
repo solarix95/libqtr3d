@@ -731,3 +731,35 @@ bool Qtr3d::meshByTexture(Qtr3dMesh &mesh, const QImage &texture, float width, f
 
     return true;
 }
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByParticleTriangle(Qtr3dMesh &mesh, const QColor &color, float radius, bool doublesSided)
+{
+    if (!color.isValid())
+        return false;
+
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setDefaultColor(color);
+    QMatrix4x4 turn;
+    QVector3D  v({0,0,-radius});
+
+    mesh.addVertex(v);
+    turn.rotate(360/3,{0,1,0});
+    mesh.addVertex(turn*v);
+    turn.rotate(360/3,{0,1,0});
+    mesh.addVertex(turn*v);
+
+    mesh.addIndex(0);
+    mesh.addIndex(1);
+    mesh.addIndex(2);
+
+    if (doublesSided) {
+        mesh.addIndex(2);
+        mesh.addIndex(1);
+        mesh.addIndex(0);
+    }
+
+    mesh.endMesh();
+
+    return true;
+}

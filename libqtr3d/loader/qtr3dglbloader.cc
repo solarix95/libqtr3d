@@ -286,7 +286,7 @@ Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, con
             bufferView(textCoordInfo["bufferView"].toInt())
             );
 
-    auto *mesh = mModel->context()->createMesh();
+    auto *mesh = mModel->context()->createMesh(false);
     mesh->setTexture(texture.mirrored());
     mesh->startMesh(Qtr3d::Triangle);
     for (int vi=0; vi < points.count(); vi++)
@@ -328,7 +328,7 @@ Qtr3dMesh *Qtr3dGlbLoader::loadColoredMesh(const QVariantMap &positionInfo, cons
             );
 
 
-    auto *mesh = mModel->context()->createMesh();
+    auto *mesh = mModel->context()->createMesh(false);
     mesh->startMesh(Qtr3d::Triangle);
     mesh->setDefaultColor(Qt::white);
     for (int vi=0; vi < points.count(); vi++)

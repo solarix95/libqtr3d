@@ -93,6 +93,36 @@ Qtr3dAbstractSpace &Qtr3dContext::space()
 }
 
 //-------------------------------------------------------------------------------------------------
+int Qtr3dContext::totalModelCount() const
+{
+    return mModels.count();
+}
+
+//-------------------------------------------------------------------------------------------------
+int Qtr3dContext::totalMeshCount() const
+{
+    int ret = mRootMeshes.count();
+    for (auto *model: mModels)
+        ret += model->meshes().count();
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------------
+int Qtr3dContext::totalVerticesCount() const
+{
+    int ret = 0;
+    for (const auto *model: mModels) {
+        for (const auto *mesh: model->meshes()) {
+            ret += mesh->vertexCount();
+        }
+    }
+    for (const auto *mesh: mRootMeshes) {
+        ret += mesh->vertexCount();
+    }
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dMesh *Qtr3dContext::registerMesh(Qtr3dMesh *mesh)
 {
     Q_ASSERT(mesh);
