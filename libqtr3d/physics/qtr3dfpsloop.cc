@@ -5,6 +5,7 @@
 Qtr3dFpsLoop::Qtr3dFpsLoop(QObject *parent)
  : QObject(parent)
  , mSpeed(100)
+ , mCurrentFps(0)
 {
     connect(&mTimer, &QTimer::timeout, this, &Qtr3dFpsLoop::process);
 }
@@ -19,6 +20,7 @@ void Qtr3dFpsLoop::setFps(int fps)
         return;
 
     mTimer.start(1000/fps);
+    mCurrentFps = 0;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -48,6 +50,12 @@ int Qtr3dFpsLoop::targetFps() const
 }
 
 //-------------------------------------------------------------------------------------------------
+int Qtr3dFpsLoop::currentFps() const
+{
+    return mCurrentFps;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dFpsLoop::process()
 {
     if (!mStopWatch.isValid()) { // skip first interval
@@ -57,6 +65,10 @@ void Qtr3dFpsLoop::process()
     int   elapsedMs       = mStopWatch.elapsed();
     float normalizedSpeed = elapsedMs/float(mTimer.interval());
 
+    if (elapsedMs <= 0)
+        return;
+
+    mCurrentFps = 1000/elapsedMs;
     mStopWatch.start();
     emit step(float(elapsedMs)*(mSpeed/100), mSpeed*normalizedSpeed);
     emit stepDone();

@@ -24,7 +24,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # Input
 SOURCES += main.cc \
+    viewerform.cc \
     mainview.cc
 
 HEADERS += \
+    mainview.h \
+    viewerform.h
     mainview.h
+
+FORMS += viewerform.ui
+
+RESOURCES += resources.qrc

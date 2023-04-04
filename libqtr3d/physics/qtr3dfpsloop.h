@@ -14,9 +14,10 @@ public:
     void setFps(int fps);
     void setSpeed(int procent);
 
-    bool isActive()  const;
-    int  interval()  const;
-    int  targetFps() const;
+    bool isActive()   const;
+    int  interval()   const;
+    int  targetFps()  const;
+    int  currentFps() const;
 
 signals:
     void step(float ms, float normalizedSpeed);
@@ -29,6 +30,7 @@ private:
     QTimer         mTimer;
     QElapsedTimer  mStopWatch;
     int            mSpeed;
+    int            mCurrentFps;
 };
 
 #endif // QTR3DFPSLOOP_H

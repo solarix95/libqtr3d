@@ -1,4 +1,4 @@
-#include <QTimer>
+#include <QElapsedTimer>
 #include <QPainter>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
@@ -12,8 +12,10 @@
 #include <libqtr3d/physics/qtr3dfpsloop.h>
 #include "mainview.h"
 
-MainView::MainView()
- : mStateCount(0)
+MainView::MainView(QWidget *parent)
+ : Qtr3dWidget(parent)
+ , mStateCount(0)
+ , mCpuLoad(0)
 {
     connect(this, &Qtr3dWidget::initialized, this, [this]{
 
@@ -25,18 +27,18 @@ MainView::MainView()
         createState(mesh, Qtr3d::NoLighting);
 
         auto *redModel = createMesh();
-        Qtr3d::meshByText(*redModel,"R",QFont("Arial",200),QColor("#99FF0000"));
+        Qtr3d::meshByText(*redModel,"R",QFont("Arial",200),QColor("#77FF0000"));
         redModel->setBlendingEnabled(true);
         auto *state = createState(redModel);
         state->setPos({0,0,-5});
 
         auto *greenModel = createMesh();
-        Qtr3d::meshByText(*greenModel,"G",QFont("Arial",200),QColor("#9900FF00"));
+        Qtr3d::meshByText(*greenModel,"G",QFont("Arial",200),QColor("#7700FF00"));
         greenModel->setBlendingEnabled(true);
         state->setPos({0,0,-7});
 
         auto *blueModel = createMesh();
-        Qtr3d::meshByText(*blueModel,"B",QFont("Arial",200),QColor("#990000FF"));
+        Qtr3d::meshByText(*blueModel,"B",QFont("Arial",200),QColor("#770000FF"));
         blueModel->setBlendingEnabled(true);
 
         QTimer *t = new QTimer(this);
@@ -45,7 +47,7 @@ MainView::MainView()
             float alpha = ((qrand() % 1000)/1000.0)*360;
             QMatrix4x4 m;
             m.rotate(alpha,{0,1,0});
-            QVector3D v = {0,-5 + (qrand()%100)/10.0 ,-5 - (qrand()%1000)/10.0};
+            QVector3D v = {0,-5 + (qrand()%1000)/100.0 ,-5 - (qrand()%10000)/100.0};
             v = m*v;
             auto *state = createState(meshes[qrand()%meshes.count()]);
             state->setPos(v);
@@ -65,10 +67,14 @@ MainView::MainView()
 
 }
 
+MainView::~MainView()
+{
+}
+
 void MainView::paint3D()
 {
     static int fpsCount = 0;
-    QTime t;
+    QElapsedTimer t;
     t.start();
     Qtr3dWidget::paint3D();
 
@@ -83,11 +89,10 @@ void MainView::paint3D()
     for (auto t: mElapsedTimes)
         mean += t;
     mean = mean/mElapsedTimes.count();
-    float load = 100*(mean/bufferContext()->loop().interval());
-    qDebug() << QString("Rendertime: %1[ms]").arg(mean,0,'f',3) << mStateCount << load;
-
+    mCpuLoad = 100*(mean/bufferContext()->loop().interval());
     mElapsedTimes.clear();
     fpsCount = 0;
+    emit statisticsChanged();
 }
 
 void MainView::paint2D()

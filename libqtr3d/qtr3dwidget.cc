@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <QOpenGLFunctions>
 #include <QTimer>
 #include <QPainter>
@@ -295,7 +296,9 @@ void Qtr3dWidget::paintMeshes()
     }
 
     // now Render the Z-Ordered Blending Pipeline
-    qSort(blendRenderPipeline.begin(), blendRenderPipeline.end(), stateZLessThan);
+    // qSort(blendRenderPipeline.begin(), blendRenderPipeline.end(), stateZLessThan);
+    std::sort(blendRenderPipeline.begin(), blendRenderPipeline.end(), stateZLessThan);
+
     for(const auto &zInfo: blendRenderPipeline) {
         const auto &geometry = zInfo.state->buffer();
         const auto *mesh = dynamic_cast<const Qtr3dMesh*>(&geometry);
