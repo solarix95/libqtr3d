@@ -25,7 +25,7 @@ Project Roadmap
 
 | Version       | Features      | Status|
 | ------------- |:-------------:| -----:|
-| 0.1           | static models, simple lighting, camera control, native GLB-Loader, basic animations | <wip> |
-| 0.2           | multiple lights, shadows | <open> |
-| 0.3           | Skeletal animation       | <open> |
+| 0.1           | static models, simple lighting, camera control, native GLB-Loader, basic animations | wip |
+| 0.2           | multiple lights, shadows | open |
+| 0.3           | Skeletal animation       | open |
 
