@@ -226,8 +226,7 @@ void Qtr3dMesh::addNormal(const QVector3D &n)
 void Qtr3dMesh::addIndex(int vi, int ni)
 {
     if (vi < mVertices.count() && ni >= 0 && ni < mNormals.count()) {
-        if (!mVertices[vi].n.isNull()) { // TODO: re-using of vertices with different normals?
-            // qWarning() << "Qtr3dMesh::addIndex: normal already in use";
+        if (!mVertices[vi].n.isNull()) {
             mVertices << mVertices[vi];
             vi = mVertices.count()-1;
         }

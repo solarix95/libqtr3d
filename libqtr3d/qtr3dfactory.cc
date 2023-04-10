@@ -749,14 +749,16 @@ bool Qtr3d::meshByParticleTriangle(Qtr3dMesh &mesh, const QColor &color, float r
     turn.rotate(360/3,{0,1,0});
     mesh.addVertex(turn*v);
 
-    mesh.addIndex(0);
-    mesh.addIndex(1);
-    mesh.addIndex(2);
+    mesh.addNormal({0,1,0});
+    mesh.addIndex(0,0);
+    mesh.addIndex(1,0);
+    mesh.addIndex(2,0);
 
     if (doublesSided) {
-        mesh.addIndex(2);
-        mesh.addIndex(1);
-        mesh.addIndex(0);
+        mesh.addNormal({0,-1,0});
+        mesh.addIndex(2,1);
+        mesh.addIndex(1,1);
+        mesh.addIndex(0,1);
     }
 
     mesh.endMesh();

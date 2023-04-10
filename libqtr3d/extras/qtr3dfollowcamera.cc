@@ -1,16 +1,19 @@
 #include <QTimer>
 #include "../qtr3dcamera.h"
 #include "../qtr3dwidget.h"
+#include "../qtr3dcontext.h"
 #include "../qtr3dgeometrystate.h"
-
+#include "../physics/qtr3dfpsloop.h"
 #include "qtr3dfollowcamera.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryState *followState)
+Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryState *followState, float distance)
  : QObject(widget)
  , mState(followState)
+ , mDistance(distance)
 {
     mCamera = widget->camera();
+    connect(&widget->bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, this, &Qtr3dFollowCamera::process);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -27,7 +30,7 @@ void Qtr3dFollowCamera::process()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dFollowCamera::follow()
 {
-    float targetDistance = (mCamera->pos() - mCamera->lookAtCenter()).length();
+    float targetDistance = mDistance > 0 ? mDistance : ((mCamera->pos() - mCamera->lookAtCenter()).length());
 
     QVector3D newCameraCenter = mCamera->lookAtCenter() + 0.01*(mState->pos()-mCamera->lookAtCenter());
     QVector3D cameraVector    = mState->pos() - mCamera->pos();

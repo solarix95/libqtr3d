@@ -14,6 +14,15 @@ Qtr3dContext::Qtr3dContext(QObject *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dContext::reset()
+{
+    qDeleteAll(mRootMeshes);
+    qDeleteAll(mModels);
+    mRootMeshes.clear();
+    mModels.clear();
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dMesh *Qtr3dContext::createMesh(bool root)
 {
     auto *ret = new Qtr3dMesh(this);

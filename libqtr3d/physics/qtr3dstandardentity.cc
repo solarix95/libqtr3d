@@ -20,6 +20,9 @@ bool Qtr3dStandardEntity::process(float ms, float normalizedSpeed)
     for (auto f:forces)
         mMovement += ms*f;
 
+    if (!mAutoRotation.isNull()) {
+        state().setRotation(state().rot() + ms*mAutoRotation);
+    }
     return setPos(pos() + mMovement);
 }
 

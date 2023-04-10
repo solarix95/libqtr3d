@@ -1,8 +1,9 @@
 #include "qtr3dcamera.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dCamera::Qtr3dCamera()
+Qtr3dCamera::Qtr3dCamera(Qtr3dWidget *widget)
  : QObject()
+ , mWidget(widget)
  , mPos(QVector3D(0,0,0))
  , mFov(45.0)
  , mZNear(0.1)
@@ -14,7 +15,14 @@ Qtr3dCamera::Qtr3dCamera()
  , mAngles(QVector3D(0,0,0))
  , mMode(Fixed)
 {
+    Q_ASSERT(widget);
     updatePerspectiveMatrix();
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dWidget *Qtr3dCamera::widget()
+{
+    return mWidget;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 class Qtr3dForceField;
 class Qtr3dAbstractSpace : public QObject
 {
+    Q_OBJECT
 public:
     Qtr3dAbstractSpace(QObject *parent = nullptr);
     virtual ~Qtr3dAbstractSpace();
@@ -16,6 +17,9 @@ public:
 
     Qtr3dForceField              &forceField();
     const Qtr3dAbstractEntities  &entities();
+
+signals:
+    void processed();
 
 public slots:
     virtual void process(float ms, float normalizedSpeed);

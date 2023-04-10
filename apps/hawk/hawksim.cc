@@ -9,7 +9,8 @@
 #include <libqtr3d/qtr3dcontext.h>
 #include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/extras/qtr3dcameracycler.h>
-#include <libqtr3d/physics/qtrphspace.h>
+#include <libqtr3d/extras/qtr3dfollowcamera.h>
+#include <libqtr3d/physics/qtr3dabstractspace.h>
 
 HawkSim::HawkSim()
  : mCamera(nullptr)
@@ -39,12 +40,19 @@ void HawkSim::init(Qtr3dContext *context, Qtr3dCamera *camera)
 
     auto *hawkState = context->createState(hawk,Qtr3d::PhongLighting);
     hawkState->setPos({0,100,0});
+    hawkState->setScale(0.1);
 
     hawkState->setLightingType(Qtr3d::PhongLighting);
 
-    context->space().append(new Hawk(*hawkState));
+    auto *hawkSim = new Hawk(*hawkState);
+    hawkSim->setPos({0,100,0});
+    hawkSim->setMovement({0.1,0,0});
+
+    context->space().append(hawkSim);
 
     // hawkState->setScale(0.5);
 
-    new Qtr3dCameraCycler(mCamera,50,0.05,{0,200,500},{0,0,0});
+    // new Qtr3dCameraCycler(mCamera,50,0.05,{0,200,500},{0,0,0});
+    mCamera->lookAt({200,200,200},{0,0,0},{0,1,0});
+    new Qtr3dFollowCamera(mCamera->widget(),hawkState, 20);
 }

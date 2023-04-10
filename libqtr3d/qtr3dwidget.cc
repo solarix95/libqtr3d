@@ -58,8 +58,11 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
 //-------------------------------------------------------------------------------------------------
 Qtr3dWidget::~Qtr3dWidget()
 {
-    if (mContext && (mContext->parent() == this))
+    if (mContext && (mContext->parent() == this)) {
+        makeCurrent();
+        mContext->reset();
         delete mContext;
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -228,7 +231,7 @@ void Qtr3dWidget::resizeEvent(QResizeEvent *e)
 //-------------------------------------------------------------------------------------------------
 Qtr3dCamera *Qtr3dWidget::createCamera()
 {
-    return new Qtr3dCamera();
+    return new Qtr3dCamera(this);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -280,7 +283,7 @@ void Qtr3dWidget::paintMeshes()
                 continue;
 
             QVector3D previewCenter = camera()->worldMatrix() * state->pos();
-            if (previewCenter.z() > 0)
+            if (previewCenter.z() > state->radius())
                 continue;
 
             if (mesh->blending()) {

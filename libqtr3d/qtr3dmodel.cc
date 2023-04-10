@@ -87,6 +87,8 @@ void Qtr3dModel::addMesh(Qtr3dMesh *mesh, bool createDefaultNode)
 
     if (createDefaultNode)
         createNode(mesh);
+
+    connect(mesh, &Qtr3dMesh::destroyed, this, [this,mesh]() { mMeshes.removeAll(mesh); });
 }
 
 //-------------------------------------------------------------------------------------------------

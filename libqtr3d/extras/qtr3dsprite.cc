@@ -1,7 +1,7 @@
 #include "qtr3dsprite.h"
 #include "qtr3dbillboard.h"
-#include "qtr3dcamera.h"
-#include "qtr3dgeometrystate.h"
+#include "../qtr3dcamera.h"
+#include "../qtr3dgeometrystate.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dSprite::Qtr3dSprite(Qtr3dGeometryState *state, QList<Qtr3dTexture *> textures, Qtr3dCamera *camera, bool billboard)

@@ -1,4 +1,5 @@
 #include <QElapsedTimer>
+#include <QRandomGenerator>
 #include <QPainter>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
@@ -12,6 +13,10 @@
 #include <libqtr3d/physics/qtr3dfpsloop.h>
 #include "mainview.h"
 
+inline qint32 qtrRand() {
+    return QRandomGenerator::global()->generate();
+}
+
 MainView::MainView(QWidget *parent)
  : Qtr3dWidget(parent)
  , mStateCount(0)
@@ -22,19 +27,28 @@ MainView::MainView(QWidget *parent)
         bufferContext()->environment().setClearColor(Qt::black);
 
         auto *mesh = createMesh();
-        Qtr3d::meshByParticleTriangle(*mesh,Qt::red,0.05);
+        Qtr3d::meshByParticleTriangle(*mesh,Qt::red,0.02);
 
         QTimer *t = new QTimer(this);
         connect(t, &QTimer::timeout, this, [this,mesh]() {
 
-            float alpha = ((qrand() % 1000)/1000.0)*360;
+            float alpha = ((qtrRand() % 1000)/1000.0)*360;
             QMatrix4x4 m;
             m.rotate(alpha,{0,1,0});
-            QVector3D v = {0.0,float(-5 + (qrand()%1000)/100.0) ,float(-5 - (qrand()%10000)/100.0)};
+            QVector3D v = {0.0,float(-5 + (qtrRand()%1000)/100.0) ,float(-5 - (qtrRand()%10000)/100.0)};
             v = m*v;
             auto *state = createState(mesh);
-            state->setPos(v);
-            state->setRotation({0,alpha,0});
+
+            // state->setLightingType(Qtr3d::PhongLighting);
+
+            // Variant without animation loop
+            // state->setPos(v);
+            // state->setRotation({0,alpha,0});
+            auto *entity = new Qtr3dStandardEntity(*state,v);
+            entity->setAutorotation({float(0.1*(-1 + ((qtrRand()%100)/100.0))),
+                                     float(0.1*(-1 + ((qtrRand()%100)/100.0))),
+                                     float(0.1*(-1 + ((qtrRand()%100)/100.0)))});
+            bufferContext()->space().append(entity);
             mStateCount++;
         });
         t->start(1);
@@ -43,7 +57,7 @@ MainView::MainView(QWidget *parent)
         // *************************************************
         bufferContext()->loop().setFps(50);
 
-        connect(&bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, this,[this]() { update(); });
+        connect(&bufferContext()->space(), &Qtr3dAbstractSpace::processed, this,[this]() { update(); });
 
         new Qtr3dCameraCycler(camera(),50,0.1,{0,0,2},{0,0,0});
     });

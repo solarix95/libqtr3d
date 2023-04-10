@@ -10,7 +10,8 @@ Qtr3dAbstractSpace::Qtr3dAbstractSpace(QObject *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dAbstractSpace::~Qtr3dAbstractSpace() = default;
+Qtr3dAbstractSpace::~Qtr3dAbstractSpace()
+{}
 
 
 //-------------------------------------------------------------------------------------------------
@@ -69,4 +70,5 @@ void Qtr3dAbstractSpace::processEntities(float ms, float normalizedSpeed)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dAbstractSpace::postProcessing()
 {
+    emit processed();
 }

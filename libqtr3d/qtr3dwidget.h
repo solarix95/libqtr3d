@@ -44,9 +44,9 @@ public:
     Qtr3dLightSource           *primaryLightSource();
 
     // Factories
-    virtual Qtr3dMesh                *createMesh();
-    virtual Qtr3dModel               *createModel();
-    virtual Qtr3dGeometryState *createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
+    virtual Qtr3dMesh            *createMesh();
+    virtual Qtr3dModel           *createModel();
+    virtual Qtr3dGeometryState   *createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
 
 public slots:
     void updateRequested();

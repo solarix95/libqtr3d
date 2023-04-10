@@ -22,10 +22,10 @@ protected:
     virtual void paint2D();
 
 private:
-    QElapsedTimer mFpsTime;
-    int           mStateCount;
-    float         mCpuLoad;
-    QList<int>    mElapsedTimes;
+    QElapsedTimer    mFpsTime;
+    int              mStateCount;
+    float            mCpuLoad;
+    QList<int>       mElapsedTimes;
 };
 
 #endif // MAINVIEW_H

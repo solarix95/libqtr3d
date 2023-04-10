@@ -23,6 +23,7 @@ public:
 
 protected:
     virtual void onNewPosition();
+    inline Qtr3dGeometryState &state() { return mState; }
 
 private:
     QVector3D           mPos;

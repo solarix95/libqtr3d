@@ -14,7 +14,8 @@ public:
     inline QVector3D orientation() const         { return mOrientation;     }
     inline QVector3D movement()    const         { return mMovement;        }
 
-    inline void      setMovement(const QVector3D &v) { mMovement = v;   }
+    inline void      setMovement(const QVector3D &deltaV)         { mMovement = deltaV;          }
+    inline void      setAutorotation(const QVector3D &deltaAlpha) { mAutoRotation = deltaAlpha;  }
 
     virtual bool process(float ms, float normalizedSpeed);
 
@@ -25,6 +26,7 @@ private:
     QVector3D mLookAt;
     QVector3D mOrientation;
     QVector3D mMovement;
+    QVector3D mAutoRotation;
 };
 
 #endif // QTR3DSTANDARDENTITY_H

@@ -19,6 +19,7 @@ class Qtr3dContext : public QOpenGLContext
 public:
     Qtr3dContext(QObject *parent = nullptr);
 
+    void        reset();
     Qtr3dMesh  *createMesh(bool root = true);
     Qtr3dModel *createModel();
     void        setLoop(Qtr3dFpsLoop *loop);

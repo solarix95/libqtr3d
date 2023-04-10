@@ -5,12 +5,15 @@
 #include <QMatrix4x4>
 #include <QVector3D>
 
+class Qtr3dWidget;
 class Qtr3dCamera : public QObject
 {
     Q_OBJECT
 
 public:
-    Qtr3dCamera();
+    Qtr3dCamera(Qtr3dWidget *widget);
+
+    Qtr3dWidget *widget();
 
     // Minimal Setup
     void setPos(float x, float y, float z);
@@ -44,6 +47,7 @@ private:
         LookAt
     };
 
+    Qtr3dWidget *mWidget;
     QVector3D  mPos;
     float      mFov;    // Field of View
     float      mZNear;
