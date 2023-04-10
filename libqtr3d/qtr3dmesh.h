@@ -11,7 +11,7 @@ class QOpenGLTexture;
 class Qtr3dMesh : public Qtr3dGeometry
 {
 public:
-    Qtr3dMesh(Qtr3dContext *parent);
+    Qtr3dMesh(Qtr3dAssets *parent);
     virtual ~Qtr3dMesh();
 
     void              setMeshType(Qtr3d::MeshType t);

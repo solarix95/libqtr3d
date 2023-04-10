@@ -20,7 +20,7 @@ MainWindow::MainWindow()
 
     QObject::connect(this, &Qtr3dWidget::initialized, [&]() {
 
-        bufferContext()->environment().setClearColor(Qt::black);
+        assets()->environment().setClearColor(Qt::black);
         camera()->setFov(20);
 
         // Create the floor

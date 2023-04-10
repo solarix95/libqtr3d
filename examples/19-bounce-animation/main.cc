@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
 
-        w.bufferContext()->environment().setClearColor(Qt::white);
+        w.assets()->environment().setClearColor(Qt::white);
         w.setDefaultLighting(Qtr3d::PhongLighting);
 
         // Let's create the graphic models and states first:
@@ -51,16 +51,16 @@ int main(int argc, char *argv[])
         // *************************************************
 
         // Basic Physic + Animation Setup
-        w.bufferContext()->loop().setFps(50);
-        w.bufferContext()->space().forceField().setConstantForce({0,-0.001,0}); // Simulate "Gravitation"
+        w.assets()->loop().setFps(50);
+        w.assets()->space().forceField().setConstantForce({0,-0.001,0}); // Simulate "Gravitation"
 
         // Create the "physical" representation of the ball:
         auto *ballEntity = new Qtr3dStandardEntity(*ball,{0,5,0});
-        w.bufferContext()->space().append(ballEntity);
+        w.assets()->space().append(ballEntity);
         ballEntity->setPos({0,5,0}); // the "enity" controls now the graphical "state" and updates the position
 
         // Simple physical constrains:
-        QObject::connect(&w.bufferContext()->loop(),&Qtr3dFpsLoop::stepDone, ballEntity, [ballEntity]() {
+        QObject::connect(&w.assets()->loop(),&Qtr3dFpsLoop::stepDone, ballEntity, [ballEntity]() {
 
             // Floor: "Bounce-Reaction"
             if (ballEntity->pos()[1] < ballEntity->collisionRadius()) {
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
             }
         });
 
-        QObject::connect(&w.bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, &w,[&]() { w.update(); });
+        QObject::connect(&w.assets()->loop(), &Qtr3dFpsLoop::stepDone, &w,[&]() { w.update(); });
     });
 
     w.show();

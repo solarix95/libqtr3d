@@ -16,7 +16,7 @@ class Qtr3dCamera;
 class Qtr3dModel;
 class Qtr3dLightSource;
 class Qtr3dGeometryBufferFactory;
-class Qtr3dContext;
+class Qtr3dAssets;
 class Qtr3dShader;
 
 //-------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ public:
     void                        setDefaultLighting(Qtr3d::LightingType t);
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
-    Qtr3dContext               *bufferContext();
+    Qtr3dAssets                *assets();
     Qtr3dLightSource           *primaryLightSource();
 
     // Factories
@@ -80,7 +80,7 @@ private:
     Qtr3dTextureFactory     *mTextures;
     Qtr3dLightSource        *mLightSource;
 
-    Qtr3dContext            *mContext;
+    Qtr3dAssets            *mContext;
 
     Qtr3dPlainShader        *mPlainShader;
     Qtr3dVertexMeshShader   *mVertexMeshShader;

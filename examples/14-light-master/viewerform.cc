@@ -128,7 +128,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         connect(ui->btnFlat,  &QRadioButton::toggled, this, &ViewerForm::updateLightType);
 
         connect(ui->sldFog, &QSlider::valueChanged, this, [&](){
-            ui->viewer->bufferContext()->environment().setFogDistance(ui->sldFog->value());
+            ui->viewer->assets()->environment().setFogDistance(ui->sldFog->value());
             ui->viewer->update();});
 
         connect(ui->sldLightAmbient, &QSlider::valueChanged, this, [&](){ ui->lightambientTot->setValue(ui->sldLightAmbient->value()/1000.0); });
@@ -286,8 +286,8 @@ void ViewerForm::selectLightColor()
 //-------------------------------------------------------------------------------------------------
 void ViewerForm::selectFogColor()
 {
-    QColor c = QColorDialog::getColor(ui->viewer->bufferContext()->environment().clearColor(), this,"Clear Color");
-    ui->viewer->bufferContext()->environment().setClearColor(c);
+    QColor c = QColorDialog::getColor(ui->viewer->assets()->environment().clearColor(), this,"Clear Color");
+    ui->viewer->assets()->environment().setClearColor(c);
     ui->viewer->update();
     ui->edtFogColor->setText(c.name());
 }

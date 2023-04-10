@@ -14,8 +14,8 @@ int main(int argc, char *argv[])
     w.setGeometry(50,50,2.35*500,500);
 
     QObject::connect(&w, &Qtr3dWidget::initialized, [&]() {
-        w.bufferContext()->environment().setClearColor(QColor("#87ceeb"));
-        w.bufferContext()->environment().setFogDistance(1500);
+        w.assets()->environment().setClearColor(QColor("#87ceeb"));
+        w.assets()->environment().setFogDistance(1500);
 
         auto *mesh = w.createMesh();
 

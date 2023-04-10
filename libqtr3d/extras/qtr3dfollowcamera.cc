@@ -1,7 +1,7 @@
 #include <QTimer>
 #include "../qtr3dcamera.h"
 #include "../qtr3dwidget.h"
-#include "../qtr3dcontext.h"
+#include "../qtr3dassets.h"
 #include "../qtr3dgeometrystate.h"
 #include "../physics/qtr3dfpsloop.h"
 #include "qtr3dfollowcamera.h"
@@ -13,7 +13,7 @@ Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryState *fo
  , mDistance(distance)
 {
     mCamera = widget->camera();
-    connect(&widget->bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, this, &Qtr3dFollowCamera::process);
+    connect(&widget->assets()->loop(), &Qtr3dFpsLoop::stepDone, this, &Qtr3dFollowCamera::process);
 }
 
 //-------------------------------------------------------------------------------------------------

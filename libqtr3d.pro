@@ -15,7 +15,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.h \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dassets.h \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dshader.h \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dplainshader.h \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dvertexmeshshader.h \
@@ -48,7 +48,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrystate.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.cc \
-    $$LIBQTR3D_PATH/libqtr3d/qtr3dcontext.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dassets.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dfactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.cc \

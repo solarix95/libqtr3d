@@ -1,8 +1,8 @@
-#include "qtr3dcontext.h"
+#include "qtr3dassets.h"
 #include "qtr3dgeometry.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometry::Qtr3dGeometry(Qtr3dContext *parent)
+Qtr3dGeometry::Qtr3dGeometry(Qtr3dAssets *parent)
     : QObject(parent)
     , mContext(parent)
     , mParentBuffer(nullptr)
@@ -25,7 +25,7 @@ Qtr3dGeometry::~Qtr3dGeometry()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dContext *Qtr3dGeometry::context()
+Qtr3dAssets *Qtr3dGeometry::context()
 {
     return mContext;
 }

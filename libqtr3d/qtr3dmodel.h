@@ -5,7 +5,7 @@
 #include "qtr3dmesh.h"
 #include "qtr3dgeometry.h"
 
-class Qtr3dContext;
+class Qtr3dAssets;
 class Qtr3dModel : public Qtr3dGeometry
 {
     Q_OBJECT
@@ -18,7 +18,7 @@ public:
     };
     typedef QList<Node*> Nodes;
 
-    explicit Qtr3dModel(Qtr3dContext *context);
+    explicit Qtr3dModel(Qtr3dAssets *context);
     virtual ~Qtr3dModel();
 
     virtual Node *createNode(Qtr3dMeshes meshes, const QMatrix4x4 &transform, Node *parent = nullptr);

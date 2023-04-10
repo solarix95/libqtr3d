@@ -15,7 +15,7 @@ MainView::MainView()
 {
     connect(this, &Qtr3dWidget::initialized, this, [this]{
 
-        bufferContext()->environment().setClearColor(Qt::black);
+        assets()->environment().setClearColor(Qt::black);
         // Sky
         auto *mesh = createMesh();
         Qtr3d::meshByStarsky(*mesh,1000,10000,Qt::white);
@@ -63,15 +63,15 @@ MainView::MainView()
 
         // Now let's add physic animation:
         // *************************************************
-        bufferContext()->loop().setFps(50);
-        bufferContext()->space().append(new CelestialBody(*sun1,0.1,{0,0,0},{0,0,0}));
+        assets()->loop().setFps(50);
+        assets()->space().append(new CelestialBody(*sun1,0.1,{0,0,0},{0,0,0}));
 
-        bufferContext()->space().append(new CelestialBody(*planet1,0.0001,{20,0,0},{0,0,-0.3}));
-        bufferContext()->space().append(new CelestialBody(*planet2,0.0001,{30,0,0},{0,0,-0.25}));
-        bufferContext()->space().append(new CelestialBody(*planet3,0.0001,{5,0,0},{0,0,-0.7}));
-        bufferContext()->space().append(new CelestialBody(*planet4,0.0001,{50,20,0},{0,0,-0.2}));
+        assets()->space().append(new CelestialBody(*planet1,0.0001,{20,0,0},{0,0,-0.3}));
+        assets()->space().append(new CelestialBody(*planet2,0.0001,{30,0,0},{0,0,-0.25}));
+        assets()->space().append(new CelestialBody(*planet3,0.0001,{5,0,0},{0,0,-0.7}));
+        assets()->space().append(new CelestialBody(*planet4,0.0001,{50,20,0},{0,0,-0.2}));
 
-        connect(&bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, this,[this]() { update(); });
+        connect(&assets()->loop(), &Qtr3dFpsLoop::stepDone, this,[this]() { update(); });
 
         new Qtr3dEgoCameraController(this);
     });

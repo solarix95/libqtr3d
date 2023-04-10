@@ -6,7 +6,7 @@
 #include <QVector3D>
 #include <QVector4D>
 #include "qtr3dgeometrystate.h"
-#include "qtr3dcontext.h"
+#include "qtr3dassets.h"
 #include "qtr3dtypes.h"
 
 class Qtr3dGeometryState;
@@ -16,10 +16,10 @@ class Qtr3dGeometry : public QObject
 {
     Q_OBJECT
 public:
-    Qtr3dGeometry(Qtr3dContext *parent);
+    Qtr3dGeometry(Qtr3dAssets *parent);
     virtual ~Qtr3dGeometry();
 
-    Qtr3dContext        *context();
+    Qtr3dAssets        *context();
     Qtr3d::ShaderType   shader() const;
     void                setFaceOrientation(Qtr3d::FaceOrientation orientation);
     Qtr3d::FaceOrientation faceOrientation() const;
@@ -50,7 +50,7 @@ private slots:
     void stateDestroyed(QObject *state);
 
 private:
-    Qtr3dContext               *mContext;
+    Qtr3dAssets               *mContext;
     Qtr3dGeometry        *mParentBuffer;
 
     Qtr3d::ShaderType           mShader;

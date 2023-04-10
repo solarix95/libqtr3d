@@ -1,10 +1,10 @@
 
-#include "qtr3dcontext.h"
+#include "qtr3dassets.h"
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dModel::Qtr3dModel(Qtr3dContext *context)
+Qtr3dModel::Qtr3dModel(Qtr3dAssets *context)
     : Qtr3dGeometry(context)
 {
 }

@@ -10,7 +10,7 @@
 #include "qtr3dwidget.h"
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
-#include "qtr3dcontext.h"
+#include "qtr3dassets.h"
 #include "physics/qtr3dfpsloop.h"
 #include "shaders/qtr3dshader.h"
 #include "shaders/qtr3dtexturedmeshshader.h"
@@ -108,7 +108,7 @@ Qtr3dCamera *Qtr3dWidget::camera()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dContext *Qtr3dWidget::bufferContext()
+Qtr3dAssets *Qtr3dWidget::assets()
 {
     return mContext;
 }
@@ -125,26 +125,26 @@ Qtr3dLightSource *Qtr3dWidget::primaryLightSource()
 Qtr3dMesh *Qtr3dWidget::createMesh()
 {
     makeCurrent();
-    return bufferContext()->createMesh();
+    return assets()->createMesh();
 }
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel *Qtr3dWidget::createModel()
 {
     makeCurrent();
-    return bufferContext()->createModel();
+    return assets()->createModel();
 }
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dGeometryState *Qtr3dWidget::createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype)
 {
-    return bufferContext()->createState(buffer, ltype);
+    return assets()->createState(buffer, ltype);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::updateRequested()
 {
-    if (bufferContext()->loop().isActive())
+    if (assets()->loop().isActive())
         return;
 
     update();
@@ -156,7 +156,7 @@ void Qtr3dWidget::preparePainting()
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    QColor clearColor = bufferContext()->environment().clearColor();
+    QColor clearColor = assets()->environment().clearColor();
     f->glClearColor(clearColor.redF() ,  clearColor.greenF() ,  clearColor.blueF() ,  1.0f ) ;
     f->glEnable(GL_CULL_FACE) ;
     f->glCullFace(GL_BACK);
@@ -246,7 +246,7 @@ Qtr3dTextureFactory *Qtr3dWidget::createTextureFactory()
 void Qtr3dWidget::preInitializing()
 {
     if (!mContext)
-        mContext = new Qtr3dContext(this);
+        mContext = new Qtr3dAssets(this);
 
     setOptions(mOptions);
 }
@@ -254,7 +254,7 @@ void Qtr3dWidget::preInitializing()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintMeshes()
 {
-    const auto rootBuffers = bufferContext()->meshes();
+    const auto rootBuffers = assets()->meshes();
 
     QList<pQtr3dStateZ> blendRenderPipeline;
 
@@ -294,7 +294,7 @@ void Qtr3dWidget::paintMeshes()
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = shader->defaultLighting();
-            shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
+            shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 
@@ -322,14 +322,14 @@ void Qtr3dWidget::paintMeshes()
         auto nextLightingTyp = zInfo.state->lightingType();
         if (nextLightingTyp == Qtr3d::DefaultLighting)
             nextLightingTyp = shader->defaultLighting();
-        shader->render(*mesh,zInfo.state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
+        shader->render(*mesh,zInfo.state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
     }
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintModels()
 {
-    const auto &models = bufferContext()->models();
+    const auto &models = assets()->models();
 
     for(auto *model: models) {
 
@@ -369,7 +369,7 @@ void Qtr3dWidget::paintModels()
                     if (nextLightingTyp == Qtr3d::DefaultLighting)
                         nextLightingTyp = shader->defaultLighting();
 
-                    shader->render(*mesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource(), bufferContext()->environment());
+                    shader->render(*mesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
                 }
             }
         }

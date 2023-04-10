@@ -1,5 +1,5 @@
-#ifndef QTR3DCONTEXT_H
-#define QTR3DCONTEXT_H
+#ifndef QTR3D_ASSETS_H
+#define QTR3D_ASSETS_H
 
 #include <QObject>
 #include <QList>
@@ -14,10 +14,10 @@ class Qtr3dGeometryState;
 class Qtr3dFpsLoop;
 class Qtr3dAbstractSpace;
 
-class Qtr3dContext : public QOpenGLContext
+class Qtr3dAssets : public QOpenGLContext
 {
 public:
-    Qtr3dContext(QObject *parent = nullptr);
+    Qtr3dAssets(QObject *parent = nullptr);
 
     void        reset();
     Qtr3dMesh  *createMesh(bool root = true);
@@ -42,11 +42,11 @@ private:
     Qtr3dMesh  *registerMesh(Qtr3dMesh *mesh);
     Qtr3dModel *registerModel(Qtr3dModel *model);
 
-    QList<Qtr3dMesh*>    mRootMeshes;
+    QList<Qtr3dMesh*>    mMeshes;
     QList<Qtr3dModel*>   mModels;
     Qtr3dEnvironment     mEnvironment;
     Qtr3dFpsLoop        *mLoop;
     Qtr3dAbstractSpace  *mSpace;
 };
 
-#endif // QTR3DCONTEXT_H
+#endif // QTR3DASSETS_H

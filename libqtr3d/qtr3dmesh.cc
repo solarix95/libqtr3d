@@ -5,7 +5,7 @@
 
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dMesh::Qtr3dMesh(Qtr3dContext *parent)
+Qtr3dMesh::Qtr3dMesh(Qtr3dAssets *parent)
     : Qtr3dGeometry(parent)
     , mVerticesBufferId(0)
     , mElementBufferId(0)

@@ -1,12 +1,12 @@
 
-#include "qtr3dcontext.h"
+#include "qtr3dassets.h"
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
 #include "physics/qtr3dfpsloop.h"
 #include "physics/qtr3dabstractspace.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dContext::Qtr3dContext(QObject *parent)
+Qtr3dAssets::Qtr3dAssets(QObject *parent)
  : QOpenGLContext(parent)
  , mLoop(nullptr)
  , mSpace(nullptr)
@@ -14,29 +14,29 @@ Qtr3dContext::Qtr3dContext(QObject *parent)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dContext::reset()
+void Qtr3dAssets::reset()
 {
-    qDeleteAll(mRootMeshes);
+    qDeleteAll(mMeshes);
     qDeleteAll(mModels);
-    mRootMeshes.clear();
+    mMeshes.clear();
     mModels.clear();
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dMesh *Qtr3dContext::createMesh(bool root)
+Qtr3dMesh *Qtr3dAssets::createMesh(bool root)
 {
     auto *ret = new Qtr3dMesh(this);
     return root ? registerMesh(ret) : ret;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dModel *Qtr3dContext::createModel()
+Qtr3dModel *Qtr3dAssets::createModel()
 {
     return registerModel(new Qtr3dModel(this));
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dContext::setLoop(Qtr3dFpsLoop *loop)
+void Qtr3dAssets::setLoop(Qtr3dFpsLoop *loop)
 {
     Q_ASSERT(loop);
     if (mLoop)
@@ -46,7 +46,7 @@ void Qtr3dContext::setLoop(Qtr3dFpsLoop *loop)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dContext::setSpace(Qtr3dAbstractSpace *space)
+void Qtr3dAssets::setSpace(Qtr3dAbstractSpace *space)
 {
     Q_ASSERT(space);
     if (mSpace)
@@ -56,7 +56,7 @@ void Qtr3dContext::setSpace(Qtr3dAbstractSpace *space)
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometryState *Qtr3dContext::createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype)
+Qtr3dGeometryState *Qtr3dAssets::createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype)
 {
     auto *ret = new Qtr3dGeometryState(buffer, ltype);
     buffer->registerBufferState(ret);
@@ -64,25 +64,25 @@ Qtr3dGeometryState *Qtr3dContext::createState(Qtr3dGeometry *buffer, Qtr3d::Ligh
 }
 
 //-------------------------------------------------------------------------------------------------
-const QList<Qtr3dMesh*> &Qtr3dContext::meshes() const
+const QList<Qtr3dMesh*> &Qtr3dAssets::meshes() const
 {
-    return mRootMeshes;
+    return mMeshes;
 }
 
 //-------------------------------------------------------------------------------------------------
-const QList<Qtr3dModel*> &Qtr3dContext::models() const
+const QList<Qtr3dModel*> &Qtr3dAssets::models() const
 {
     return mModels;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dEnvironment &Qtr3dContext::environment()
+Qtr3dEnvironment &Qtr3dAssets::environment()
 {
     return mEnvironment;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dFpsLoop &Qtr3dContext::loop()
+Qtr3dFpsLoop &Qtr3dAssets::loop()
 {
     if (!mLoop) {
         mLoop = new Qtr3dFpsLoop(this);
@@ -92,7 +92,7 @@ Qtr3dFpsLoop &Qtr3dContext::loop()
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dAbstractSpace &Qtr3dContext::space()
+Qtr3dAbstractSpace &Qtr3dAssets::space()
 {
     if (!mSpace) {
         mSpace = new Qtr3dAbstractSpace(this);
@@ -102,22 +102,22 @@ Qtr3dAbstractSpace &Qtr3dContext::space()
 }
 
 //-------------------------------------------------------------------------------------------------
-int Qtr3dContext::totalModelCount() const
+int Qtr3dAssets::totalModelCount() const
 {
     return mModels.count();
 }
 
 //-------------------------------------------------------------------------------------------------
-int Qtr3dContext::totalMeshCount() const
+int Qtr3dAssets::totalMeshCount() const
 {
-    int ret = mRootMeshes.count();
+    int ret = mMeshes.count();
     for (auto *model: mModels)
         ret += model->meshes().count();
     return ret;
 }
 
 //-------------------------------------------------------------------------------------------------
-int Qtr3dContext::totalVerticesCount() const
+int Qtr3dAssets::totalVerticesCount() const
 {
     int ret = 0;
     for (const auto *model: mModels) {
@@ -125,26 +125,26 @@ int Qtr3dContext::totalVerticesCount() const
             ret += mesh->vertexCount();
         }
     }
-    for (const auto *mesh: mRootMeshes) {
+    for (const auto *mesh: mMeshes) {
         ret += mesh->vertexCount();
     }
     return ret;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dMesh *Qtr3dContext::registerMesh(Qtr3dMesh *mesh)
+Qtr3dMesh *Qtr3dAssets::registerMesh(Qtr3dMesh *mesh)
 {
     Q_ASSERT(mesh);
-    Q_ASSERT(!mRootMeshes.contains(mesh));
-    mRootMeshes << mesh;
+    Q_ASSERT(!mMeshes.contains(mesh));
+    mMeshes << mesh;
     connect(mesh, &Qtr3dMesh::destroyed, this, [this](QObject *obj){
-       mRootMeshes.removeOne((Qtr3dMesh*)obj);
+       mMeshes.removeOne((Qtr3dMesh*)obj);
     });
     return mesh;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dModel *Qtr3dContext::registerModel(Qtr3dModel *model)
+Qtr3dModel *Qtr3dAssets::registerModel(Qtr3dModel *model)
 {
     Q_ASSERT(model);
     Q_ASSERT(!mModels.contains(model));
