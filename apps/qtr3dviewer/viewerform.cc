@@ -45,6 +45,8 @@ ViewerForm::ViewerForm(QWidget *parent)
         auto *center = ui->viewer->createMesh();
         Qtr3d::meshByXyzAxis(*center, 5);
         ui->viewer->createState(center)->setLightingType(Qtr3d::NoLighting);
+
+        ui->viewer->camera()->lookAt({5,5,5},{0,0,0},{0,1,0});
     });
 
     connect(ui->btnLoad, &QPushButton::clicked, this, &ViewerForm::load);
@@ -53,6 +55,9 @@ ViewerForm::ViewerForm(QWidget *parent)
 
     connect(ui->btnLightOn, &QRadioButton::clicked, this, &ViewerForm::updateLight);
     connect(ui->btnLightOff, &QRadioButton::clicked, this, &ViewerForm::updateLight);
+
+    updateVertexOrientation();
+    updateLight();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -103,13 +108,16 @@ void ViewerForm::loadFile(const QString &filename)
     mModel = ui->viewer->createModel();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    Qtr3d::modelByFile(*mModel,filename);
+    bool done = Qtr3d::modelByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
+
+    if (!done)
+        return;
 
     mModelState =  ui->viewer->createState(mModel);
     updateLight();
     updateVertexOrientation();
 
     mModelState->setScale(1/mModel->radius());
-    ui->viewer->camera()->lookAt(mModelState->pos() + QVector3D(0.0,0.0, -2*mModelState->radius() ), mModelState->pos(), {0,1,0});
+    ui->viewer->camera()->lookAt(mModelState->center() + QVector3D({3,3,3}), mModelState->center(), {0,1,0});
 }

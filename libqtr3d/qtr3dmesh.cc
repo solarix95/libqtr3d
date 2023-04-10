@@ -1,6 +1,8 @@
+#include <QDebug>
+#include <QVector4D>
 #include "qtr3dmesh.h"
 #include "shaders/qtr3dshader.h"
-#include <QVector4D>
+
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dMesh::Qtr3dMesh(Qtr3dContext *parent)

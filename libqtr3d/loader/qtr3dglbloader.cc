@@ -90,7 +90,7 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
         createNode(allNodes[nodeIndex].toMap());
     }
 
-    return false;
+    return true;
 }
 
 //-------------------------------------------------------------------------------------------------

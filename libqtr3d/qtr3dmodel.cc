@@ -13,7 +13,9 @@ Qtr3dModel::Qtr3dModel(Qtr3dContext *context)
 Qtr3dModel::~Qtr3dModel()
 {
     qDeleteAll(mNodes);
-    qDeleteAll(mMeshes);
+
+    // Don't delete Meshes: I'm parent... so they get deleted anyway.
+    // qDeleteAll(mMeshes);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -39,8 +41,7 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &tran
     Node *n = new Node();
     if (mesh) {
         n->mMeshes = Qtr3dMeshes() << mesh;
-        if (!mMeshes.contains(mesh))
-            addMesh(mesh,false);
+        addMesh(mesh,false);
     }
     n->mParent = parent;
     n->mTranslation = translation;
@@ -80,6 +81,10 @@ void Qtr3dModel::addMesh(Qtr3dMesh *mesh, bool createDefaultNode)
 {
     Q_ASSERT(mesh);
     Q_ASSERT(mesh->context() == this->context());
+
+    if(mMeshes.contains(mesh))
+        return;
+
     mesh->setParent(this);
     mesh->setParentBuffer(this);
 

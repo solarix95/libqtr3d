@@ -31,14 +31,13 @@ Project Roadmap
 
 3D Fileformat Compatibility
 ---------------------------------
-| Format       | Status       |  Maturity    |
-| ------------ |:------------:|  ------------|
-| STL, ASCII   | native       |  High        |
-| STL, Bin     | native       |  High        |
-| GLB (glTF)   | native       |  High        |
-| PLY          | native       |  Medium      |
-| OBJ          | native       |  Low         |
-| 3DS          | native       |  Low         |
+| Format       | Implementation |  Maturity    |
+| ------------ |:--------------:|  ------------|
+| STL, ASCII   | native         |  High        |
+| STL, Bin     | native         |  High        |
+| GLB (glTF)   | native         |  High        |
+| PLY          | native         |  Medium      |
+| OBJ          | native         |  Low         |
+| 3DS          | native         |  Low         |
 | [ALL](https://github.com/assimp/assimp/blob/master/doc/Fileformats.md) | ASSIMP    |  High   |
-
 

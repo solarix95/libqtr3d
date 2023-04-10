@@ -108,6 +108,12 @@ float Qtr3dGeometryState::radius() const
 }
 
 //------------------------------------------------------------------------------------------------
+QVector3D Qtr3dGeometryState::center() const
+{
+    return mPos + (mScale * mBuffer.center());
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::updateMatrix()
 {
     mModelView = QMatrix4x4();

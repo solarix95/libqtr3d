@@ -87,6 +87,9 @@
           <property name="text">
            <string>On</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -95,7 +98,7 @@
            <string>Off/Flat</string>
           </property>
           <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
