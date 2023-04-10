@@ -24,8 +24,21 @@ Project Roadmap
 ---------------------------------
 
 | Version       | Features      | Status|
-| ------------- |:-------------:| -----:|
-| 0.1           | static models, simple lighting, camera control, native GLB-Loader, basic animations | wip |
+| ------------- |:-------------:| :-----:|
+| 0.1           | static models, simple lighting, camera control, native GLB-Loader, basic animations | WIP |
 | 0.2           | multiple lights, shadows | open |
 | 0.3           | Skeletal animation       | open |
+
+3D Fileformat Compatibility
+---------------------------------
+| Format       | Status       |  Maturity    |
+| ------------ |:------------:|  ------------|
+| STL, ASCII   | native       |  High        |
+| STL, Bin     | native       |  High        |
+| GLB (glTF)   | native       |  High        |
+| PLY          | native       |  Medium      |
+| OBJ          | native       |  Low         |
+| 3DS          | native       |  Low         |
+| [ALL](https://github.com/assimp/assimp/blob/master/doc/Fileformats.md) | ASSIMP    |  High   |
+
 
