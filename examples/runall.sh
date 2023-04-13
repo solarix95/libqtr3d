@@ -3,14 +3,17 @@
 list=`ls -d */ | sed  's/\///g'`
 failedlist=""
 
+QMAKE=/usr/lib/qt6/bin/qmake
+# QMAKE=qmake
+
 for next in $list
 do
   echo $next
   if [ -f ${next}/${next}.pro ]; then
     cd $next
-    qmake
+    ${QMAKE}
     make distclean
-    qmake
+    ${QMAKE}
     make -j15
     ./${next}
     if [ $? -ne 0 ]; then

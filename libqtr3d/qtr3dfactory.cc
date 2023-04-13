@@ -261,7 +261,7 @@ bool Qtr3d::meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color)
     mesh.addVertex(center, normal); // add "Center", Vertex 0
     for (int i=0; i<sectors; i++) {
         mesh.addVertex(pointer,normal);
-        pointer = pointer * rotation;
+        pointer = rotation.map(pointer);
 
         // Triangle...
         mesh.addIndex(i+1);                        // from current
@@ -302,6 +302,9 @@ bool Qtr3d::meshByXyzAxis(Qtr3dMesh &mesh, float length)
 //-------------------------------------------------------------------------------------------------
 bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
 {
+    Q_UNUSED(topClosed);
+    Q_UNUSED(bottomClosed);
+
     if (sectors < 3)
         return false;
 
@@ -333,7 +336,8 @@ bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bo
 
         // mesh.addIndex(i == sectors - 1 ? 0 : (i+1)*2); // to next top
 
-        pointer = pointer * rotation;
+        // pointer = pointer*rotation;
+        pointer = rotation.map(pointer);
     }
 
     mesh.endMesh();
@@ -745,9 +749,9 @@ bool Qtr3d::meshByParticleTriangle(Qtr3dMesh &mesh, const QColor &color, float r
 
     mesh.addVertex(v);
     turn.rotate(360/3,{0,1,0});
-    mesh.addVertex(turn*v);
+    mesh.addVertex(turn.map(v));
     turn.rotate(360/3,{0,1,0});
-    mesh.addVertex(turn*v);
+    mesh.addVertex(turn.map(v));
 
     mesh.addNormal({0,1,0});
     mesh.addIndex(0,0);

@@ -2,6 +2,11 @@
 INCLUDEPATH += libqtr3d $$LIBQTR3D_PATH
 CONFIG += c++11
 QT     += core gui widgets
+
+greaterThan(QT_MAJOR_VERSION, 5) {
+    QT += openglwidgets
+}
+
 INCLUDEPATH += $$LIBQTR3D_PATH
 
 HEADERS += \

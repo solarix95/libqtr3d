@@ -48,7 +48,7 @@ bool Qtr3d3dsLoader::loadModel(Qtr3dModel &model, const QString &filename)
     mParserHooks["4D4D-3D3D-AFFF"] = [&](const QString &url, int junkSize){
         processNextJunks(reader,url,junkSize);
     };
-    mParserHooks["4D4D-3D3D-AFFF-A000"] = [&](const QString &url, int junkSize){
+    mParserHooks["4D4D-3D3D-AFFF-A000"] = [&](const QString & /*url*/, int /*junkSize*/){
         processMaterialNameJunk(reader);
     };
     mParserHooks["4D4D-3D3D-4000"] = [&](const QString &url, int junkSize){

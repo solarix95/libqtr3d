@@ -40,7 +40,7 @@ void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x
 //-------------------------------------------------------------------------------------------------
 void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
-    QVector3D lightPos = worldMatrix * light.pos();
+    QVector3D lightPos = worldMatrix.map(light.pos());
 
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mLightPos,lightPos);
@@ -49,7 +49,7 @@ void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix
     currentProgram()->setUniformValue("material.ambient",mesh.material().ambient().strength);
     currentProgram()->setUniformValue("material.diffuse",mesh.material().diffuse().strength);
 
-    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 
@@ -68,7 +68,7 @@ void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatri
     currentProgram()->setUniformValue("material.specular", mesh.material().specular().strength);
     currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
-    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 

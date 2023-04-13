@@ -21,5 +21,6 @@ void Qtr3dForceField::setConstantForce(const QVector3D &force)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dForceField::forceVector(const QVector3D &pos, QList<QVector3D> &forces)
 {
+    Q_UNUSED(pos);
     forces = mConstantForces;
 }

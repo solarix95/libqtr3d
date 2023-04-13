@@ -282,7 +282,7 @@ void Qtr3dWidget::paintMeshes()
             if (!state->enabled())
                 continue;
 
-            QVector3D previewCenter = camera()->worldMatrix() * state->pos();
+            QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
             if (previewCenter.z() > state->radius())
                 continue;
 
@@ -343,7 +343,7 @@ void Qtr3dWidget::paintModels()
             if (!state->enabled())
                 continue;
 
-            QVector3D previewCenter = camera()->worldMatrix() * state->pos();
+            QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
             if (previewCenter.z() > 0) {
                 continue;
             }

@@ -120,7 +120,7 @@ void Qtr3dCamera::lookAtTurn(float dxAngle, float dyAngle)
     turnMatrix.rotate(-dyAngle, QVector3D::crossProduct(vpos,mUp));
     turnMatrix.rotate(dxAngle, mUp);
 
-    vpos = vpos * turnMatrix;
+    vpos = turnMatrix.map(vpos);
     mPos = mLookAt + vpos;
     updatePerspectiveMatrix();
     emit positionChanged(mPos);

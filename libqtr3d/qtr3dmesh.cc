@@ -304,18 +304,19 @@ void Qtr3dMesh::calculateNormal(int vertexIndex)
 {
     Q_ASSERT(mMeshType == Qtr3d::Triangle || mMeshType == Qtr3d::Quad);
 
-    int shapeVertexCount = mMeshType == Qtr3d::Triangle ? 3 : 4;
-
+    // int shapeVertexCount = mMeshType == Qtr3d::Triangle ? 3 : 4;
     // int relativIndex = vertexIndex % shapeVertexCount;
     // int shapeIndex   = vertexIndex / shapeVertexCount;
 
 
     // https://stackoverflow.com/questions/19350792/calculate-normal-of-a-single-triangle-in-3d-space
+    /*
     QVector3D v01(mVertices.at(vertexIndex+1).p.toQVector() -
                   mVertices.at(vertexIndex+0).p.toQVector());
 
     QVector3D v02(mVertices.at(vertexIndex+2).p.toQVector() -
                   mVertices.at(vertexIndex+0).p.toQVector());
+    */
 
     /*
     switch(relativIndex) {
@@ -330,7 +331,7 @@ void Qtr3dMesh::calculateNormal(int vertexIndex)
     }
     */
 
-    QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
+    // QVector3D normal = QVector3D::crossProduct(v01, v02).normalized();
 
     Q_ASSERT(0);
     // TODO: Refactor

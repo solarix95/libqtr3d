@@ -218,6 +218,7 @@ void Qtr3dObjLoader::processTextureCoords(const QStringList &args)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::processSmoothshading(const QStringList &args)
 {
+    Q_UNUSED(args);
 }
 
 //-------------------------------------------------------------------------------------------------
