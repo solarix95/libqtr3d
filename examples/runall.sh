@@ -3,8 +3,8 @@
 list=`ls -d */ | sed  's/\///g'`
 failedlist=""
 
-QMAKE=/usr/lib/qt6/bin/qmake
-# QMAKE=qmake
+# QMAKE=/usr/lib/qt6/bin/qmake
+QMAKE=qmake
 
 for next in $list
 do

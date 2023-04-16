@@ -117,8 +117,8 @@ void Qtr3dCamera::lookAtTurn(float dxAngle, float dyAngle)
 
     QMatrix4x4 turnMatrix;
 
-    turnMatrix.rotate(-dyAngle, QVector3D::crossProduct(vpos,mUp));
-    turnMatrix.rotate(dxAngle, mUp);
+    turnMatrix.rotate(dyAngle, QVector3D::crossProduct(vpos,mUp));
+    turnMatrix.rotate(-dxAngle, mUp);
 
     vpos = turnMatrix.map(vpos);
     mPos = mLookAt + vpos;

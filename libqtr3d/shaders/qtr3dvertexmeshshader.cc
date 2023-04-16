@@ -66,7 +66,7 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const Q
     currentProgram()->setUniformValue("material.specular",mesh.material().specular().strength);
     currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
-    currentProgram()->setUniformValue("light.pos",     worldMatrix  * light.pos());
+    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 

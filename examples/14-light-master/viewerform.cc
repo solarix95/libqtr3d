@@ -111,7 +111,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         mFloorState = ui->viewer->createState(floor);
         mFloorState->setScale({20,1,20});
 
-        ui->viewer->camera()->lookAt({0,10,10},{0,0,0},{0,1,0});
+        ui->viewer->camera()->lookAt({0,20,20},{0,0,0},{0,1,0});
 
         new Qtr3dFreeCameraController(ui->viewer);
 
