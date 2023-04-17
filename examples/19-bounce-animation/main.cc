@@ -5,7 +5,7 @@
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
-#include <libqtr3d/extras/qtr3dcameracycler.h>
+#include <libqtr3d/extras/qtr3dorbitcameracontroller.h>
 #include <libqtr3d/physics/qtr3dabstractspace.h>
 #include <libqtr3d/physics/qtr3dforcefield.h>
 #include <libqtr3d/physics/qtr3dstandardentity.h>
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
         w.primaryLightSource()->setPos({30,30,0});
         w.primaryLightSource()->setAmbientStrength(0.1);
-        new Qtr3dCameraCycler(w.camera(),50,0.1,{0,10,20},{0,0,0});
+        new Qtr3dOrbitCameraController(w.camera(),50,0.1,{0,10,20},{0,0,0});
 
         // Now let's add physic animation:
         // *************************************************

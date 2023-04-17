@@ -5,7 +5,7 @@
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/qtr3dlightsource.h>
-#include <libqtr3d/extras/qtr3dcameracycler.h>
+#include <libqtr3d/extras/qtr3dorbitcameracontroller.h>
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         w.createState(mesh, Qtr3d::NoLighting);
 
         float dist = model->radius()*2;
-        new Qtr3dCameraCycler(w.camera(),30,0.3,{0,dist,dist},{0,0,0});
+        new Qtr3dOrbitCameraController(w.camera(),30,0.3,{0,dist,dist},{0,0,0});
         w.primaryLightSource()->setPos({0,0,dist});
     });
 

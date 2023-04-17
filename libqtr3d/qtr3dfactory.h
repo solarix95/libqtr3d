@@ -25,7 +25,7 @@ bool   meshByCycle(Qtr3dMesh &mesh, int sectors, const QColor &color);
 bool   meshByParticleTriangle(Qtr3dMesh &mesh, const QColor &color, float radius = 1.0, bool doublesSided = true);
 bool   meshByText(Qtr3dMesh &mesh, const QString &text,QFont font, const QColor &frontColor, const QColor &back = Qt::transparent);
 bool   meshByTexture(Qtr3dMesh &mesh, const QImage &texture, float width = -1, float height = -1);
-
+bool   meshByChessboard(Qtr3dMesh &mesh, int tilesPerRow, float size, const QColor &color1, const QColor &color2);
 bool   normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float vectorLenght, QColor color = Qt::red);
 QImage textureByPath(const QString &localPathOrFile, const QString &textureName);
 }

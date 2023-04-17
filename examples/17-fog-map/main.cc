@@ -4,7 +4,7 @@
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dfactory.h>
-#include <libqtr3d/extras/qtr3dcameracycler.h>
+#include <libqtr3d/extras/qtr3dorbitcameracontroller.h>
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
         w.createState(mesh)->setLightingType(Qtr3d::NoLighting);
 
-        w.installEventFilter(new Qtr3dCameraCycler(w.camera(),50,0.05,{0,200,500},{0,0,0}));
+        w.installEventFilter(new Qtr3dOrbitCameraController(w.camera(),50,0.05,{0,200,500},{0,0,0}));
     });
 
     w.show();

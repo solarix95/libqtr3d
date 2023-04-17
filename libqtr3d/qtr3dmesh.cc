@@ -219,6 +219,30 @@ void Qtr3dMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QColor &c, const QVector3D &n)
+{
+    switch(mMeshType) {
+    case Qtr3d::Triangle: {
+        addVertex(p1,n,c);
+        addVertex(p2,n,c);
+        addVertex(p3,n,c);
+
+        addVertex(p1,n,c);
+        addVertex(p3,n,c);
+        addVertex(p4,n,c);
+    } break;
+    case Qtr3d::Quad: {
+        addVertex(p1,n,c);
+        addVertex(p2,n,c);
+        addVertex(p3,n,c);
+        addVertex(p4,n,c);
+    } break;
+    default:
+        qWarning() << "Qtr3dMesh::addQuad: invalid Mesh Type";
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::addNormal(const QVector3D &n)
 {
     mNormals << n;

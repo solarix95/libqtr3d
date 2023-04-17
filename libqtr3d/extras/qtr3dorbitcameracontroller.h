@@ -1,21 +1,21 @@
-#ifndef QTR3DCAMERACYCLER_H
-#define QTR3DCAMERACYCLER_H
+#ifndef QTR3DORBITCAMERACONTROLLER_H
+#define QTR3DORBITCAMERACONTROLLER_H
 
 #include <QEvent>
 #include <QVector3D>
 #include "qtr3dcameramovement.h"
 
-class Qtr3dCameraCycler : public Qtr3dCameraMovement
+class Qtr3dOrbitCameraController : public Qtr3dCameraMovement
 {
     Q_OBJECT
 public:
-    Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngleY,
+    Qtr3dOrbitCameraController(Qtr3dCamera *cam, int fps, float deltaAngleY,
                       const QVector3D &startPos,
                       const QVector3D &lookAt);
-    Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D &deltaAngle,
+    Qtr3dOrbitCameraController(Qtr3dCamera *cam, int fps, const QVector3D &deltaAngle,
                       const QVector3D &startPos,
                       const QVector3D &lookAt);
-    virtual ~Qtr3dCameraCycler();
+    virtual ~Qtr3dOrbitCameraController();
 
 protected:
     virtual void process();
@@ -32,4 +32,4 @@ private:
     QVector3D mLookAt;
 };
 
-#endif // QTR3DCAMERACYCLER_H
+#endif // QTR3DORBITCAMERACONTROLLER_H

@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
-#include <libqtr3d/extras/qtr3dcameracycler.h>
+#include <libqtr3d/extras/qtr3dorbitcameracontroller.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         */
 
         w.primaryLightSource()->setPos({5,0,5});
-        new Qtr3dCameraCycler(w.camera(),30,0.3,{0.0,0.0,float(5*sphere->radius())},{0,0,0});
+        new Qtr3dOrbitCameraController(w.camera(),30,0.3,{0.0,0.0,float(5*sphere->radius())},{0,0,0});
     });
 
     w.show();

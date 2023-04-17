@@ -2,11 +2,11 @@
 #include <QDebug>
 #include <QWheelEvent>
 #include <QMatrix4x4>
-#include "qtr3dcameracycler.h"
+#include "qtr3dorbitcameracontroller.h"
 #include "../qtr3dcamera.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngleY, const QVector3D &startPos, const QVector3D &lookAt)
+Qtr3dOrbitCameraController::Qtr3dOrbitCameraController(Qtr3dCamera *cam, int fps, float deltaAngleY, const QVector3D &startPos, const QVector3D &lookAt)
  : Qtr3dCameraMovement(cam, fps)
  , mDeltaAngle(QVector3D(0,deltaAngleY,0))
  , mCurrentAngle(QVector3D(0,0,0))
@@ -17,7 +17,7 @@ Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, float deltaAngle
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D &deltaAngle, const QVector3D &startPos, const QVector3D &lookAt)
+Qtr3dOrbitCameraController::Qtr3dOrbitCameraController(Qtr3dCamera *cam, int fps, const QVector3D &deltaAngle, const QVector3D &startPos, const QVector3D &lookAt)
     : Qtr3dCameraMovement(cam, fps)
     , mDeltaAngle(deltaAngle)
     , mCurrentAngle(QVector3D(0,0,0))
@@ -28,12 +28,12 @@ Qtr3dCameraCycler::Qtr3dCameraCycler(Qtr3dCamera *cam, int fps, const QVector3D 
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dCameraCycler::~Qtr3dCameraCycler()
+Qtr3dOrbitCameraController::~Qtr3dOrbitCameraController()
 {
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dCameraCycler::process()
+void Qtr3dOrbitCameraController::process()
 {
     mCurrentAngle.setX(mCurrentAngle.x() + mDeltaAngle.x());
     mCurrentAngle.setY(mCurrentAngle.y() + mDeltaAngle.y());
@@ -57,7 +57,7 @@ void Qtr3dCameraCycler::process()
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dCameraCycler::eventFilter(QObject */*obj*/, QEvent *event)
+bool Qtr3dOrbitCameraController::eventFilter(QObject */*obj*/, QEvent *event)
 {
     if (event->type() == QEvent::Wheel) {
         QWheelEvent *we = static_cast<QWheelEvent *>(event);

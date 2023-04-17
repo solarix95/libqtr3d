@@ -3,7 +3,7 @@
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmesh.h>
 #include <libqtr3d/qtr3dcamera.h>
-#include <libqtr3d/extras/qtr3dcameracycler.h>
+#include <libqtr3d/extras/qtr3dorbitcameracontroller.h>
 
 int main(int argc, char *argv[])
 {
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
        auto *glasState = w.createState(glas);
        glasState->setPos({-1.3,0,0});
 
-        new Qtr3dCameraCycler(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});
+        new Qtr3dOrbitCameraController(w.camera(),30,{0.3,0.3,0.3},{0,0,-12},{0,0,0});
     });
 
     w.show();

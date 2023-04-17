@@ -32,6 +32,7 @@ public:
 
     void addVertex(const Qtr3dColoredVertex &v);
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n  = QVector3D());
+    void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QColor &c, const QVector3D &n  = QVector3D());
 
     void addNormal(const QVector3D &n);
     void addIndex(int vi, int ni = -1);

@@ -730,7 +730,7 @@ bool Qtr3d::meshByTexture(Qtr3dMesh &mesh, const QImage &texture, float width, f
     float z = height/2;
     mesh.startMesh(Qtr3d::Quad);
     mesh.setTexture(texture);
-    mesh.addQuad({-x,0,z},{-x,0,-z},{x,0,-z}, {x,0,z},{1,1,0});
+    mesh.addQuad({-x,0,z},{-x,0,-z},{x,0,-z}, {x,0,z}, QVector3D({1,1,0}));
     mesh.endMesh(true);
 
     return true;
@@ -767,5 +767,31 @@ bool Qtr3d::meshByParticleTriangle(Qtr3dMesh &mesh, const QColor &color, float r
 
     mesh.endMesh();
 
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByChessboard(Qtr3dMesh &mesh, int tilesPerRow, float size, const QColor &color1, const QColor &color2)
+{
+    if (tilesPerRow <= 0 || size <= 0 || !color1.isValid() || !color2.isValid())
+        return false;
+
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setFaceOrientation(Qtr3d::ClockWise);
+
+    float startX = -size/2;
+    float startZ = -size/2;
+    float step   = size/tilesPerRow;
+
+    int tile = 0;
+    for (float z = startZ; z < (size/2); z+= step) {
+        tile = tile % 2 ? 0 : 1;
+        for (float x = startX; x < (size/2); x+= step) {
+            mesh.addQuad({x,0,z}, {x+step,0,z}, {x+step,0,z+step}, {x,0,z+step},tile % 2 ? color1:color2,{0,1,0});
+            tile++;
+        }
+    }
+
+    mesh.endMesh(true);
     return true;
 }
