@@ -35,4 +35,3 @@ HEADERS += \
 
 FORMS += viewerform.ui
 
-RESOURCES += resources.qrc

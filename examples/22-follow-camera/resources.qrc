@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>texture.jpg</file>
-        <file>heightmap.png</file>
         <file>GlobalHawk/GlobalHawkOBJ.obj</file>
         <file>GlobalHawk/GlobalHawkOBJ.mtl</file>
         <file>GlobalHawk/planewhite2.png</file>

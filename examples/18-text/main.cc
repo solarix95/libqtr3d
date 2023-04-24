@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
         mesh = w.createMesh();
         mesh->startMesh(Qtr3d::Triangle);
         mesh->setDefaultColor(Qt::gray);
-        mesh->addQuad({-3,-1,3},{-3,-1,-3},{+3,-1,-3},{3,-1,3},{0,1,0});
+        mesh->addQuad({-3,-1,3},{-3,-1,-3},{+3,-1,-3},{3,-1,3},QVector3D({0,1,0}));
         mesh->endMesh();
         w.createState(mesh);
 

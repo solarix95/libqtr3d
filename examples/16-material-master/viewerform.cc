@@ -80,7 +80,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         floor->material().diffuse().mcolor  = Qt::cyan;
         floor->material().specular().mcolor = QColor(0,128,255); // Azure
         floor->startMesh(Qtr3d::Triangle);
-        floor->addQuad({-1,0,1},{1,0,1},{1,0,-1},{-1,0,-1},{0,1,0});
+        floor->addQuad({-1,0,1},{1,0,1},{1,0,-1},{-1,0,-1},QVector3D({0,1,0}));
         floor->endMesh();
         floor->setFaceOrientation(Qtr3d::CounterClockWise);
         mMeshes << floor;

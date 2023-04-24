@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         mesh = w.createMesh();
         mesh->startMesh(Qtr3d::Quad);
         mesh->setTexture(QImage(":/metal_texture_800.jpg"));              // by Webtreats 8 Fabulous Free Metal Textures: https://www.flickr.com/photos/webtreatsetc/4324648760
-        mesh->addQuad({-10,0,10},{-10,0,-10},{10,0,-10}, {10,0,10},{1,1,0});
+        mesh->addQuad({-10,0,10},{-10,0,-10},{10,0,-10}, {10,0,10},QVector3D({1,1,0}));
         mesh->endMesh();
         w.createState(mesh);
 

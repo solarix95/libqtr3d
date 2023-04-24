@@ -103,7 +103,7 @@ ViewerForm::ViewerForm(QWidget *parent)
         auto *floor = ui->viewer->createMesh();
         floor->setTexture(QImage(":/pebbles_texture.jpg"));
         floor->startMesh(Qtr3d::Triangle);
-        floor->addQuad({-1,0,1},{1,0,1},{1,0,-1},{-1,0,-1},{0,1,0});
+        floor->addQuad({-1,0,1},{1,0,1},{1,0,-1},{-1,0,-1},QVector3D({0,1,0}));
         floor->endMesh();
         floor->setFaceOrientation(Qtr3d::CounterClockWise);
         mMeshes << floor;

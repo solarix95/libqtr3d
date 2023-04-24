@@ -5,7 +5,7 @@
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
-#include <libqtr3d/extras/qtr3dcameracycler.h>
+#include <libqtr3d/extras/qtr3dorbitcameracontroller.h>
 #include <libqtr3d/physics/qtr3dabstractspace.h>
 #include <libqtr3d/physics/qtr3dforcefield.h>
 #include <libqtr3d/physics/qtr3dstandardentity.h>
@@ -19,7 +19,7 @@ MainView::MainView(QWidget *parent)
 {
     connect(this, &Qtr3dWidget::initialized, this, [this]{
 
-        bufferContext()->environment().setClearColor(Qt::black);
+        assets()->environment().setClearColor(Qt::black);
 
         auto *redModel = createMesh();
         Qtr3d::meshByText(*redModel,"R",QFont("Arial",200),QColor("#77FF0000"));
@@ -53,11 +53,11 @@ MainView::MainView(QWidget *parent)
 
         // Now let's add physic animation:
         // *************************************************
-        bufferContext()->loop().setFps(50);
+        assets()->loop().setFps(50);
 
-        connect(&bufferContext()->loop(), &Qtr3dFpsLoop::stepDone, this,[this]() { update(); });
+        connect(&assets()->loop(), &Qtr3dFpsLoop::stepDone, this,[this]() { update(); });
 
-        new Qtr3dCameraCycler(camera(),50,0.1,{0,0,2},{0,0,0});
+        new Qtr3dOrbitCameraController(camera(),50,0.1,{0,0,2},{0,0,0});
     });
 
 }
@@ -84,7 +84,7 @@ void MainView::paint3D()
     for (auto t: mElapsedTimes)
         mean += t;
     mean = mean/mElapsedTimes.count();
-    mCpuLoad = 100*(mean/bufferContext()->loop().interval());
+    mCpuLoad = 100*(mean/assets()->loop().interval());
     mElapsedTimes.clear();
     fpsCount = 0;
     emit statisticsChanged();
