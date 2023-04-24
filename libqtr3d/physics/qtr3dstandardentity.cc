@@ -12,6 +12,11 @@ Qtr3dStandardEntity::Qtr3dStandardEntity(Qtr3dGeometryState &state, QVector3D po
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dStandardEntity::~Qtr3dStandardEntity()
+{
+}
+
+//-------------------------------------------------------------------------------------------------
 bool Qtr3dStandardEntity::process(float ms, float normalizedSpeed)
 {
     QList<QVector3D> forces;
