@@ -16,14 +16,23 @@ public:
     inline QVector3D orientation() const         { return mOrientation;     }
     inline QVector3D movement()    const         { return mMovement;        }
 
-    inline void      setLookAt(const QVector3D &target)           { if (mLookAt == target) return; mLookAt=target; emit lookAtChanged(mLookAt); }
+    inline void      setLookAt(const QVector3D &dir)              { if (mLookAt == dir)      return; mLookAt=dir;      emit lookAtChanged(dir);      }
+    inline void      setOrientation(const QVector3D &dir)         { if (mOrientation == dir) return; mOrientation=dir; emit orientationChanged(dir); }
     inline void      setMovement(const QVector3D &deltaV)         { mMovement = deltaV;          }
     inline void      setAutorotation(const QVector3D &deltaAlpha) { mAutoRotation = deltaAlpha;  }
+
+
+    void relativeMove(float distance); // fore and back,               changes "position"
+    void relativeStrafe(float distance);       // left/right,          changes "position"
+    void relativeTurn(float angle);            // plane: "rudder/yaw", changes "lookAt"
+    void relativeRoll(float angle);            // plane: "aileron",        changes "orientation"
+    void relativePitch(float angle);           // plane: "aileron", "nick",changes "lookAt" + "orientation"
 
     virtual bool process(float ms, float normalizedSpeed);
 
 signals:
     void lookAtChanged(const QVector3D &newLookAt);
+    void orientationChanged(const QVector3D &newOrientation);
 
 protected:
     virtual void centerForces(QList<QVector3D> &forces) const; // forces to the center of the entity (no momentum)

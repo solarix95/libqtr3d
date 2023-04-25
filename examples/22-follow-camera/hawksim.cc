@@ -12,11 +12,13 @@
 #include <libqtr3d/physics/qtr3dabstractspace.h>
 #include <libqtr3d/physics/qtr3dstandardentity.h>
 
+//-------------------------------------------------------------------------------------------------
 HawkSim::HawkSim()
  : mCamera(nullptr)
 {
 }
 
+//-------------------------------------------------------------------------------------------------
 void HawkSim::init(Qtr3dAssets *assets, Qtr3dCamera *camera)
 {
     mCamera = camera;
@@ -45,32 +47,33 @@ void HawkSim::init(Qtr3dAssets *assets, Qtr3dCamera *camera)
     assets->space().append(mHawk);
 
     mCamera->lookAt({200,200,200},{0,0,0},{0,1,0});
-    auto *followCam = new Qtr3dFollowCamera(mCamera->widget(),hawkState, 20,10);
+    auto *followCam = new Qtr3dFollowCamera(mCamera->widget(),hawkState, 50,20);
     followCam->setTargetDirection(mHawk->lookAt());
-    connect(mHawk, &Qtr3dStandardEntity::lookAtChanged, followCam, &Qtr3dFollowCamera::setTargetDirection);
+    connect(mHawk, &Qtr3dStandardEntity::lookAtChanged,      followCam, &Qtr3dFollowCamera::setTargetDirection);
+    connect(mHawk, &Qtr3dStandardEntity::orientationChanged, followCam, &Qtr3dFollowCamera::setTargetOrientation);
 }
 
+//-------------------------------------------------------------------------------------------------
 bool HawkSim::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
         auto *ke = dynamic_cast<QKeyEvent*>(event);
         Q_ASSERT(ke);
-        QVector3D delta;
-        if (ke->key() == Qt::Key_Up)    delta = mHawk->lookAt();
-        if (ke->key() == Qt::Key_Down)  delta = -mHawk->lookAt();
-        if (ke->key() == Qt::Key_Left)  delta = { 1,0,0};
-        if (ke->key() == Qt::Key_Right) delta = {-1,0,0};
 
-        if (ke->key() == Qt::Key_W)     delta = mHawk->lookAt();
-        if (ke->key() == Qt::Key_S)     delta = -mHawk->lookAt();
+        if (ke->key() == Qt::Key_Up)    mHawk->relativeMove(1);
+        if (ke->key() == Qt::Key_Down)  mHawk->relativeMove(-1);
 
-        mHawk->setPos(mHawk->pos() + delta);
+        if (ke->key() == Qt::Key_W)     mHawk->relativePitch(-1);
+        if (ke->key() == Qt::Key_S)     mHawk->relativePitch(+1);
 
-        QVector3D dir = mHawk->lookAt();
-        QMatrix4x4 m;
-        m.rotate(ke->key() == Qt::Key_A ?  5:0,{0,1,0});
-        m.rotate(ke->key() == Qt::Key_D ? -5:0,{0,1,0});
-        mHawk->setLookAt(dir*m);
+        if (ke->key() == Qt::Key_Left)  mHawk->relativeStrafe(-1);
+        if (ke->key() == Qt::Key_Right) mHawk->relativeStrafe(+1);
+
+        if (ke->key() == Qt::Key_A)     mHawk->relativeTurn(+5);
+        if (ke->key() == Qt::Key_D)     mHawk->relativeTurn(-5);
+
+        if (ke->key() == Qt::Key_Q)     mHawk->relativeRoll(+5);
+        if (ke->key() == Qt::Key_E)     mHawk->relativeRoll(-5);
     }
 
     return QObject::eventFilter(obj,event);

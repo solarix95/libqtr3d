@@ -45,7 +45,8 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameramovement.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dorbitcameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.h \
-    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.h
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.h \
+    $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dpidcontroller.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \

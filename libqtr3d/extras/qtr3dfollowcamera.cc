@@ -13,6 +13,8 @@ Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryState *fo
  , mDistance(distance)
  , mTargetOrientation({0,1,0})
  , mOffset(offset)
+ , mPosController(QVector3D(0.1,0.1,0.1),QVector3D(0.00001,0.00001,0.00001),QVector3D(1,1,1))
+ , mDirController(QVector3D(0.1,0.1,0.1),QVector3D(0.00001,0.00001,0.00001),QVector3D(1,1,1))
 {
     mCamera = widget->camera();
     connect(&widget->assets()->loop(), &Qtr3dFpsLoop::stepDone, this, &Qtr3dFollowCamera::process);
@@ -51,27 +53,19 @@ void Qtr3dFollowCamera::process()
 void Qtr3dFollowCamera::follow()
 {
     QVector3D targetDirection = (mTargetDirection.isNull() ? (mState->pos()-mCamera->pos()) : mTargetDirection).normalized();
-    // float targetDistance      = mDistance > 0 ? mDistance : ((mCamera->pos() - mCamera->lookAtCenter()).length());
     QVector3D targetPos       = (mState->pos() -  mDistance*targetDirection) + mOffset*mTargetOrientation;
 
-
-    QVector3D cameraVector    = targetPos - mCamera->pos();
-    QVector3D newCameraPos    = mCamera->pos()  + 0.01*(cameraVector);
-
-    bool posIsStable = ((mCamera->pos() - newCameraPos).length()    < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);
+    // bool posIsStable = ((mCamera->pos() - newCameraPos).length()    < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);
     //bool cenIsStable = ((targetPos      - newCameraCenter).length() < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);
 
     //if (posIsStable && cenIsStable)
     //    return;
 
-    // qDebug() << mCamera->lookAtCenter() << targetDirection;
-    auto lastCameraDirection = (mCamera->lookAtCenter() - mCamera->pos()).normalized();
-
-    // "Over the shoulder"
-    // auto newCameraDirection  = lastCameraDirection + (0.005*(targetDirection-lastCameraDirection));
+    auto lastCameraDirection    = (mCamera->lookAtCenter() - mCamera->pos()).normalized();
     auto targetCameraDirection  = (mState->pos() - targetPos).normalized();
-    auto newCameraDirection  = lastCameraDirection + (0.01*(targetCameraDirection-lastCameraDirection));
 
-    // QVector3D newCameraCenter  = (lastCameraCenter + 0.01*(targetDirection-lastCameraCenter));
+    auto newCameraPos       = mCamera->pos()      + mPosController.calculate(targetPos,mCamera->pos(),20);
+    auto newCameraDirection = lastCameraDirection + mDirController.calculate(targetCameraDirection,lastCameraDirection,20);
     mCamera->lookAt(newCameraPos, newCameraPos + newCameraDirection, mTargetOrientation);
+
 }
