@@ -94,6 +94,7 @@ typedef struct Qtr3dVector_t
     Qtr3dVector_t(const QVector3D &v) : x(v.x()), y(v.y()), z(v.z()) {}
     inline QVector3D toQVector() const { return QVector3D(x,y,z); }
     inline bool      isNull() const    { return qFuzzyIsNull(x + y + z);}
+    inline void      normalize()       { QVector3D vnorm = QVector3D(x,y,z).normalized(); x = vnorm.x(); y = vnorm.y(); z=vnorm.z(); }
 } Qtr3dVector;
 
 inline bool operator==(const Qtr3dVector &v1, const QVector3D &v2)

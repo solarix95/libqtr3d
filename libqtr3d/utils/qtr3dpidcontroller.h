@@ -1,31 +1,41 @@
 #ifndef QTR3DPIDCONTROLLER_H
 #define QTR3DPIDCONTROLLER_H
 
+#include <limits>
+
 template<typename T>
 class Qtr3dPidController {
 public:
-    Qtr3dPidController(T Kp, T Ki, T Kd) :
-        Kp(Kp), Ki(Ki), Kd(Kd),
-        previousError(), integralError() {}
+    Qtr3dPidController(T Kp, T Ki, T Kd)
+        : Kp(Kp), Ki(Ki), Kd(Kd)
+        , mPreviousError(), mIntegralError()
+        , mFirstCall(true){}
 
     T calculate(T setpoint, T measurement, float sampleTime) {
         T error = setpoint - measurement;
 
         T proportional = Kp * error;
 
-        integralError += error * sampleTime;
-        T integral = Ki * integralError;
+        mIntegralError += error * sampleTime;
+        T integral = Ki * mIntegralError;
 
-        T derivative = Kd * (error - previousError) / sampleTime;
-        previousError = error;
+        T derivative = T();
+        if (!mFirstCall) {
+            derivative = Kd * (error - mPreviousError) / sampleTime;
+        } else
+            mFirstCall = false;
+
+        mPreviousError = error;
 
         return  proportional + integral + derivative;
     }
 
 private:
-    T Kp, Ki, Kd;
-    T previousError;
-    T integralError;
+    T    Kp, Ki, Kd;
+    T    mPreviousError;
+    T    mIntegralError;
+
+    bool mFirstCall;
 };
 
 
