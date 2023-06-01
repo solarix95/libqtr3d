@@ -84,6 +84,18 @@ private:
 
    //  void setup(float ka, float kd, float ks, float s);
 };
+
+struct BoneWeight {
+    int   vertexIndex;
+    float weight;
+    BoneWeight(int i, float w): vertexIndex(i), weight(w) {}
+};
+
+struct Bone {
+    QString           name;
+    QList<BoneWeight> weights;
+};
+
 }
 
 typedef struct Qtr3dVector_t

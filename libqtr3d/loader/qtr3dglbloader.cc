@@ -135,6 +135,7 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
     QVariantList translation = nodeInfo["translation"].toList();
     QVariantList rotation    = nodeInfo["rotation"].toList();
     QVariantList scale       = nodeInfo["scale"].toList();
+    QString      name        = nodeInfo["name"].toString();
 
     QMatrix4x4 m(1.0, 0.0, 0.0, 0.0,
                  0.0, 1.0, 0.0, 0.0,
@@ -142,9 +143,9 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
                  0.0, 0.0, 0.0, 1.0);
 
     if (translation.count() == 3) // x, y, z
-       m.translate(translation[0].toFloat(),
-                   translation[1].toFloat(),
-                   translation[2].toFloat());
+        m.translate(translation[0].toFloat(),
+                translation[1].toFloat(),
+                translation[2].toFloat());
 
     if (rotation.count() == 4) {   // x, y, z, w
         QVector3D v(rotation[0].toFloat(), rotation[1].toFloat(), rotation[2].toFloat());
@@ -167,7 +168,7 @@ void Qtr3dGlbLoader::createNode(const QVariantMap &nodeInfo, Qtr3dModel::Node *p
         for (auto qtrMeshIndex : qtr3dMeshIndexes)
             nodeMeshes << mModel->meshes()[qtrMeshIndex];
     }
-    Qtr3dModel::Node *node = mModel->createNode(nodeMeshes,m, parent);
+    Qtr3dModel::Node *node = mModel->createNode(nodeMeshes,m, name, parent);
 
     QVariantList childs       = nodeInfo["children"].toList();
     QVariantList allNodes     = mJsonStruct["nodes"].toList();
@@ -289,12 +290,18 @@ Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, con
     auto *mesh = mModel->context()->createMesh(false);
     mesh->setTexture(texture.mirrored());
     mesh->startMesh(Qtr3d::Triangle);
+
+    // for (int vi=0; vi < points.count(); vi++)
+    //    mesh->addVertex(points[vi],Qt::red);
+
     for (int vi=0; vi < points.count(); vi++)
         mesh->addVertex(points[vi],normVectors[vi], textureCoords[vi].y(),textureCoords[vi].x());
     for (auto i: faceIndexes)
         mesh->addIndex(i);
 
     mesh->endMesh();
+
+    qDebug() << mesh->minValues() << mesh->maxValues() << mesh->center();
     mModel->addMesh(mesh);
 
     return mesh;
