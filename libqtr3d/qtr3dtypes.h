@@ -85,17 +85,6 @@ private:
    //  void setup(float ka, float kd, float ks, float s);
 };
 
-struct BoneWeight {
-    int   vertexIndex;
-    float weight;
-    BoneWeight(int i, float w): vertexIndex(i), weight(w) {}
-};
-
-struct Bone {
-    QString           name;
-    QList<BoneWeight> weights;
-};
-
 }
 
 typedef struct Qtr3dVector_t
@@ -186,14 +175,24 @@ typedef struct Qtr3dColoredVertex_t {
 
 // Usage: Qtr3dMesh
 typedef struct Qtr3dVertex_t {
-    Qtr3dVector p;   // Point
-    Qtr3dScalar w;   // "weight", add extra dimension to point for matrix multiplication
-    Qtr3dVector n;   // Normal
+    Qtr3dVector p;      // Point
+    Qtr3dScalar w;      // "weight", add extra dimension to point for matrix multiplication
+    Qtr3dVector n;      // Normal
+    float       bi[3];  // boneIndices, "float" because Qt has no "glVertexAttribIPointer"!!!
+    float       bw[3];  // boneWeights;
 
     inline Qtr3dVertex_t operator=(const Qtr3dVertex_t &other) {
         p = other.p;
         w = other.w;
         n = other.n;
+
+        bi[0] = other.bi[0];
+        bi[1] = other.bi[1];
+        bi[2] = other.bi[2];
+
+        bw[0] = other.bw[0];
+        bw[1] = other.bw[1];
+        bw[2] = other.bw[2];
         return other;
     }
 
@@ -201,24 +200,51 @@ typedef struct Qtr3dVertex_t {
         p = {0.0f, 0.0f, 0.0f};
         w = 1.0f;
         n = {0.0f, 0.0f, 0.0f};
+
+        bi[0] = 0;
+        bi[1] = -1;
+        bi[2] = -1;
+        bw[0] = 1;
+        bw[1] = 0;
+        bw[2] = 0;
     }
 
     Qtr3dVertex_t(const QVector3D &v) {
         p = { v.x(), v.y(), v.z() };
         w = 1.0f;
         n = {0.0f, 0.0f, 0.0f};
+        bi[0] = 0;
+        bi[1] = -1;
+        bi[2] = -1;
+        bw[0] = 1;
+        bw[1] = 0;
+        bw[2] = 0;
     }
 
     Qtr3dVertex_t(const Qtr3dVertex_t &v) {
         p = v.p;
         w = v.w;
         n = v.n;
+
+        bi[0] = v.bi[0];
+        bi[1] = v.bi[1];
+        bi[2] = v.bi[2];
+
+        bw[0] = v.bw[0];
+        bw[1] = v.bw[1];
+        bw[2] = v.bw[2];
     }
 
     Qtr3dVertex_t(const QVector3D &v, const QVector3D &nv) {
         p = { v.x(), v.y(), v.z() };
         w = 1.0f;
         n = { nv.x(), nv.y(), nv.z() };
+        bi[0] = 0;
+        bi[1] = -1;
+        bi[2] = -1;
+        bw[0] = 1;
+        bw[1] = 0;
+        bw[2] = 0;
     }
 } Qtr3dVertex;
 

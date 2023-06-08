@@ -10,6 +10,7 @@
 #include "qtr3dwidget.h"
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
+#include "qtr3dmodelanimator.h"
 #include "qtr3dassets.h"
 #include "physics/qtr3dfpsloop.h"
 #include "shaders/qtr3dshader.h"
@@ -294,7 +295,9 @@ void Qtr3dWidget::paintMeshes()
             auto nextLightingTyp = state->lightingType();
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = shader->defaultLighting();
-            shader->render(*mesh,state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+
+
+            shader->render(*mesh,state->modelView(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 
@@ -322,7 +325,7 @@ void Qtr3dWidget::paintMeshes()
         auto nextLightingTyp = zInfo.state->lightingType();
         if (nextLightingTyp == Qtr3d::DefaultLighting)
             nextLightingTyp = shader->defaultLighting();
-        shader->render(*mesh,zInfo.state->modelView(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+        shader->render(*mesh,zInfo.state->modelView(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
     }
 }
 
@@ -348,7 +351,7 @@ void Qtr3dWidget::paintModels()
                 continue;
             }
 
-            for(auto *node: nodes) {
+            for(auto *node: nodes.mNodes) {
                 for (auto *mesh : node->mMeshes) {
                     Qtr3dShader *shader = nullptr;
                     switch (mesh->shader()) {
@@ -369,11 +372,21 @@ void Qtr3dWidget::paintModels()
                     if (nextLightingTyp == Qtr3d::DefaultLighting)
                         nextLightingTyp = shader->defaultLighting();
 
-                    shader->render(*mesh,state->modelView() * node->translation(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+                    if (state->animator() && (mesh->bones().count() > 0))
+                        renderAnimatedModelMesh(shader,mesh,state,camera(),nextLightingTyp,primaryLightSource(),assets()->environment());
+                    else
+                        shader->render(*mesh,state->modelView() * node->translation(nullptr), QVector<QMatrix4x4>(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
                 }
             }
         }
     }
+}
+
+void Qtr3dWidget::renderAnimatedModelMesh(Qtr3dShader *shader, const Qtr3dMesh *mesh, Qtr3dGeometryState *state, const Qtr3dCamera *camera, Qtr3d::LightingType lighting, const Qtr3dLightSource *light, const Qtr3dEnvironment &env)
+{
+
+    // Get the global transformation matrix of the node
+        // QMatrix4x4 globalTransformation = node->mTransformation;
 }
 
 

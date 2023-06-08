@@ -39,12 +39,21 @@ public:
 
     Qtr3dModelAnimation(const QString &name, float duration, int ticksPerSec);
 
-    void addChannel(const Channel &channel);
+    QString name() const;
+
+    // logical time: real duration is duration()/ticksPerSec()
+    float   duration() const;
+    int     ticksPerSec() const;
+
+    void    addChannel(const Channel &channel);
 
     QStringList animatedNodes() const;
     QMatrix4x4  tranformNode(const QString &nodeName, float time) const;
+    QMatrix4x4  tranformNode(const QString &nodeName, int   keyFrame) const;
 
 private:
+
+    const QMatrix4x4     &transformChannel(const Channel &channel, int keyFrame, QMatrix4x4 &matrix) const;
     QString               mName;
     float                 mDuration;
     int                   mTicksPerSec;

@@ -3,6 +3,14 @@
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
 #include "qtr3dmodelanimation.h"
+#include "qtr3dmodelanimator.h"
+
+//-------------------------------------------------------------------------------------------------
+QMatrix4x4  Qtr3dModel::Node::translation(Qtr3dModelAnimator *anim) const
+{
+    QMatrix4x4 myTranslation = anim ? anim->transform(mName)*mTranslation : mTranslation;
+    return mParent ? mParent->translation(anim) * myTranslation : myTranslation;
+}
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel::Qtr3dModel(Qtr3dAssets *context)
@@ -13,7 +21,7 @@ Qtr3dModel::Qtr3dModel(Qtr3dAssets *context)
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel::~Qtr3dModel()
 {
-    qDeleteAll(mNodes);
+    mNodes.destroy();
     qDeleteAll(mAnimations);
     // Don't delete Meshes: I'm parent... so they get deleted anyway.
     // qDeleteAll(mMeshes);
@@ -28,7 +36,7 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMeshes meshes, const QMatrix4x4 &t
     n->mParent = parent;
     n->mTranslation = translation;
 
-    mNodes << n;
+    mNodes.addNode(n);
 
     // optional: register mesh if the app dont call "addMesh"
     for (auto *mesh: meshes)
@@ -49,7 +57,7 @@ Qtr3dModel::Node *Qtr3dModel::createNode(Qtr3dMesh *mesh, const QMatrix4x4 &tran
     n->mParent = parent;
     n->mTranslation = translation;
 
-    mNodes << n;
+    mNodes.addNode(n);
 
     return n;
 }
@@ -132,9 +140,9 @@ QVector3D Qtr3dModel::minValues() const
                        std::numeric_limits<double>::max(),
                        std::numeric_limits<double>::max() );
 
-    for (auto *node: mNodes) {
+    for (auto *node: mNodes.mNodes) {
         for (auto *m: node->mMeshes) {
-            QVector3D meshMin = m->minValues()*node->translation();
+            QVector3D meshMin = m->minValues()*node->translation(nullptr);
             if (val.x() > meshMin.x())
                 val.setX(meshMin.x());
             if (val.y() > meshMin.y())
@@ -154,9 +162,9 @@ QVector3D Qtr3dModel::maxValues() const
                                 -std::numeric_limits<double>::max(),
                                 -std::numeric_limits<double>::max() );
 
-    for (auto *node: mNodes) {
+    for (auto *node: mNodes.mNodes) {
         for (auto *m: node->mMeshes) {
-            QVector3D meshMax = m->maxValues()*node->translation();
+            QVector3D meshMax = m->maxValues()*node->translation(nullptr);
             if (val.x() < meshMax.x())
                 val.setX(meshMax.x());
             if (val.y() < meshMax.y())
@@ -176,7 +184,7 @@ const Qtr3dMeshes &Qtr3dModel::meshes() const
 }
 
 //-------------------------------------------------------------------------------------------------
-const QList<Qtr3dModel::Node *> &Qtr3dModel::nodes() const
+const Qtr3dModel::Nodes &Qtr3dModel::nodes() const
 {
     return mNodes;
 }

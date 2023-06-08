@@ -74,6 +74,7 @@ private:
     void preInitializing();
     void paintMeshes();
     void paintModels();
+    void renderAnimatedModelMesh(Qtr3dShader *shader, const Qtr3dMesh *mesh, Qtr3dGeometryState *state, const Qtr3dCamera *camera, Qtr3d::LightingType lighting, const Qtr3dLightSource *light, const Qtr3dEnvironment &env);
 
     Options                  mOptions;
     Qtr3dCamera             *mCamera;

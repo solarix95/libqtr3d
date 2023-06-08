@@ -11,6 +11,17 @@ class QOpenGLTexture;
 class Qtr3dMesh : public Qtr3dGeometry
 {
 public:
+    struct BoneWeight {
+        int   vertexIndex;
+        float weight;
+        BoneWeight(int i, float w): vertexIndex(i), weight(w) {}
+    };
+
+    struct Bone {
+        QString           name;
+        QList<BoneWeight> weights;
+    };
+
     Qtr3dMesh(Qtr3dAssets *parent);
     virtual ~Qtr3dMesh();
 
@@ -34,6 +45,7 @@ public:
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n  = QVector3D());
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QColor &c, const QVector3D &n  = QVector3D());
 
+    void addBone(const Bone &bone);
     void addNormal(const QVector3D &n);
     void addIndex(int vi, int ni = -1);
 
@@ -43,6 +55,7 @@ public:
     // reader
     int               vertexListCount() const;
     const Qtr3dVertex &vertex(int i) const;
+    const QList<Bone> &bones() const;
 
     // Shader Interface
     inline GLuint vertexBufferId() const  { return mVerticesBufferId;  }
@@ -52,8 +65,10 @@ public:
     inline GLuint texcoordBufferId() const{ return mTexcoorBufferId;  }
     inline GLuint textureId() const       { return mTexture ? mTexture->textureId():0; }
     GLenum        bufferType() const;
+    QVector<QMatrix4x4> animatedSkeleton() const;
 
 private:
+    void initMeshSkeleton();
     void selectShader();
     void calculateNormal(int vertexIndex);
     void calculateFaceNormal(int vi1, int vi2, int vi3);
@@ -69,6 +84,7 @@ private:
 
     QVector<Qtr3dVertex>     mVertices;
     QVector<GLuint>          mIndexes;
+    QList<Bone>              mBones;
 
     QList<QVector3D>         mNormals;
 

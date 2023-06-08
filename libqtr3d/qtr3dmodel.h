@@ -7,6 +7,8 @@
 
 class Qtr3dAssets;
 class Qtr3dModelAnimation;
+class Qtr3dModelAnimator;
+
 class Qtr3dModel : public Qtr3dGeometry
 {
     Q_OBJECT
@@ -16,9 +18,19 @@ public:
         Qtr3dMeshes mMeshes;
         Node       *mParent;
         QMatrix4x4  mTranslation;
-        QMatrix4x4  translation () const { return mParent ? mParent->translation() * mTranslation : mTranslation; }
+        QMatrix4x4  translation(Qtr3dModelAnimator *anim) const;
     };
-    typedef QList<Node*> Nodes;
+    struct Nodes {
+        QList<Node*>        mNodes;
+        Node*               mRootNode;
+        QMap<QString,Node*> mNodeByName;
+        void  addNode(Node* n)          { mNodes << n; if (!n->mName.isEmpty()) mNodeByName[n->mName] = n; if (!n->mParent) mRootNode = n; }
+        const Node *nodeByName(const QString &name) const { return mNodeByName.value(name,nullptr);                          }
+        void  destroy()                             { qDeleteAll(mNodes); mNodes.clear(); mNodeByName.clear();         }
+
+        int   count() const                         { return mNodes.count(); }
+        bool  isEmpty() const                       { return count() == 0;   }
+    };
 
     explicit Qtr3dModel(Qtr3dAssets *context);
     virtual ~Qtr3dModel();

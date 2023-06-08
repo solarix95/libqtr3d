@@ -18,6 +18,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelanimation.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelanimator.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dfactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.h \
@@ -60,6 +61,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dtexturefactory.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelanimation.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelanimator.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dlightsource.cc \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dvertexmeshshader.cc \
@@ -85,7 +87,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dorbitcameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameramovement.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.cc \
-    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.cc \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/misc.qrc

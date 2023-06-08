@@ -55,7 +55,7 @@ void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
+void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
 {
     if (mesh.meshType() < Qtr3d::Triangle) // No Lighing for dots and lines... otherwise you can't see basic shapes in complex models...
         lighting = Qtr3d::NoLighting;
@@ -65,15 +65,23 @@ void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, con
     currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
     currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
 
+    QVector<QMatrix4x4> expandedMeshSkeleton = meshSkeleton;
+    int minBoneCount = qMax(1,mesh.bones().count());
+    if (meshSkeleton.count() < minBoneCount) {
+        expandedMeshSkeleton.resize(minBoneCount);
+        for (auto &boneTranform : expandedMeshSkeleton)
+            boneTranform = modelView;
+    }
+
     switch(lighting) {
     case Qtr3d::NoLighting:
-        drawBuffer_NoLight(mesh, modelView, camera.projection() , camera.worldMatrix());
+        drawBuffer_NoLight(mesh, modelView, expandedMeshSkeleton, camera.projection() , camera.worldMatrix());
         break;
     case Qtr3d::FlatLighting:
-        drawBuffer_FlatLight(mesh, modelView, camera.projection() , camera.worldMatrix(), light);
+        drawBuffer_FlatLight(mesh, modelView, expandedMeshSkeleton, camera.projection() , camera.worldMatrix(), light);
         break;
     case Qtr3d::PhongLighting:
-        drawBuffer_PhongLight(mesh, modelView, camera.projection() , camera.worldMatrix(), light);
+        drawBuffer_PhongLight(mesh, modelView, expandedMeshSkeleton, camera.projection() , camera.worldMatrix(), light);
         break;
     default:break;
     }

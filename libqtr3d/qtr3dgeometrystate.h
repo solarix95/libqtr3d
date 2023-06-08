@@ -7,6 +7,7 @@
 #include "qtr3dtypes.h"
 
 class Qtr3dGeometry;
+class Qtr3dModelAnimator;
 
 //-------------------------------------------------------------------------------------------------
 class Qtr3dGeometryState : public QObject
@@ -24,7 +25,6 @@ public:
     inline const QVector3D &pos() const     { return mPos; }
     inline const QVector3D &rot() const     { return mRot; }
 
-
     void setPos(const QVector3D &pos);
     void move(const QVector3D &pos);
     void move(const QVector3D &pos, const QVector3D &rotation);
@@ -34,10 +34,13 @@ public:
     void setRotation(const QVector3D &rotationAngles);
     void setModelView(const QMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
     float radius() const;            // scaled buffer radius
-    QVector3D center() const; // absolute center
+    QVector3D center() const;        // absolute center
 
-    inline const QMatrix4x4 modelView()  const  { return mModelView; };
-    inline const Qtr3dGeometry &buffer() const  { return mBuffer;    };
+    inline const QMatrix4x4    modelView() const  { return mModelView; };
+    inline const Qtr3dGeometry &buffer()   const  { return mBuffer;    };
+
+    void                       setAnimator(Qtr3dModelAnimator *animator);
+    inline Qtr3dModelAnimator *animator() { return mAnimator; }
 
 signals:
     void updated();
@@ -46,13 +49,15 @@ private:
     void updateMatrix();
 
     Qtr3dGeometry &mBuffer;
-    bool        mEnabled;
-    QMatrix4x4  mModelView;
-    QVector3D   mPos;
-    QVector3D   mRot;
-    QVector3D   mScale;
+    bool           mEnabled;
+    QMatrix4x4     mModelView;
+    QVector3D      mPos;
+    QVector3D      mRot;
+    QVector3D      mScale;
 
     Qtr3d::LightingType mLightingType;
+
+    Qtr3dModelAnimator *mAnimator;
 };
 
 //-------------------------------------------------------------------------------------------------

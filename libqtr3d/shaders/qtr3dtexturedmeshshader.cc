@@ -20,6 +20,8 @@ void Qtr3dTexturedShader::onProgramChange()
     mVertexPosition   = currentProgram()->attributeLocation("vertex");
     mVertexNormal     = currentProgram()->attributeLocation("vnormal");
     mVertexTexcoords  = currentProgram()->attributeLocation("vtexcoords");
+    mVertexBoneIndices= currentProgram()->attributeLocation("boneIndices" );
+    mVertexBoneWeights= currentProgram()->attributeLocation("boneWeights" );
 
     mModelviewMatrix  = currentProgram()->uniformLocation("modelview");
     mProjectionMatrix = currentProgram()->uniformLocation("projection");
@@ -28,15 +30,16 @@ void Qtr3dTexturedShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix,const Qtr3dLightSource &light)
+void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix,const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
@@ -54,7 +57,7 @@ void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMat
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
@@ -110,6 +113,24 @@ void Qtr3dTexturedShader::drawMesh(const Qtr3dMesh &buffer)
                 (void*)0
                 );
     f->glEnableVertexAttribArray( mVertexPosition );
+    f->glVertexAttribPointer(
+                mVertexBoneIndices,
+                3,
+                GL_INT,
+                GL_FALSE,
+                sizeof(Qtr3dVertex),
+                (void*)(sizeof(Qtr3dVector)+sizeof(Qtr3dScalar)+sizeof(Qtr3dVector))
+                );
+    f->glEnableVertexAttribArray( mVertexBoneIndices );
+
+    f->glVertexAttribPointer(
+                mVertexBoneWeights,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Qtr3dVertex),
+                (void*)(sizeof(Qtr3dVector)+sizeof(Qtr3dScalar)+sizeof(Qtr3dVector)+3*sizeof(int))
+                );
 
     // Normals
     if (mVertexNormal >= 0) {

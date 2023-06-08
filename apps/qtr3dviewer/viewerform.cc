@@ -1,12 +1,17 @@
 
 #include <QPushButton>
 #include <QRadioButton>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 #include <QCursor>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmodel.h>
+#include <libqtr3d/qtr3dmodelanimation.h>
+#include <libqtr3d/qtr3dmodelanimator.h>
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
@@ -55,7 +60,9 @@ ViewerForm::ViewerForm(QWidget *parent)
 
     connect(ui->btnLightOn, &QRadioButton::clicked, this, &ViewerForm::updateLight);
     connect(ui->btnLightOff, &QRadioButton::clicked, this, &ViewerForm::updateLight);
+    connect(ui->cbxAnimList, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this]() { selectAnimation(); });
 
+    connect(ui->spbAnimCurrentKey, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this]() { updateAnimator(); });
     updateVertexOrientation();
     updateLight();
 }
@@ -99,11 +106,57 @@ void ViewerForm::updateLight()
 }
 
 //-------------------------------------------------------------------------------------------------
+void ViewerForm::initAnimationUi()
+{
+    ui->cbxAnimList->clear();
+    ui->spbAnimCurrentKey->setValue(0);
+    ui->spbAnimTicks->setValue(0);
+    ui->spbAnimTpS->setValue(0);
+
+    if (!mModel || mModel->animations().isEmpty())
+        return;
+
+
+    ui->cbxAnimList->addItems(mModel->animations());
+    selectAnimation();
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::selectAnimation()
+{
+    if (ui->cbxAnimList->currentIndex() < 0)
+        return;
+    if (!mModel || !mModelState)
+        return;
+
+    Qtr3dModelAnimation *anim = mModel->animationByName(ui->cbxAnimList->currentText());
+    if (!anim)
+        return;
+
+    ui->spbAnimTicks->setValue(anim->duration());
+    ui->spbAnimTpS->setValue(anim->ticksPerSec());
+    ui->spbAnimCurrentKey->setValue(0);
+
+    mModelState->setAnimator(new Qtr3dModelAnimator(anim));
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::updateAnimator()
+{
+    if (!mModelState || !mModelState->animator())
+        return;
+
+    mModelState->animator()->setKeyFrameIndex(ui->spbAnimCurrentKey->value());
+}
+
+//-------------------------------------------------------------------------------------------------
 void ViewerForm::loadFile(const QString &filename)
 {
     if (mModel) {
         mModel->deleteLater();
+        mModel = nullptr;
         mModelState = nullptr;
+        initAnimationUi();
     }
     mModel = ui->viewer->createModel();
 
@@ -118,6 +171,9 @@ void ViewerForm::loadFile(const QString &filename)
     updateLight();
     updateVertexOrientation();
 
+    qDebug() << mModel->radius() << (1/mModel->radius()) << mModelState->center();
+
     mModelState->setScale(1/mModel->radius());
     ui->viewer->camera()->lookAt(mModelState->center() + QVector3D({3,3,3}), mModelState->center(), {0,1,0});
+    initAnimationUi();
 }

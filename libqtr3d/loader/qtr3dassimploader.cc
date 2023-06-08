@@ -80,7 +80,7 @@ bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Opti
     for (unsigned i=0; i<scene->mNumAnimations; i++)
         qtr3dAssimpAnimation(scene,scene->mAnimations[i],model);
 
-    qDebug() << "ASSIMP" << model.meshes().count() << model.nodes().count();
+    qDebug() << "ASSIMP" << model.meshes().count() << model.nodes().mNodes.count();
     aiReleaseImport(scene);
     return model.meshes().count() > 0;
 }
@@ -96,14 +96,13 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
     if (amaterial && amesh->mTextureCoords[0]) {
         aiString path;
         if (amaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-
             auto *textureData = ascene->GetEmbeddedTexture(path.data);
             if (textureData) {
                 QImage img;
                 /*
-                      mHeight: If this value is zero, pcData points to an compressed texture in any format (e.g. JPEG).
-                      mWidth:  If mHeight is zero the texture is compressed in a format like JPEG. In this case mWidth specifies the size of the memory area pcData is pointing to, in bytes.
-                    */
+                          mHeight: If this value is zero, pcData points to an compressed texture in any format (e.g. JPEG).
+                          mWidth:  If mHeight is zero the texture is compressed in a format like JPEG. In this case mWidth specifies the size of the memory area pcData is pointing to, in bytes.
+                        */
                 if (textureData->mHeight <= 0 && textureData->mWidth > 0) {
                     img = QImage::fromData((const uchar *)textureData->pcData, textureData->mWidth);
 
@@ -112,6 +111,7 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
                     }
                 }
             }
+
         }
     }
 
@@ -163,18 +163,19 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
             mesh->addIndex(amesh->mFaces[f].mIndices[3]);
         }
     }
-    mesh->endMesh();
-    model.addMesh(mesh);
 
     for (unsigned b=0; b<amesh->mNumBones; b++) {
         auto       *abone = amesh->mBones[b];
-        Qtr3d::Bone bone;
+        Qtr3dMesh::Bone bone;
         bone.name = QString::fromUtf8(abone->mName.C_Str());
         for (unsigned bw=0; bw<abone->mNumWeights; bw++) {
-            bone.weights << Qtr3d::BoneWeight(abone->mWeights[bw].mVertexId, abone->mWeights[bw].mWeight);
+            bone.weights << Qtr3dMesh::BoneWeight(abone->mWeights[bw].mVertexId, abone->mWeights[bw].mWeight);
         }
-        qDebug() << bone.name << bone.weights.count();
+        mesh->addBone(bone);
     }
+
+    mesh->endMesh();
+    model.addMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------

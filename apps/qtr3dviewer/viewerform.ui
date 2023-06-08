@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>762</width>
-    <height>520</height>
+    <width>786</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
    <item>
-    <widget class="Qtr3dWidget" name="viewer" native="true">
+    <widget class="Qtr3dWidget" name="viewer">
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
@@ -55,14 +55,7 @@
        <property name="title">
         <string>VertexOrientation</string>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QRadioButton" name="btnCW">
-          <property name="text">
-           <string>ClockWise</string>
-          </property>
-         </widget>
-        </item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QRadioButton" name="btnCCW">
           <property name="text">
@@ -70,6 +63,13 @@
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="btnCW">
+          <property name="text">
+           <string>ClockWise</string>
           </property>
          </widget>
         </item>
@@ -81,7 +81,17 @@
        <property name="title">
         <string>Light</string>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QRadioButton" name="btnLightOff">
+          <property name="text">
+           <string>Off/Flat</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QRadioButton" name="btnLightOn">
           <property name="text">
@@ -92,15 +102,66 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QRadioButton" name="btnLightOff">
-          <property name="text">
-           <string>Off/Flat</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Animation Player</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="spbAnimTpS">
+          <property name="maximum">
+           <number>999999</number>
           </property>
          </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>T/s</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QDoubleSpinBox" name="spbAnimTicks">
+          <property name="maximum">
+           <double>99999999.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Ticks</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QSpinBox" name="spbAnimCurrentKey">
+          <property name="maximum">
+           <number>999999</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Key</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4" colspan="2">
+         <widget class="QPushButton" name="btnAnimPlay">
+          <property name="text">
+           <string>Play</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="4">
+         <widget class="QComboBox" name="cbxAnimList"/>
         </item>
        </layout>
       </widget>
@@ -112,8 +173,8 @@
  <customwidgets>
   <customwidget>
    <class>Qtr3dWidget</class>
-   <extends>QWidget</extends>
-   <header>libqtr3d/qtr3dwidget.h</header>
+   <extends>QOpenGLWidget</extends>
+   <header location="global">libqtr3d/qtr3dwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

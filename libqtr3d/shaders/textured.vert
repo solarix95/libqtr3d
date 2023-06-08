@@ -1,15 +1,22 @@
-#version 110
+#version 150 core
+// Version-Info: 130 needed because of datatype "ivec3".
+
 // Simple vertex shader.
 // Transforms and projects vertices and calculates parameters for lighting.
 
 // Attributes: Position, normal, texture coordinates
-attribute vec4 vertex;
-attribute vec3 vnormal;
-attribute vec2 vtexcoords;
+attribute vec4  vertex;
+attribute vec3  vnormal;
+attribute vec2  vtexcoords;
+attribute ivec3 boneIndices;   // Bone indices associated with the vertex
+attribute vec3  boneWeights;   // Bone weights associated with the vertex
 
 // Same for the whole model or scene: Projection and Modelview matrices
 uniform mat4      projection;
 uniform mat4      modelview;
+uniform mat4      bones[120];  // Array of bone transformation matrices
+uniform int       numBones;
+
 uniform sampler2D textureId;
 
 // Parameters passed to the fragment shader.

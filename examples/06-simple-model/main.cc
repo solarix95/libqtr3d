@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         auto *fanModel = w.createModel();
         const int bladeCount = 16;
         for (int i=0; i<bladeCount; i++)
-            fanModel->createNode(mesh,{0,0,0},{0.0,0.0,i*(360.0f/bladeCount)},{1,1,1});
+            fanModel->createNode(mesh,{0,0,0},{0.0,0.0,i*(360.0f/bladeCount)},{1,1,1},nullptr);
 
         // .. and now we create one "fan"
         auto *turboFan = w.createState(fanModel);

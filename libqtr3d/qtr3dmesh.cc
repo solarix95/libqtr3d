@@ -96,6 +96,7 @@ void Qtr3dMesh::endMesh(bool doTrim)
         }
     }
 
+    initMeshSkeleton();
     selectShader();
 
 
@@ -243,6 +244,16 @@ void Qtr3dMesh::addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dMesh::addBone(const Bone &bone)
+{
+    if (bone.name.isEmpty() || bone.weights.isEmpty()) {
+        qWarning() << "Qtr3dMesh::addBone: invalid bone struct";
+        return;
+    }
+    mBones << bone;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::addNormal(const QVector3D &n)
 {
     mNormals << n;
@@ -298,6 +309,12 @@ const Qtr3dVertex &Qtr3dMesh::vertex(int i) const
 }
 
 //-------------------------------------------------------------------------------------------------
+const QList<Qtr3dMesh::Bone> &Qtr3dMesh::bones() const
+{
+    return mBones;
+}
+
+//-------------------------------------------------------------------------------------------------
 GLenum Qtr3dMesh::bufferType() const
 {
     switch (mMeshType) {
@@ -309,6 +326,67 @@ GLenum Qtr3dMesh::bufferType() const
     }
     Q_ASSERT(0);
     return 0;
+}
+
+//-------------------------------------------------------------------------------------------------
+QVector<QMatrix4x4> Qtr3dMesh::animatedSkeleton() const
+{
+    QVector<QMatrix4x4> ret;
+    for (int i=0; i<mBones.count(); i++) {
+        QMatrix4x4 boneTranform;
+        boneTranform.setToIdentity();
+        ret << boneTranform;
+    }
+
+    if (ret.isEmpty()) {
+        QMatrix4x4 boneTranform;
+        boneTranform.setToIdentity();
+        ret << boneTranform;
+    }
+
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dMesh::initMeshSkeleton()
+{
+    if (mBones.isEmpty() || mVertices.isEmpty())
+        return;
+
+    struct VertexBones {
+        QList<int>   boneIndices;
+        QList<float> vertexWeights;
+    };
+
+    QVector<VertexBones> indices;
+    indices.resize(mVertices.count()); // one Bone-Info per vertex
+
+    for (int boneIndex=0; boneIndex < mBones.count(); boneIndex++) {
+        for (const auto &boneWeight : mBones[boneIndex].weights) {
+            if (boneWeight.weight <= 0.01) // Ignore bones with less than 1% impact. Why does this exist??!
+                continue;
+            indices[boneWeight.vertexIndex].boneIndices   << boneIndex;
+            indices[boneWeight.vertexIndex].vertexWeights << boneWeight.weight;
+        }
+    }
+
+    Q_ASSERT(indices.count() == mVertices.count());
+    for (int vertexIndex=0; vertexIndex < indices.count(); vertexIndex++) {
+
+        float totalWeight = 0;
+        for (auto w: indices[vertexIndex].vertexWeights)
+            totalWeight += w;
+        float normalizeFactor = 1/totalWeight;
+
+        for (int wi=0; wi < 3; wi++) {
+            if (wi > indices[vertexIndex].boneIndices.count()-1) {
+                mVertices[vertexIndex].bi[wi] = -1;
+                continue;
+            }
+            mVertices[vertexIndex].bi[wi] = indices[vertexIndex].boneIndices[wi];
+            mVertices[vertexIndex].bw[wi] = indices[vertexIndex].vertexWeights[wi] * normalizeFactor;
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

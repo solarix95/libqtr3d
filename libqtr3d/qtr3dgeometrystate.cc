@@ -1,5 +1,6 @@
 #include "qtr3dgeometry.h"
 #include "qtr3dgeometrystate.h"
+#include "qtr3dmodelanimator.h"
 
 //------------------------------------------------------------------------------------------------
 Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, Qtr3d::LightingType ltype)
@@ -7,6 +8,7 @@ Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, Qtr3d::LightingTyp
  , mBuffer(*parent)
  , mEnabled(true)
  , mLightingType(ltype)
+ , mAnimator(nullptr)
 {
     setState({0,0,0},{0,0,0},{1,1,1});
 }
@@ -17,6 +19,7 @@ Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, const QVector3D &p
  , mBuffer(*parent)
  , mEnabled(true)
  , mLightingType(Qtr3d::DefaultLighting)
+ , mAnimator(nullptr)
 {
     setState(pos,rotation,{1,1,1});
 }
@@ -114,10 +117,19 @@ QVector3D Qtr3dGeometryState::center() const
 }
 
 //------------------------------------------------------------------------------------------------
+void Qtr3dGeometryState::setAnimator(Qtr3dModelAnimator *animator)
+{
+    if (mAnimator)
+        mAnimator->deleteLater();
+    mAnimator = animator;
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::updateMatrix()
 {
     mModelView = QMatrix4x4();
-    mModelView.data()[15] = 1.0;
+    mModelView.setToIdentity();
+    // mModelView.data()[15] = 1.0;
 
     mModelView.translate(mPos);
 

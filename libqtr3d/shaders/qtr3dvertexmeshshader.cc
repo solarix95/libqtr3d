@@ -16,6 +16,9 @@ void Qtr3dVertexMeshShader::onProgramChange()
     // Get locations of attributes and uniforms used inside.
     mVertexPosition   = currentProgram()->attributeLocation("vertex" );
     mVertexNormal     = currentProgram()->attributeLocation("vnormal" );
+    mVertexBoneIndices= currentProgram()->attributeLocation("boneIndices" );
+    mVertexBoneWeights= currentProgram()->attributeLocation("boneWeights" );
+
     mVertexColor      = currentProgram()->attributeLocation("vcolor" );
 
     mProjectionMatrix = currentProgram()->uniformLocation("projection" );
@@ -28,15 +31,19 @@ void Qtr3dVertexMeshShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+
+    currentProgram()->setUniformValueArray("bones",meshSkeleton.data(),meshSkeleton.count());
+    currentProgram()->setUniformValue("numBones",GLint(meshSkeleton.count()));
+
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     QVector3D lightPos = worldMatrix * light.pos();
 
@@ -53,11 +60,15 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QM
     currentProgram()->setUniformValue("light.color",   light.colorf());
 
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+
+    currentProgram()->setUniformValueArray("bones",meshSkeleton.data(),meshSkeleton.count());
+    currentProgram()->setUniformValue("numBones",GLint(meshSkeleton.count()));
+
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
@@ -71,6 +82,10 @@ void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const Q
     currentProgram()->setUniformValue("light.color",   light.colorf());
 
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+
+    currentProgram()->setUniformValueArray("bones",meshSkeleton.data(),meshSkeleton.count());
+    currentProgram()->setUniformValue("numBones",GLint(meshSkeleton.count()));
+
     drawMesh(mesh);
 }
 
@@ -107,6 +122,25 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
                 (void*)0
                 );
     f->glEnableVertexAttribArray( mVertexPosition );
+    f->glVertexAttribPointer(
+                mVertexBoneIndices,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Qtr3dVertex),
+                (void*)(sizeof(Qtr3dVector)+sizeof(Qtr3dScalar)+sizeof(Qtr3dVector))
+                );
+    f->glEnableVertexAttribArray( mVertexBoneIndices );
+
+    f->glVertexAttribPointer(
+                mVertexBoneWeights,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Qtr3dVertex),
+                (void*)(sizeof(Qtr3dVector)+sizeof(Qtr3dScalar)+sizeof(Qtr3dVector)+3*sizeof(float))
+                );
+    f->glEnableVertexAttribArray( mVertexBoneWeights );
 
     // Normals -> lighting only
     if (mVertexNormal >= 0) {
