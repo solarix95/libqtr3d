@@ -3,6 +3,7 @@
 
 #include <QOpenGLWidget>
 #include "qtr3dtypes.h"
+#include "qtr3dmodel.h"
 
 class Qtr3dTexturedMesh;
 class Qtr3dTexturedShader;
@@ -13,7 +14,6 @@ class Qtr3dGeometry;
 class Qtr3dGeometryState;
 class Qtr3dTextureFactory;
 class Qtr3dCamera;
-class Qtr3dModel;
 class Qtr3dLightSource;
 class Qtr3dGeometryBufferFactory;
 class Qtr3dAssets;
@@ -74,7 +74,9 @@ private:
     void preInitializing();
     void paintMeshes();
     void paintModels();
-    void renderAnimatedModelMesh(Qtr3dShader *shader, const Qtr3dMesh *mesh, Qtr3dGeometryState *state, const Qtr3dCamera *camera, Qtr3d::LightingType lighting, const Qtr3dLightSource *light, const Qtr3dEnvironment &env);
+    void renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
+    void renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
+    int  setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform);
 
     Options                  mOptions;
     Qtr3dCamera             *mCamera;

@@ -18,16 +18,22 @@ public:
         QVector3D mValue;
 
         PositionKey(float t, const QVector3D &v) : mTime(t), mValue(v) {}
+        PositionKey() : mTime(-1), mValue() {}
+        inline bool isValid() const  { return mTime >= 0; }
     };
     struct RotationKey {
         float       mTime;
         QQuaternion mValue;
         RotationKey(float t, const QQuaternion &v) : mTime(t), mValue(v) {}
+        RotationKey() : mTime(-1), mValue() {}
+        inline bool isValid() const  { return mTime >= 0; }
     };
     struct ScaleKey {
         float     mTime;
         QVector3D mValue;
         ScaleKey(float t, const QVector3D &v) : mTime(t), mValue(v) {}
+        ScaleKey() : mTime(-1), mValue() {}
+        inline bool isValid() const  { return mTime >= 0; }
     };
 
     struct Channel {
@@ -48,12 +54,9 @@ public:
     void    addChannel(const Channel &channel);
 
     QStringList animatedNodes() const;
-    QMatrix4x4  tranformNode(const QString &nodeName, float time) const;
-    QMatrix4x4  tranformNode(const QString &nodeName, int   keyFrame) const;
+    bool        tranformNode(const QString &nodeName, float time, QMatrix4x4 &nodeTransform) const;
 
 private:
-
-    const QMatrix4x4     &transformChannel(const Channel &channel, int keyFrame, QMatrix4x4 &matrix) const;
     QString               mName;
     float                 mDuration;
     int                   mTicksPerSec;

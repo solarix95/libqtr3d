@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QCoreApplication>
+
 #include <libqtr3d/qtr3dwidget.h>
 #include <libqtr3d/qtr3dmodel.h>
 #include <libqtr3d/qtr3dmodelanimation.h>
@@ -16,6 +17,7 @@
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
 #include <libqtr3d/extras/qtr3dfreecameracontroller.h>
+#include <libqtr3d/physics/qtr3dfpsloop.h>
 #include "viewerform.h"
 #include "ui_viewerform.h"
 
@@ -34,6 +36,8 @@ ViewerForm::ViewerForm(QWidget *parent)
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [&]() {
 
         ui->btnLoad->setEnabled(true);
+        // ui->viewer->assets()->loop().setFps(50);
+
         connect(new Qtr3dFreeCameraController(ui->viewer), &Qtr3dFreeCameraController::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
         for (auto arg: qApp->arguments()) {
             if (arg.startsWith("--load=")) {
@@ -46,17 +50,21 @@ ViewerForm::ViewerForm(QWidget *parent)
         ui->viewer->primaryLightSource()->setAmbientStrength(0.5);
         connect(ui->viewer->camera(), &Qtr3dCamera::positionChanged, ui->viewer->primaryLightSource(), &Qtr3dLightSource::setPos);
 
-
         auto *center = ui->viewer->createMesh();
         Qtr3d::meshByXyzAxis(*center, 5);
         ui->viewer->createState(center)->setLightingType(Qtr3d::NoLighting);
 
         ui->viewer->camera()->lookAt({5,5,5},{0,0,0},{0,1,0});
+
     });
 
     connect(ui->btnLoad, &QPushButton::clicked, this, &ViewerForm::load);
     connect(ui->btnCCW, &QRadioButton::clicked, this, &ViewerForm::updateVertexOrientation);
     connect(ui->btnCW, &QRadioButton::clicked, this, &ViewerForm::updateVertexOrientation);
+    connect(ui->btnAnimPlay, &QPushButton::clicked, this, [this]() {
+       if (mModelState && mModelState->animator())
+           mModelState->animator()->start();
+    });
 
     connect(ui->btnLightOn, &QRadioButton::clicked, this, &ViewerForm::updateLight);
     connect(ui->btnLightOff, &QRadioButton::clicked, this, &ViewerForm::updateLight);

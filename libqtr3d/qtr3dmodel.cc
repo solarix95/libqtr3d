@@ -6,10 +6,9 @@
 #include "qtr3dmodelanimator.h"
 
 //-------------------------------------------------------------------------------------------------
-QMatrix4x4  Qtr3dModel::Node::translation(Qtr3dModelAnimator *anim) const
+QMatrix4x4  Qtr3dModel::Node::translation() const
 {
-    QMatrix4x4 myTranslation = anim ? anim->transform(mName)*mTranslation : mTranslation;
-    return mParent ? mParent->translation(anim) * myTranslation : myTranslation;
+    return mParent ? mParent->translation() * mTranslation : mTranslation;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -142,7 +141,7 @@ QVector3D Qtr3dModel::minValues() const
 
     for (auto *node: mNodes.mNodes) {
         for (auto *m: node->mMeshes) {
-            QVector3D meshMin = m->minValues()*node->translation(nullptr);
+            QVector3D meshMin = m->minValues()*node->translation();
             if (val.x() > meshMin.x())
                 val.setX(meshMin.x());
             if (val.y() > meshMin.y())
@@ -164,7 +163,7 @@ QVector3D Qtr3dModel::maxValues() const
 
     for (auto *node: mNodes.mNodes) {
         for (auto *m: node->mMeshes) {
-            QVector3D meshMax = m->maxValues()*node->translation(nullptr);
+            QVector3D meshMax = m->maxValues()*node->translation();
             if (val.x() < meshMax.x())
                 val.setX(meshMax.x());
             if (val.y() < meshMax.y())

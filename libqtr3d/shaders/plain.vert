@@ -1,4 +1,4 @@
-#version 150 core
+#version 330 core
 // Version-Info: 130 needed because of datatype "ivec3".
 
 // Attributes: Position, normal, texture coordinates
@@ -25,6 +25,7 @@ void main() {
         // Apply bone transformations
 
         mat4 boneTransform = mat4(0.0);
+
         for (int i = 0; i < 3; ++i) {
                int boneIndex = int(boneIndices[i]);
 
@@ -40,9 +41,9 @@ void main() {
         // fragPos           = modelview * vertex;
         // boneTransform  = boneTransform*modelview;
 
-        boneTransform = modelview;
-        fragPos        = boneTransform * vertex;
-
+        boneTransform = modelview * boneTransform;
+        fragPos       = boneTransform * vertex;
+        // fragPos       = modelview * vertex;
 
         // fragNormal   = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
         vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);

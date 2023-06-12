@@ -21,12 +21,6 @@ void Qtr3dPlainShader::onProgramChange()
     mProjectionMatrix = currentProgram()->uniformLocation("projection" );
     mModelviewMatrix  = currentProgram()->uniformLocation("modelview" );
     mModelColor       = currentProgram()->uniformLocation("modelcolor" );
-
-    // Fragment Shader Uniforms
-    mLightPos         = currentProgram()->uniformLocation("lightpos" );
-    mLightColor       = currentProgram()->uniformLocation("lightcolor" );
-    mLightAmbient     = currentProgram()->uniformLocation("lightambientk" );
-    mLightDiffuse     = currentProgram()->uniformLocation("lightdiffusek" );
 }
 
 //-------------------------------------------------------------------------------------------------

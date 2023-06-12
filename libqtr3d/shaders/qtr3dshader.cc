@@ -66,11 +66,14 @@ void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, con
     currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
 
     QVector<QMatrix4x4> expandedMeshSkeleton = meshSkeleton;
+    QMatrix4x4 defaultTransform;
+    defaultTransform.setToIdentity();
+
     int minBoneCount = qMax(1,mesh.bones().count());
     if (meshSkeleton.count() < minBoneCount) {
         expandedMeshSkeleton.resize(minBoneCount);
         for (auto &boneTranform : expandedMeshSkeleton)
-            boneTranform = modelView;
+            boneTranform = defaultTransform;
     }
 
     switch(lighting) {
