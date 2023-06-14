@@ -76,7 +76,7 @@ private:
     void paintModels();
     void renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
     void renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
-    int  setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform);
+    int  setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform, const QMatrix4x4 &globalTransform);
 
     Options                  mOptions;
     Qtr3dCamera             *mCamera;

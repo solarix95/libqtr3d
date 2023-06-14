@@ -82,7 +82,6 @@ bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMat
             break;
         }
     }
-
     QQuaternion rotation;
     if (channel.mRotationKeys.count() == 1 || rotationIndex == 0) { // Sonderfall: vor dem ersten KeyFrame
         rotation = channel.mRotationKeys[0].mValue;
@@ -102,8 +101,7 @@ bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMat
             break;
         }
     }
-
-    QVector3D scale;
+    QVector3D scale(1,1,1);
     if (channel.mScaleKeys.count() == 1 || scaleIndex == 0) { // Sonderfall: vor dem ersten KeyFrame
         scale = channel.mScaleKeys[0].mValue;
     } else if (scaleIndex > 0) {
@@ -113,10 +111,13 @@ bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMat
         float factor         = (time - channel.mScaleKeys[scaleIndex - 1].mTime) / deltaTime;
         scale                = startState + (endState - startState) * factor;
     }
+    QMatrix4x4 temp3;
+    temp3.scale(scale);
 
     nodeTransform = QMatrix4x4();
     nodeTransform.translate(position);
     nodeTransform.rotate(rotation);
     nodeTransform.scale(scale);
+
     return true;
 }

@@ -19,6 +19,7 @@ public:
 
     struct Bone {
         QString           name;
+        QMatrix4x4        offset;
         QList<BoneWeight> weights;
     };
 

@@ -36,8 +36,9 @@ public:
     float radius() const;            // scaled buffer radius
     QVector3D center() const;        // absolute center
 
-    inline const QMatrix4x4    modelView() const  { return mModelView; };
-    inline const Qtr3dGeometry &buffer()   const  { return mBuffer;    };
+    inline const QMatrix4x4     modelView() const  { return mModelView; };
+    inline const QVector3D     &scale()     const  { return mScale;     };
+    inline const Qtr3dGeometry &buffer()    const  { return mBuffer;    };
 
     void                       setAnimator(Qtr3dModelAnimator *animator);
     inline Qtr3dModelAnimator *animator() { return mAnimator; }

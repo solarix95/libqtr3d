@@ -65,26 +65,15 @@ void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, con
     currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
     currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
 
-    QVector<QMatrix4x4> expandedMeshSkeleton = meshSkeleton;
-    QMatrix4x4 defaultTransform;
-    defaultTransform.setToIdentity();
-
-    int minBoneCount = qMax(1,mesh.bones().count());
-    if (meshSkeleton.count() < minBoneCount) {
-        expandedMeshSkeleton.resize(minBoneCount);
-        for (auto &boneTranform : expandedMeshSkeleton)
-            boneTranform = defaultTransform;
-    }
-
     switch(lighting) {
     case Qtr3d::NoLighting:
-        drawBuffer_NoLight(mesh, modelView, expandedMeshSkeleton, camera.projection() , camera.worldMatrix());
+        drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera.projection() , camera.worldMatrix());
         break;
     case Qtr3d::FlatLighting:
-        drawBuffer_FlatLight(mesh, modelView, expandedMeshSkeleton, camera.projection() , camera.worldMatrix(), light);
+        drawBuffer_FlatLight(mesh, modelView, meshSkeleton, camera.projection() , camera.worldMatrix(), light);
         break;
     case Qtr3d::PhongLighting:
-        drawBuffer_PhongLight(mesh, modelView, expandedMeshSkeleton, camera.projection() , camera.worldMatrix(), light);
+        drawBuffer_PhongLight(mesh, modelView, meshSkeleton, camera.projection() , camera.worldMatrix(), light);
         break;
     default:break;
     }

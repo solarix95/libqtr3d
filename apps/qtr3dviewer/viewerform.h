@@ -25,7 +25,6 @@ private slots:
     void updateLight();
     void initAnimationUi();
     void selectAnimation();
-    void updateAnimator();
 
 private:
     void loadFile(const QString &filename);

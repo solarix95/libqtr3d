@@ -27,35 +27,34 @@ out vec4 fragPos;
 
 void main() {
 
-        // Apply bone transformations
-      int debug = 0;
-      mat4 boneTransform = mat4(0.0);
-      for (int i = 0; i < 3; ++i) {
-           int boneIndex = int(boneIndices[i]);
+    // Apply bone transformations
+    mat4 boneTransform = mat4(0.0);
+    if (numBones > 0) {
+        for (int i = 0; i < 3; ++i) {
+            int boneIndex = int(boneIndices[i]);
 
-           if (boneIndex < 0) break;
-           if (boneIndex >= numBones) break;
+            if (boneIndex < 0) break;
+            if (boneIndex >= numBones) break;
 
-           float boneWeight = boneWeights[i];
+            float boneWeight = boneWeights[i];
 
-           boneTransform += bones[boneIndex] * boneWeight;
-       }
+            boneTransform += bones[boneIndex] * boneWeight;
+        }
+        boneTransform = modelview * boneTransform;
+    } else {
+        boneTransform = modelview ;
+    }
 
-	// Transform the vertex according to modelview
-        boneTransform  = modelview * boneTransform;
-        fragPos        = boneTransform * vertex;
+    fragPos     = boneTransform * vertex;
 
-        vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
-        vec4 turnNorm  = boneTransform * normPoint;
-        fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
+    vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
+    vec4 turnNorm  = boneTransform * normPoint;
+    fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
 
-        // send color to the fragment shader
-        fragColor   = vcolor;
+    // send color to the fragment shader
+    fragColor   = vcolor;
 
-        if (debug == 1)
-            fragColor   = vec4(1,0,0, 1); // TODO: Alpha?
-
-        // gl_Position = projection * modelview * vertex;
-        // gl_Position = projection * boneTransform * vertex;
-        gl_Position = projection * fragPos;
+    // gl_Position = projection * modelview * vertex;
+    // gl_Position = projection * boneTransform * vertex;
+    gl_Position = projection * fragPos;
 }

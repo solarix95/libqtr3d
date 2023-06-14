@@ -23,38 +23,35 @@ out vec4 fragPos;
 void main() {
 
         // Apply bone transformations
-
         mat4 boneTransform = mat4(0.0);
+        if (numBones > 0) {
+            for (int i = 0; i < 3; ++i) {
+                int boneIndex = int(boneIndices[i]);
 
-        for (int i = 0; i < 3; ++i) {
-               int boneIndex = int(boneIndices[i]);
+                if (boneIndex < 0) break;
+                if (boneIndex >= numBones) break;
 
-               if (boneIndex < 0) break;
-               if (boneIndex >= numBones) break;
+                float boneWeight = boneWeights[i];
 
-               float boneWeight = boneWeights[i];
-               boneTransform += bones[boneIndex] * boneWeight;
+                boneTransform += bones[boneIndex] * boneWeight;
+            }
+            boneTransform = modelview * boneTransform;
+        } else {
+            boneTransform = modelview ;
         }
 
-        // Transform the vertex according to modelview
-        // fragPos        = (boneTransform * modelview) * vertex;
-        // fragPos           = modelview * vertex;
-        // boneTransform  = boneTransform*modelview;
-
-        boneTransform = modelview * boneTransform;
-        fragPos       = boneTransform * vertex;
-        // fragPos       = modelview * vertex;
+        fragPos     = boneTransform * vertex;
 
         // fragNormal   = normalize( (vec4(vnormal, 0.0) * normalview ).xyz );
         vec4 normPoint = vec4(vertex.x + vnormal.x, vertex.y + vnormal.y, vertex.z + vnormal.z, 1);
         vec4 turnNorm  = boneTransform * normPoint;
         fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
-
         // fragNormal   = (modelview * vec4(vnormal.x,vnormal.y,vnormal.z,1)).xyz;
 
-        // Project and send to the fragment shader
+        // Color to the fragment shader
         fragColor   = modelcolor;
 
+        // Project and send to the fragment shader
         // gl_Position = projection * modelview * vertex;
         gl_Position = projection * fragPos;
 }

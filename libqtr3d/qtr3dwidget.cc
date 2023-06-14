@@ -421,20 +421,30 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             QMatrix4x4 rootTransform;
             rootTransform.setToIdentity();
 
-            int updatedBones = setupSkeleton(skeleton, nodes.mRootNode, mesh, state->animator(),rootTransform);
-            qDebug() << updatedBones;
+            QMatrix4x4 globalInverseTransform = nodes.mRootNode->mTranslation.inverted();
+            globalInverseTransform.setToIdentity();
+            setupSkeleton(skeleton, nodes.mRootNode, mesh, state->animator(),rootTransform, globalInverseTransform);
+
+            for (int i=0; i<skeleton.size(); i++ ) {
+                QVector4D testv(3,3,3,0);
+                testv = skeleton[i]*testv;
+                int x = testv.length();
+            }
+
             shader->render(*mesh,state->modelView(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
-
 }
 
-int Qtr3dWidget::setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform)
+int Qtr3dWidget::setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform, const QMatrix4x4 &globalTransform)
 {
     int updatesBones = 0;
     QMatrix4x4 nodePosition  = node->mTranslation;   // Default-Transform: Static Node Transform
     animator->transform(node->mName, nodePosition);  // If animated: override static transformation
     nodePosition = parentTransform * nodePosition;   // Tree transformation
+
+    QVector4D tv(3,3,3,0);
+    tv = nodePosition * tv;
 
     // Update Shader Mesh Skeleton
     if (!node->mName.isEmpty()) {
@@ -447,14 +457,13 @@ int Qtr3dWidget::setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::
             }
         }
         if (boneIndex >= 0) {
-            skeleton[boneIndex] = nodePosition;
-
+            skeleton[boneIndex] = globalTransform * nodePosition * bones[boneIndex].offset;
             updatesBones++;
         }
     }
 
     for (const auto *child: node->mChilds)
-        updatesBones += setupSkeleton(skeleton, child,mesh,animator,nodePosition);
+        updatesBones += setupSkeleton(skeleton, child,mesh,animator,nodePosition, globalTransform);
 
     return updatesBones;
 }

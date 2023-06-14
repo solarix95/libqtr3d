@@ -167,7 +167,8 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
     for (unsigned b=0; b<amesh->mNumBones; b++) {
         auto       *abone = amesh->mBones[b];
         Qtr3dMesh::Bone bone;
-        bone.name = QString::fromUtf8(abone->mName.C_Str());
+        bone.name   = QString::fromUtf8(abone->mName.C_Str());
+        bone.offset = qtr3dMatrix(abone->mOffsetMatrix);
         for (unsigned bw=0; bw<abone->mNumWeights; bw++) {
             bone.weights << Qtr3dMesh::BoneWeight(abone->mWeights[bw].mVertexId, abone->mWeights[bw].mWeight);
         }
