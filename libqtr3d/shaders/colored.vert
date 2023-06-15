@@ -1,4 +1,4 @@
-#version 150 core
+#version 330 core
 // Version-Info: 130 needed because of datatype "ivec3".
 
 // Simple vertex shader.
@@ -52,7 +52,7 @@ void main() {
     fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
 
     // send color to the fragment shader
-    fragColor   = vcolor;
+    fragColor   =  vcolor;
 
     // gl_Position = projection * modelview * vertex;
     // gl_Position = projection * boneTransform * vertex;

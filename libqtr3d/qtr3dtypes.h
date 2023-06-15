@@ -96,6 +96,8 @@ typedef struct Qtr3dVector_t
     inline QVector3D toQVector() const { return QVector3D(x,y,z); }
     inline bool      isNull() const    { return qFuzzyIsNull(x + y + z);}
     inline void      normalize()       { QVector3D vnorm = QVector3D(x,y,z).normalized(); x = vnorm.x(); y = vnorm.y(); z=vnorm.z(); }
+    inline Qtr3dScalar  operator[](int i) const { if (i == 0) return x; if (i == 1) return y; if (i==2) return z; Q_ASSERT(0 && "invalid index"); return 0; }
+    inline Qtr3dScalar &operator[](int i)       { if (i == 0) return x; if (i == 1) return y; if (i==2) return z; Q_ASSERT(0 && "invalid index"); return x; }
 } Qtr3dVector;
 
 inline bool operator==(const Qtr3dVector &v1, const QVector3D &v2)
@@ -121,6 +123,7 @@ typedef struct Qtr3dTexturedVertex_t {
         w  = 1.0f;
         n  = { 0.f, 0.f, 0.f };
         t1 = 0.f;
+
         t2 = 0.f;
     }
 
@@ -142,57 +145,22 @@ typedef struct Qtr3dTexturedVertex_t {
 
 } Qtr3dTexturedVertex;
 
-// Usage: Qtr3dVertexMesh
-typedef struct Qtr3dColoredVertex_t {
-    Qtr3dVector p;   // Point
-    Qtr3dScalar w;   // "weight", add extra dimension to point for matrix multiplication
-    Qtr3dVector n;   // Normal-Vector
-    Qtr3dVector c;   // Color (x -> red, y -> green, z -> blue)
-    float       a;   // Alpha
-    Qtr3dColoredVertex_t() {
-        p = {0.0f, 0.0f, 0.0f};
-        w = 1.0f;
-        n = {0.0f, 0.0f, 0.0f};
-        c = {0.0f, 0.0f, 0.0f};
-        a = 1.0f;
-    }
-    Qtr3dColoredVertex_t(const QVector3D &v, const QColor &col) {
-        p = { v.x(), v.y(), v.z() };
-        w = 1.0f;
-        n = {0.0f, 0.0f, 0.0f};
-        c = { (float)col.redF(), (float)col.greenF(), (float)col.blueF() };
-        a = col.alphaF();
-    }
-    Qtr3dColoredVertex_t(const QVector3D &v, const QVector3D &norm, const QColor &col) {
-        p = { v.x(), v.y(), v.z() };
-        w = 1.0f;
-        n = { norm.x(), norm.y(), norm.z() };
-        c = { (float)col.redF(), (float)col.greenF(), (float)col.blueF() };
-        a = col.alphaF();
-    }
-
-} Qtr3dColoredVertex;
-
 // Usage: Qtr3dMesh
 typedef struct Qtr3dVertex_t {
     Qtr3dVector p;      // Point
     Qtr3dScalar w;      // "weight", add extra dimension to point for matrix multiplication
     Qtr3dVector n;      // Normal
-    float       bi[3];  // boneIndices, "float" because Qt has no "glVertexAttribIPointer"!!!
-    float       bw[3];  // boneWeights;
+    Qtr3dVector bi;     // boneIndices, "float" because Qt has no "glVertexAttribIPointer"!!!
+    Qtr3dVector bw;     // boneWeights;
 
     inline Qtr3dVertex_t operator=(const Qtr3dVertex_t &other) {
         p = other.p;
         w = other.w;
         n = other.n;
 
-        bi[0] = other.bi[0];
-        bi[1] = other.bi[1];
-        bi[2] = other.bi[2];
+        bi = other.bi;
+        bw = other.bw;
 
-        bw[0] = other.bw[0];
-        bw[1] = other.bw[1];
-        bw[2] = other.bw[2];
         return other;
     }
 
@@ -201,24 +169,16 @@ typedef struct Qtr3dVertex_t {
         w = 1.0f;
         n = {0.0f, 0.0f, 0.0f};
 
-        bi[0] = 0;
-        bi[1] = -1;
-        bi[2] = -1;
-        bw[0] = 1;
-        bw[1] = 0;
-        bw[2] = 0;
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
     }
 
     Qtr3dVertex_t(const QVector3D &v) {
         p = { v.x(), v.y(), v.z() };
         w = 1.0f;
         n = {0.0f, 0.0f, 0.0f};
-        bi[0] = 0;
-        bi[1] = -1;
-        bi[2] = -1;
-        bw[0] = 1;
-        bw[1] = 0;
-        bw[2] = 0;
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
     }
 
     Qtr3dVertex_t(const Qtr3dVertex_t &v) {
@@ -226,27 +186,75 @@ typedef struct Qtr3dVertex_t {
         w = v.w;
         n = v.n;
 
-        bi[0] = v.bi[0];
-        bi[1] = v.bi[1];
-        bi[2] = v.bi[2];
-
-        bw[0] = v.bw[0];
-        bw[1] = v.bw[1];
-        bw[2] = v.bw[2];
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
     }
 
     Qtr3dVertex_t(const QVector3D &v, const QVector3D &nv) {
         p = { v.x(), v.y(), v.z() };
         w = 1.0f;
         n = { nv.x(), nv.y(), nv.z() };
-        bi[0] = 0;
-        bi[1] = -1;
-        bi[2] = -1;
-        bw[0] = 1;
-        bw[1] = 0;
-        bw[2] = 0;
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
+    }
+
+    Qtr3dVertex_t(const Qtr3dVector &v, const Qtr3dVector &nv) {
+        p = v;
+        w = 1.0f;
+        n = nv;
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
+    }
+
+    Qtr3dVertex_t(const Qtr3dVector &v, const Qtr3dVector &nv, const Qtr3dVector &bindexes, const Qtr3dVector &bweights) {
+        p = v;
+        w = 1.0f;
+        n = nv;
+        bi = bindexes;
+        bw = bweights;
     }
 } Qtr3dVertex;
+
+// Usage: Qtr3dVertexMesh
+typedef struct Qtr3dColoredVertex_t {
+    Qtr3dVector p;   // Point
+    Qtr3dVector n;   // Normal-Vector
+    Qtr3dVector c;   // Color (x -> red, y -> green, z -> blue)
+    float       a;   // Alpha
+    Qtr3dVector bi;     // boneIndices, "float" because Qt has no "glVertexAttribIPointer"!!!
+    Qtr3dVector bw;     // boneWeights;
+
+    Qtr3dColoredVertex_t() {
+        p = {0.0f, 0.0f, 0.0f};
+        n = {0.0f, 0.0f, 0.0f};
+        c = {0.0f, 0.0f, 0.0f};
+        a = 1.0f;
+
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
+    }
+    Qtr3dColoredVertex_t(const QVector3D &v, const QColor &col) {
+        p = { v.x(), v.y(), v.z() };
+        n = {0.0f, 0.0f, 0.0f};
+        c = { (float)col.redF(), (float)col.greenF(), (float)col.blueF() };
+        a = col.alphaF();
+
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
+    }
+    Qtr3dColoredVertex_t(const QVector3D &v, const QVector3D &norm, const QColor &col) {
+        p = { v.x(), v.y(), v.z() };
+        n = { norm.x(), norm.y(), norm.z() };
+        c = { (float)col.redF(), (float)col.greenF(), (float)col.blueF() };
+        a = col.alphaF();
+
+        bi = {0.0f, 0.0f, 0.0f};
+        bw = {0.0f, 0.0f, 0.0f};
+    }
+
+    Qtr3dVertex toVertex() const { return Qtr3dVertex(p,n, bi, bw); }
+
+} Qtr3dColoredVertex;
 
 // Usage: Qtr3dMesh
 typedef struct Qtr3dColor_t {

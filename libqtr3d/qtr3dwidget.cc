@@ -425,12 +425,6 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             globalInverseTransform.setToIdentity();
             setupSkeleton(skeleton, nodes.mRootNode, mesh, state->animator(),rootTransform, globalInverseTransform);
 
-            for (int i=0; i<skeleton.size(); i++ ) {
-                QVector4D testv(3,3,3,0);
-                testv = skeleton[i]*testv;
-                int x = testv.length();
-            }
-
             shader->render(*mesh,state->modelView(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }

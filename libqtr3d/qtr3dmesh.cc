@@ -176,7 +176,7 @@ void Qtr3dMesh::addVertex(const QVector3D &v, const QVector3D &n, Qtr3dScalar tu
 //-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::addVertex(const Qtr3dColoredVertex &v)
 {
-    mVertices << Qtr3dVertex(v.p.toQVector(), v.n.toQVector());
+    mVertices << v.toVertex();
     mColors   << Qtr3dColor(v.c.toQVector());
     analyze(mVertices.last().p.toQVector());
 }
