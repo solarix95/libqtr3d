@@ -20,12 +20,13 @@ public:
         QList<Node*> mChilds;
         QMatrix4x4   mTranslation;
         QMatrix4x4   translation() const;
+        const Node  *rootNode() const { if (!mParent) return this; return mParent->rootNode(); }
     };
     struct Nodes {
         QList<Node*>        mNodes;
-        Node*               mRootNode;
+
         QMap<QString,Node*> mNodeByName;
-        void  addNode(Node* n)          { mNodes << n; if (!n->mName.isEmpty()) mNodeByName[n->mName] = n; if (!n->mParent) mRootNode = n; else n->mParent->mChilds << n; }
+        void  addNode(Node* n)                      { mNodes << n; if (!n->mName.isEmpty()) mNodeByName[n->mName] = n; if (n->mParent) n->mParent->mChilds << n; }
         const Node *nodeByName(const QString &name) const { return mNodeByName.value(name,nullptr);                          }
         void  destroy()                             { qDeleteAll(mNodes); mNodes.clear(); mNodeByName.clear();         }
 
@@ -52,6 +53,8 @@ public:
     virtual void        addAnimation(Qtr3dModelAnimation *anim);
     virtual QStringList animations() const;
     virtual Qtr3dModelAnimation *animationByName(const QString &name);
+
+    static int  setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform, const QMatrix4x4 &globalTransform);
 
 private:
     Qtr3dMeshes                 mMeshes;

@@ -17,12 +17,12 @@ public:
     virtual ~Qtr3dFollowCamera();
 
 public slots:
+    void process();
     void setTargetDirection(const QVector3D &direction);
     void setTargetOrientation(const QVector3D &orientation);
     void setOffset(float offset);
 
 private slots:
-    void process();
     void follow();
 
 private:

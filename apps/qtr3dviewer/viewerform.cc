@@ -129,9 +129,12 @@ void ViewerForm::initAnimationUi()
     ui->spbAnimTicks->setValue(0);
     ui->spbAnimTpS->setValue(0);
 
-    if (!mModel || mModel->animations().isEmpty())
+    if (!mModel || mModel->animations().isEmpty()) {
+        ui->playerGroup->setEnabled(false);
         return;
+    }
 
+    ui->playerGroup->setEnabled(true);
     ui->cbxAnimList->addItem(QString("no animation"));
     ui->cbxAnimList->addItems(mModel->animations());
     selectAnimation();

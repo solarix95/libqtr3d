@@ -133,6 +133,41 @@ Qtr3dModelAnimation *Qtr3dModel::animationByName(const QString &name)
 }
 
 //-------------------------------------------------------------------------------------------------
+int Qtr3dModel::setupSkeleton(QVector<QMatrix4x4> &skeleton, const Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform, const QMatrix4x4 &globalTransform)
+{
+    int updatesBones = 0;
+    QMatrix4x4 nodePosition  = node->mTranslation;   // Default-Transform: Static Node Transform
+
+    if (animator)
+        animator->transform(node->mName, nodePosition);  // If animated: override static transformation
+
+    nodePosition = parentTransform * nodePosition;   // Tree transformation
+
+    // Update Shader Mesh Skeleton
+    if (!node->mName.isEmpty()) {
+        int boneIndex = -1;
+        const auto &bones = mesh->bones();
+        for (int b=0; b<bones.count(); b++) {
+            if (node->mName == bones[b].name) {
+                boneIndex = b;
+                break;
+            }
+        }
+        if (boneIndex >= 0) {
+            if (skeleton.size() < (boneIndex+1))
+                skeleton.resize(boneIndex+1);
+            skeleton[boneIndex] = globalTransform * nodePosition * bones[boneIndex].offset;
+            updatesBones++;
+        }
+    }
+
+    for (const auto *child: node->mChilds)
+        updatesBones += setupSkeleton(skeleton, child,mesh,animator,nodePosition, globalTransform);
+
+    return updatesBones;
+}
+
+//-------------------------------------------------------------------------------------------------
 QVector3D Qtr3dModel::minValues() const
 {
     QVector3D val = QVector3D(  std::numeric_limits<double>::max(),

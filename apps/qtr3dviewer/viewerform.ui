@@ -106,7 +106,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_3">
+      <widget class="QGroupBox" name="playerGroup">
        <property name="title">
         <string>Animation Player</string>
        </property>
