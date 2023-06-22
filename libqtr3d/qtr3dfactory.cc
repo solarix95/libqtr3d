@@ -485,7 +485,7 @@ bool Qtr3d::normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float
     mesh.startMesh(Qtr3d::Line);
     mesh.setDefaultColor(color);
 
-    for (int i=0; i<sourceMesh.vertexListCount(); i++) {
+    for (int i=0; i<sourceMesh.verticesCount(); i++) {
         QVector3D pos           = sourceMesh.vertex(i).p.toQVector();
         QVector3D nextNormal    = sourceMesh.vertex(i).n.toQVector();
         if (nextNormal.isNull())
@@ -793,5 +793,96 @@ bool Qtr3d::meshByChessboard(Qtr3dMesh &mesh, int tilesPerRow, float size, const
     }
 
     mesh.endMesh(true);
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::appendSphere2Mesh(Qtr3dMesh &mesh, int sectors, const QColor &color, const QMatrix4x4 &transform)
+{
+    float       radius = 1.0f;
+    float       cx = 0.0f;
+    float       cy = 0.0f;
+    float       cz = 0.0f;
+    const float PI = 3.1415;
+
+    mesh.setDefaultColor(color);
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setFaceOrientation(Qtr3d::CounterClockWise);
+
+    /* top */
+    QVector3D p(cx,cy,cz + radius);
+    mesh.addVertex(transform*p, p.normalized());
+
+    float stepXY = 2*PI/sectors;
+    float angleZ  = PI/(sectors-1);
+
+    // Top (hat)
+    {
+        float r = sin(angleZ) * radius;
+        float z = cos(angleZ);
+
+        for (int s=0; s<sectors; s++) {
+
+            float x = sin(stepXY*s);
+            float y = cos(stepXY*s);
+
+            QVector3D p(r*x + cx, r*y + cy, radius*z + cz);
+            mesh.addVertex(transform*p,
+                           p.normalized());
+
+            mesh.addIndex(s+1);
+            mesh.addIndex(0); // all polygons to the top center
+            mesh.addIndex(s == (sectors-1) ? 1 : s+2);
+        }
+    }
+
+    for (int ring = 0; ring<sectors-3; ring++) {
+        // r = sin(PI * ((ring+2)*stepZ)/2) * radius;
+        float r = sin((ring+2)*angleZ) * radius;
+        float z = cos((ring+2)*angleZ);
+
+        for (int s=0; s<sectors; s++) {
+
+            float x = sin(stepXY*s);
+            float y = cos(stepXY*s);
+
+            QVector3D p(r*x + cx, r*y + cy, radius*z + cz);
+            mesh.addVertex(transform*p,
+                           p.normalized());
+        }
+    }
+
+    /* Button */
+    p = QVector3D(cx, cy, cz - radius);
+    mesh.addVertex(transform*p,p.normalized());
+
+    for (int ring = 0; ring<sectors-3; ring++) {
+        for (int s=0; s<sectors; s++) {
+
+            int first = 1 +(ring*sectors);
+
+            // Oberes Dreieck
+            mesh.addIndex(first + s);
+            mesh.addIndex(s == sectors - 1 ? (first) : (first + s + 1));
+            mesh.addIndex(first + s + sectors);
+
+            // Unteres Dreieck
+            mesh.addIndex(first + s);
+            mesh.addIndex(first + s + sectors);
+            mesh.addIndex(s == 0 ? (first + 2*sectors - 1) : (first + s + sectors - 1));
+        }
+    }
+
+    // Button
+    for (int s=0; s<sectors; s++) {
+        int first = 1+ ((sectors-3)*sectors);
+
+        mesh.addIndex(first + s);
+        mesh.addIndex(s == sectors - 1 ? (first) : (first + s + 1));
+        mesh.addIndex(1 + (sectors-2)*sectors);
+
+    }
+
+    // mesh.endMesh();
     return true;
 }

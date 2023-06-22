@@ -34,9 +34,9 @@ public:
     void setRotation(const QVector3D &rotationAngles);
     void setModelView(const QMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
     float radius() const;            // scaled buffer radius
-    QVector3D center() const;        // absolute center
+    QVector3D   center() const;        // absolute center
 
-    inline const QMatrix4x4     modelView() const  { return mModelView; };
+    inline const QMatrix4x4    &modelView() const  { return mModelView; };
     inline const QVector3D     &scale()     const  { return mScale;     };
     inline const Qtr3dGeometry &buffer()    const  { return mBuffer;    };
 

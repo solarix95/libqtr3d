@@ -260,6 +260,15 @@ void Qtr3dMesh::addNormal(const QVector3D &n)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dMesh::updateBone(int vi, const Qtr3dVector &bi, const Qtr3dVector &bw)
+{
+    if (vi < 0 || vi >= mVertices.count())
+        return;
+    mVertices[vi].bi = bi;
+    mVertices[vi].bw = bw;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dMesh::addIndex(int vi, int ni)
 {
     if (vi < mVertices.count() && ni >= 0 && ni < mNormals.count()) {
@@ -295,7 +304,7 @@ bool Qtr3dMesh::hasTexture() const
 }
 
 //-------------------------------------------------------------------------------------------------
-int Qtr3dMesh::vertexListCount() const
+int Qtr3dMesh::verticesCount() const
 {
     return mVertices.count();
 }

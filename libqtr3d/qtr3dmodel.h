@@ -42,6 +42,7 @@ public:
     virtual Node *createNode(Qtr3dMesh  *mesh, const QVector3D &translation, const QVector3D &rotation, const QVector3D &scale, const QString &name, Node *parent = nullptr);
     virtual Node *createNode(Qtr3dMesh  *mesh, const QString &name, Node *parent = nullptr);
     virtual void  addMesh(Qtr3dMesh     *mesh, bool createDefaultNode = false);
+    virtual bool  addMesh(Qtr3dMesh     *mesh, const QString &nodeName);
 
     virtual QVector3D minValues() const; // lowest xyz
     virtual QVector3D maxValues() const; // max xyz
@@ -57,6 +58,8 @@ public:
     static int  setupSkeleton(QVector<QMatrix4x4> &skeleton, const Qtr3dModel::Node *node, const Qtr3dMesh *mesh, Qtr3dModelAnimator *animator, const QMatrix4x4 &parentTransform, const QMatrix4x4 &globalTransform);
 
 private:
+    bool registerMesh(Qtr3dMesh *mesh);
+
     Qtr3dMeshes                 mMeshes;
     Nodes                       mNodes;
     QList<Qtr3dModelAnimation*> mAnimations;

@@ -171,7 +171,7 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
     f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.elementBufferId() );
     f->glDrawElements(
                 buffer.bufferType(),
-                buffer.vertexCount(),
+                buffer.renderedVerticesCount(),
                 GL_UNSIGNED_INT,
                 (void*)0
                 );

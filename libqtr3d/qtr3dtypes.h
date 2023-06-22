@@ -94,7 +94,7 @@ typedef struct Qtr3dVector_t
     Qtr3dVector_t(float f1, float f2, float f3) : x(f1), y(f2), z(f3) {}
     Qtr3dVector_t(const QVector3D &v) : x(v.x()), y(v.y()), z(v.z()) {}
     inline QVector3D toQVector() const { return QVector3D(x,y,z); }
-    inline bool      isNull() const    { return qFuzzyIsNull(x + y + z);}
+    inline bool      isNull() const    { return qFuzzyIsNull(x) && qFuzzyIsNull(y) && qFuzzyIsNull(z);}
     inline void      normalize()       { QVector3D vnorm = QVector3D(x,y,z).normalized(); x = vnorm.x(); y = vnorm.y(); z=vnorm.z(); }
     inline Qtr3dScalar  operator[](int i) const { if (i == 0) return x; if (i == 1) return y; if (i==2) return z; Q_ASSERT(0 && "invalid index"); return 0; }
     inline Qtr3dScalar &operator[](int i)       { if (i == 0) return x; if (i == 1) return y; if (i==2) return z; Q_ASSERT(0 && "invalid index"); return x; }
@@ -186,8 +186,8 @@ typedef struct Qtr3dVertex_t {
         w = v.w;
         n = v.n;
 
-        bi = {0.0f, 0.0f, 0.0f};
-        bw = {0.0f, 0.0f, 0.0f};
+        bi = v.bi;
+        bw = v.bw;
     }
 
     Qtr3dVertex_t(const QVector3D &v, const QVector3D &nv) {

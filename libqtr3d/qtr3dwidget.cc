@@ -386,6 +386,9 @@ void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState 
             if (nextLightingTyp == Qtr3d::DefaultLighting)
                 nextLightingTyp = shader->defaultLighting();
 
+            // for (int i=0; i<mesh->vertexCount(); i++) {
+            //    qDebug() << i << mesh->vertex(i).p.toQVector();
+            //}
             shader->render(*mesh,state->modelView() * node->translation(), QVector<QMatrix4x4>(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
@@ -423,8 +426,6 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             QMatrix4x4 globalInverseTransform; // = nodes.mRootNode->mTranslation.inverted();
             globalInverseTransform.setToIdentity();
             Qtr3dModel::setupSkeleton(skeleton,node->rootNode(),mesh, state->animator(),rootTransform, globalInverseTransform);
-
-            // setupSkeleton(skeleton, node->rootNode(), mesh, state->animator(),rootTransform, globalInverseTransform);
 
             shader->render(*mesh,state->modelView(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }

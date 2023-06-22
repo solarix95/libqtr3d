@@ -5,6 +5,7 @@
 #include <QList>
 #include <QVector3D>
 #include <QVector4D>
+#include <QMatrix4x4>
 #include "qtr3dgeometrystate.h"
 #include "qtr3dassets.h"
 #include "qtr3dtypes.h"
@@ -27,8 +28,8 @@ public:
     void            setDefaultColor(const QColor &c);
     Qtr3d::Material &material();
     const Qtr3d::Material &material() const;
-    void            setBlendingEnabled(bool enabled);
-    bool            blending() const;
+    void             setBlendingEnabled(bool enabled);
+    bool             blending() const;
 
     virtual QVector3D minValues() const; // lowest xyz
     virtual QVector3D maxValues() const; // max xyz
@@ -39,7 +40,7 @@ public:
     virtual void registerBufferState(Qtr3dGeometryState *s);
     inline const Qtr3dGeometryBufferStates &bufferStates() const { return mBufferStates; }
 
-    void                 setParentBuffer(Qtr3dGeometry *parentBuffer);
+    void           setParentBuffer(Qtr3dGeometry *parentBuffer);
     Qtr3dGeometry *parentBuffer() const;
 
 protected:
@@ -51,7 +52,7 @@ private slots:
 
 private:
     Qtr3dAssets               *mContext;
-    Qtr3dGeometry        *mParentBuffer;
+    Qtr3dGeometry             *mParentBuffer;
 
     Qtr3d::ShaderType           mShader;
     Qtr3d::FaceOrientation      mFaceOrientation;

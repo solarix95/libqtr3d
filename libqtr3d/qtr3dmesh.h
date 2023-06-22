@@ -46,22 +46,24 @@ public:
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QVector3D &n  = QVector3D());
     void addQuad(const QVector3D &p1, const QVector3D &p2, const QVector3D &p3, const QVector3D &p4, const QColor &c, const QVector3D &n  = QVector3D());
 
+    // Mesh Building
     void addBone(const Bone &bone);
     void addNormal(const QVector3D &n);
+    void updateBone(int vi, const Qtr3dVector &bi, const Qtr3dVector &bw);
     void addIndex(int vi, int ni = -1);
 
     void setTexture(const QImage &img);
     bool hasTexture() const;
 
     // reader
-    int               vertexListCount() const;
+    int               verticesCount() const;
     const Qtr3dVertex &vertex(int i) const;
     const QList<Bone> &bones() const;
 
     // Shader Interface
     inline GLuint vertexBufferId() const  { return mVerticesBufferId;  }
     inline GLuint elementBufferId() const { return mElementBufferId; }
-    inline int    vertexCount() const     { return mVertexCount > 0 ? mVertexCount : (mIndexes.isEmpty() ? mVertices.count() : mIndexes.count());}
+    inline int    renderedVerticesCount() const   { return mVertexCount > 0 ? mVertexCount : (mIndexes.isEmpty() ? mVertices.count() : mIndexes.count());}
     inline GLuint colorBufferId() const   { return mColorBufferId;  }
     inline GLuint texcoordBufferId() const{ return mTexcoorBufferId;  }
     inline GLuint textureId() const       { return mTexture ? mTexture->textureId():0; }

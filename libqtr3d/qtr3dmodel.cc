@@ -107,6 +107,26 @@ void Qtr3dModel::addMesh(Qtr3dMesh *mesh, bool createDefaultNode)
 }
 
 //-------------------------------------------------------------------------------------------------
+bool Qtr3dModel::addMesh(Qtr3dMesh *mesh, const QString &nodeName)
+{
+    Q_ASSERT(mesh);
+    Q_ASSERT(mesh->context() == this->context());
+
+    if(mMeshes.contains(mesh))
+        return false;
+
+    const auto *node = mNodes.nodeByName(nodeName);
+    if (!node)
+        return false;
+
+    if (!registerMesh(mesh))
+        return false;
+
+    const_cast<Node*>(node)->mMeshes << mesh;
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dModel::addAnimation(Qtr3dModelAnimation *anim)
 {
     Q_ASSERT(anim);
@@ -165,6 +185,21 @@ int Qtr3dModel::setupSkeleton(QVector<QMatrix4x4> &skeleton, const Node *node, c
         updatesBones += setupSkeleton(skeleton, child,mesh,animator,nodePosition, globalTransform);
 
     return updatesBones;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModel::registerMesh(Qtr3dMesh *mesh)
+{
+    if(mMeshes.contains(mesh))
+        return false;
+
+    mesh->setParent(this);
+    mesh->setParentBuffer(this);
+
+    mMeshes << mesh;
+
+    connect(mesh, &Qtr3dMesh::destroyed, this, [this,mesh]() { mMeshes.removeAll(mesh); });
+    return true;
 }
 
 //-------------------------------------------------------------------------------------------------

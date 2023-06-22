@@ -122,11 +122,11 @@ int Qtr3dAssets::totalVerticesCount() const
     int ret = 0;
     for (const auto *model: mModels) {
         for (const auto *mesh: model->meshes()) {
-            ret += mesh->vertexCount();
+            ret += mesh->verticesCount();
         }
     }
     for (const auto *mesh: mMeshes) {
-        ret += mesh->vertexCount();
+        ret += mesh->verticesCount();
     }
     return ret;
 }

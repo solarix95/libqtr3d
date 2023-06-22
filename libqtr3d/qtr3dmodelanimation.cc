@@ -114,7 +114,7 @@ bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMat
     QMatrix4x4 temp3;
     temp3.scale(scale);
 
-    nodeTransform = QMatrix4x4();
+    // nodeTransform = QMatrix4x4();
     nodeTransform.translate(position);
     nodeTransform.rotate(rotation);
     nodeTransform.scale(scale);
