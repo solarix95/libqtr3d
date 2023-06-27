@@ -32,10 +32,11 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dstandardentity.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dfpsloop.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dforcefield.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dhighmap.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h \
-    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.h  \
-    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dplyloader.h  \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dplyloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.h \
@@ -49,6 +50,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.h \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dpidcontroller.h
+
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -72,6 +74,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dfpsloop.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dstandardentity.cc  \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dforcefield.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dhighmap.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.cc \

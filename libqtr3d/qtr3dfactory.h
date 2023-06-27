@@ -15,6 +15,7 @@ bool   modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader:
 bool   meshByJson(Qtr3dMesh &mesh, const QString &filename);
 bool   meshByJson(Qtr3dMesh &mesh, const QVariant &json, const QString &sourceFilenameOrPath = "");
 bool   meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QString &colorMapImageName, QVector3D scale = {1,1,1});
+bool   meshByHighmap(Qtr3dMesh &mesh, const QImage &highmapImage, const QImage &texture, QVector3D scale = {1,1,1});
 bool   meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QImage &texture, QVector3D scale = {1,1,1});
 bool   meshByXyzAxis(Qtr3dMesh &mesh, float length = 1); // Debug Purpose
 bool   meshByStarsky(Qtr3dMesh &mesh, float radius, int starCount, const QColor &color);

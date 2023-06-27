@@ -20,7 +20,7 @@ public:
     Qtr3dAssets(QObject *parent = nullptr);
 
     void        reset();
-    Qtr3dMesh  *createMesh(bool root = true);
+    Qtr3dMesh  *createMesh(bool root = true /* false = part of model */);
     Qtr3dModel *createModel();
     void        setLoop(Qtr3dFpsLoop *loop);
     void        setSpace(Qtr3dAbstractSpace *space);

@@ -291,9 +291,6 @@ Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, con
     mesh->setTexture(texture.mirrored());
     mesh->startMesh(Qtr3d::Triangle);
 
-    // for (int vi=0; vi < points.count(); vi++)
-    //    mesh->addVertex(points[vi],Qt::red);
-
     for (int vi=0; vi < points.count(); vi++)
         mesh->addVertex(points[vi],normVectors[vi], textureCoords[vi].y(),textureCoords[vi].x());
     for (auto i: faceIndexes)
@@ -301,7 +298,6 @@ Qtr3dMesh *Qtr3dGlbLoader::loadTexturedMesh(const QVariantMap &positionInfo, con
 
     mesh->endMesh();
 
-    qDebug() << mesh->minValues() << mesh->maxValues() << mesh->center();
     mModel->addMesh(mesh);
 
     return mesh;

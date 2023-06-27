@@ -575,8 +575,13 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, cons
     QImage highmapImg;
     if (!highmapImg.load(highmapImageName))
         return false;
+   return meshByHighmap(mesh,highmapImg, texture,scale);
+}
 
-    if ((highmapImg.width() * highmapImg.height()) <= 0)
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QImage &highmapImage, const QImage &texture, QVector3D scale)
+{
+    if ((highmapImage.width() * highmapImage.height()) <= 0)
         return false;
 
     if (texture.isNull())
@@ -585,8 +590,8 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, cons
     if ((texture.width() * texture.height()) <= 0)
         return false;
 
-    int w  = highmapImg.width();
-    int h  = highmapImg.height();
+    int w  = highmapImage.width();
+    int h  = highmapImage.height();
 
     mesh.startMesh(Qtr3d::Triangle, Qtr3d::ClockWise);
     mesh.setTexture(texture.mirrored());
@@ -595,14 +600,14 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, cons
         for (int x = 0; x < w; x++) {
             float fx = scale.x() * ((-w/2.0f) + x);
             float fz = scale.z() * ((-h/2.0f) + y);
-            float fy = scale.y() * (qGray(highmapImg.pixel(x,y))/255.0f);
+            float fy = scale.y() * (qGray(highmapImage.pixel(x,y))/255.0f);
             QVector3D normal = {0.0f,1.0f,0.0f};
             if ((y > 0) && (x > 0) && (y < (h-1)) && (x < (w-1))) {
-                float topHigh    = qGray(highmapImg.pixel(x,y-1))/255.0f;
-                float bottomHigh = qGray(highmapImg.pixel(x,y+1))/255.0f;
+                float topHigh    = qGray(highmapImage.pixel(x,y-1))/255.0f;
+                float bottomHigh = qGray(highmapImage.pixel(x,y+1))/255.0f;
 
-                float rightHigh  = qGray(highmapImg.pixel(x+1,y))/255.0f;
-                float leftHigh   = qGray(highmapImg.pixel(x-1,y))/255.0f;
+                float rightHigh  = qGray(highmapImage.pixel(x+1,y))/255.0f;
+                float leftHigh   = qGray(highmapImage.pixel(x-1,y))/255.0f;
 
                 QVector3D horiz = { scale.x()*2, scale.y()*(rightHigh-leftHigh), 0};
                 QVector3D verti = { 0,           scale.y()*(bottomHigh-topHigh), scale.z()*2};
@@ -636,8 +641,8 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, cons
 
     mesh.endMesh();
     return true;
-
 }
+
 
 //-------------------------------------------------------------------------------------------------
 bool Qtr3d::meshByText(Qtr3dMesh &mesh, const QString &text, QFont font, const QColor &frontColor, const QColor &back)
@@ -886,3 +891,4 @@ bool Qtr3d::appendSphere2Mesh(Qtr3dMesh &mesh, int sectors, const QColor &color,
     // mesh.endMesh();
     return true;
 }
+
