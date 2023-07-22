@@ -8,6 +8,7 @@ class Qtr3dMesh;
 class Qtr3dTexturedQuad;
 class Qtr3dGeometryBufferFactory;
 class Qtr3dModel;
+class Qtr3dHighmap;
 
 namespace Qtr3d {
 
@@ -17,6 +18,7 @@ bool   meshByJson(Qtr3dMesh &mesh, const QVariant &json, const QString &sourceFi
 bool   meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QString &colorMapImageName, QVector3D scale = {1,1,1});
 bool   meshByHighmap(Qtr3dMesh &mesh, const QImage &highmapImage, const QImage &texture, QVector3D scale = {1,1,1});
 bool   meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QImage &texture, QVector3D scale = {1,1,1});
+bool   meshByHighmap(Qtr3dMesh &mesh, const Qtr3dHighmap &highmap, const QImage &texture);
 bool   meshByXyzAxis(Qtr3dMesh &mesh, float length = 1); // Debug Purpose
 bool   meshByStarsky(Qtr3dMesh &mesh, float radius, int starCount, const QColor &color);
 bool   meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color);

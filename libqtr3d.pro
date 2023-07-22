@@ -33,6 +33,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dfpsloop.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dforcefield.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dhighmap.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3daaboundingbox.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.h \
@@ -75,6 +76,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dstandardentity.cc  \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dforcefield.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dhighmap.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3daaboundingbox.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dmodelloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dobjloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dstlloader.cc \
@@ -91,6 +93,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameramovement.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.cc
+
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/misc.qrc

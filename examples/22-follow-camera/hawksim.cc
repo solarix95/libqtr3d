@@ -41,7 +41,7 @@ void HawkSim::init(Qtr3dAssets *assets, Qtr3dCamera *camera)
 
     hawkState->setLightingType(Qtr3d::PhongLighting);
 
-    mHawk = new Qtr3dStandardEntity(*hawkState,{0,0,0});
+    mHawk = new Qtr3dStandardEntity(hawkState,{0,0,0});
     mHawk->setLookAt({0,0,1});
 
     assets->space().append(mHawk);

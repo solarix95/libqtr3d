@@ -4,7 +4,7 @@
 #include "qtr3dforcefield.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dStandardEntity::Qtr3dStandardEntity(Qtr3dGeometryState &state, QVector3D pos, QVector3D lookAt, QVector3D orientation)
+Qtr3dStandardEntity::Qtr3dStandardEntity(Qtr3dGeometryState *state, QVector3D pos, QVector3D lookAt, QVector3D orientation)
  : Qtr3dAbstractEntity(state)
  , mLookAt(lookAt)
  , mOrientation(orientation)
@@ -74,8 +74,8 @@ bool Qtr3dStandardEntity::process(float ms, float normalizedSpeed)
     for (auto f:forces)
         mMovement += ms*f;
 
-    if (!mAutoRotation.isNull()) {
-        state().setRotation(state().rot() + ms*mAutoRotation);
+    if (!mAutoRotation.isNull() && state()) {
+        state()->setRotation(state()->rot() + ms*mAutoRotation);
     }
     return setPos(pos() + mMovement);
 }

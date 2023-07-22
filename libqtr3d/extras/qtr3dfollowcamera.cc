@@ -13,7 +13,7 @@ Qtr3dFollowCamera::Qtr3dFollowCamera(Qtr3dWidget *widget, Qtr3dGeometryState *fo
  , mDistance(distance)
  , mTargetOrientation({0,1,0})
  , mOffset(offset)
- , mPosController(QVector3D(0.1,0.1,0.1),QVector3D(0.00001,0.00001,0.00001),QVector3D(1,1,1))
+ , mPosController(QVector3D(0.1,0.1,0.1),QVector3D(0.00001,0.00001,0.0001),QVector3D(1,1,1))
  , mDirController(QVector3D(0.1,0.1,0.1),QVector3D(0.00001,0.00001,0.00001),QVector3D(1,1,1))
 {
     mCamera = widget->camera();

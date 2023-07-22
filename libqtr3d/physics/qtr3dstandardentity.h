@@ -9,7 +9,7 @@ class Qtr3dStandardEntity : public Qtr3dAbstractEntity
 {
     Q_OBJECT
 public:
-    Qtr3dStandardEntity(Qtr3dGeometryState &state, QVector3D pos, QVector3D lookAt = {0,0,0}, QVector3D orientation = {0,1,0});
+    Qtr3dStandardEntity(Qtr3dGeometryState *state, QVector3D pos, QVector3D lookAt = {0,0,0}, QVector3D orientation = {0,1,0});
     virtual ~Qtr3dStandardEntity();
 
     inline QVector3D lookAt()      const         { return mLookAt;          }
