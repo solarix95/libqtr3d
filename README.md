@@ -43,6 +43,7 @@ Project Roadmap
 | [ALL](https://github.com/assimp/assimp/blob/master/doc/Fileformats.md) | ASSIMP    |  High   |
 
 3D Resources+Assets
+---------------------------------
 - https://nasa3d.arc.nasa.gov/models
 - http://graphics.stanford.edu/data/3Dscanrep/
 - http://www.semantic3d.net/
