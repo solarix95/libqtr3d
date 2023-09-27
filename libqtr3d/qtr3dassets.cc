@@ -2,6 +2,7 @@
 #include "qtr3dassets.h"
 #include "qtr3dmesh.h"
 #include "qtr3dmodel.h"
+#include "qtr3dpointcloud.h"
 #include "physics/qtr3dfpsloop.h"
 #include "physics/qtr3dabstractspace.h"
 
@@ -33,6 +34,12 @@ Qtr3dMesh *Qtr3dAssets::createMesh(bool root)
 Qtr3dModel *Qtr3dAssets::createModel()
 {
     return registerModel(new Qtr3dModel(this));
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dPointCloud *Qtr3dAssets::createPointCloud()
+{
+    return registerPointCloud(new Qtr3dPointCloud(this));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -73,6 +80,12 @@ const QList<Qtr3dMesh*> &Qtr3dAssets::meshes() const
 const QList<Qtr3dModel*> &Qtr3dAssets::models() const
 {
     return mModels;
+}
+
+//-------------------------------------------------------------------------------------------------
+const QList<Qtr3dPointCloud*> &Qtr3dAssets::pointClouds() const
+{
+    return mPointClouds;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -153,4 +166,16 @@ Qtr3dModel *Qtr3dAssets::registerModel(Qtr3dModel *model)
        mModels.removeOne((Qtr3dModel*)obj);
     });
     return model;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dPointCloud *Qtr3dAssets::registerPointCloud(Qtr3dPointCloud *cloud)
+{
+    Q_ASSERT(cloud);
+    Q_ASSERT(!mPointClouds.contains(cloud));
+    mPointClouds << cloud;
+    connect(cloud, &Qtr3dPointCloud::destroyed, this, [this](QObject *obj){
+       mPointClouds.removeOne((Qtr3dPointCloud*)obj);
+    });
+    return cloud;
 }

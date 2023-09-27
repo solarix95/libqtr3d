@@ -51,8 +51,8 @@ private slots:
     void stateDestroyed(QObject *state);
 
 private:
-    Qtr3dAssets               *mContext;
-    Qtr3dGeometry             *mParentBuffer;
+    Qtr3dAssets                *mContext;
+    Qtr3dGeometry              *mParentBuffer;
 
     Qtr3d::ShaderType           mShader;
     Qtr3d::FaceOrientation      mFaceOrientation;
@@ -61,6 +61,7 @@ private:
 
     Qtr3d::Material             mMaterial;
 
+    // Axis-Aligned-Bounding-Box
     QVector3D                   mMin;
     QVector3D                   mMax;
 };

@@ -33,11 +33,14 @@ void Qtr3dMesh::setMeshType(Qtr3d::MeshType t)
 void Qtr3dMesh::reset()
 {
     // TODO: release mVertexBufferId/mElementBufferId glDeleteBuffers
-    mVerticesBufferId  = 0;
-    mElementBufferId   = 0;
+
+    Qtr3dShader::releaseBO(mVerticesBufferId);
+    Qtr3dShader::releaseBO(mElementBufferId);
+    Qtr3dShader::releaseBO(mElementBufferId);
     mVertexCount       = 0;
-    mColorBufferId     = 0;
-    mTexcoorBufferId   = 0;
+    Qtr3dShader::releaseBO(mColorBufferId);
+    Qtr3dShader::releaseBO(mTexcoorBufferId);
+
     mVertices.clear();
     mIndexes.clear();
     mNormals.clear();

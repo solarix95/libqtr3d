@@ -9,6 +9,7 @@ Target is to provide a simple Qt/C++ 3D Interface. Life's too short to learn sha
 
 ![libqtr3d](docs/showcase/iss-example.png)
 ![libqtr3d](docs/showcase/heightmap-example.png)
+![libqtr3d](docs/showcase/pointcloudviewer.png)
 
 First steps (after installing Qt)
 ---------------------------------

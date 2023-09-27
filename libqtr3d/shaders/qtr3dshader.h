@@ -11,6 +11,7 @@
 #include "../qtr3dtypes.h"
 
 class Qtr3dMesh;
+class Qtr3dPointCloud;
 class Qtr3dGeometryState;
 class Qtr3dCamera;
 class Qtr3dLightSource;
@@ -20,23 +21,26 @@ class Qtr3dShader : public QObject
 {
 public:
     Qtr3dShader(QObject *parent, const QString &eglFile, const QString &fragVaryingCode, const QString &fragColorCode);
+    Qtr3dShader(QObject *parent, const QString &vertFile, const QString &fragFile);
 
     void setDefaultLighting(Qtr3d::LightingType l);
     inline Qtr3d::LightingType defaultLighting() const { return mDefaultLighting; }
 
     void setProgram(Qtr3d::LightingType lightType);
 
-    void render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env);
+    void render(const Qtr3dMesh        &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env);
+    void render(const Qtr3dPointCloud &cloud, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, const Qtr3dEnvironment &env);
 
     // static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER);
     static GLuint makeBO(void* data, GLsizei size, GLenum type = GL_ARRAY_BUFFER, int accessFlags = GL_STATIC_DRAW);
+    static void   releaseBO(GLuint &bufferId);
 
 protected:
     virtual void onProgramChange();
 
-    virtual void drawBuffer_NoLight(const Qtr3dMesh    &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix) = 0;
-    virtual void drawBuffer_FlatLight(const Qtr3dMesh  &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light) = 0;
-    virtual void drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light) = 0;
+    virtual void drawBuffer_NoLight(const Qtr3dMesh    &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix);
+    virtual void drawBuffer_FlatLight(const Qtr3dMesh  &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light);
+    virtual void drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light);
 
     QOpenGLShaderProgram *currentProgram();
 

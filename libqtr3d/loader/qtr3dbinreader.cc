@@ -183,6 +183,24 @@ qint32 Qtr3dBinReader::readInt32()
 }
 
 //-------------------------------------------------------------------------------------------
+qint64 Qtr3dBinReader::readInt64()
+{
+    qint64 ret;
+    bool done = read(&ret,8);
+    ERROR(done);
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------
+quint64 Qtr3dBinReader::readUint64()
+{
+    quint64 ret;
+    bool done = read(&ret,8);
+    ERROR(done);
+    return ret;
+}
+
+//-------------------------------------------------------------------------------------------
 float Qtr3dBinReader::readFloat()
 {
     float ret;

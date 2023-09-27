@@ -8,8 +8,10 @@
 class Qtr3dTexturedMesh;
 class Qtr3dTexturedShader;
 class Qtr3dMesh;
+class Qtr3dPointCloud;
 class Qtr3dVertexMeshShader;
 class Qtr3dPlainShader;
+class Qtr3dPcShader;
 class Qtr3dGeometry;
 class Qtr3dGeometryState;
 class Qtr3dTextureFactory;
@@ -46,6 +48,7 @@ public:
     // Factories
     virtual Qtr3dMesh            *createMesh();
     virtual Qtr3dModel           *createModel();
+    virtual Qtr3dPointCloud      *createPointCloud();
     virtual Qtr3dGeometryState   *createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
 
 public slots:
@@ -74,8 +77,10 @@ private:
     void preInitializing();
     void paintMeshes();
     void paintModels();
+    void paintPointClouds();
     void renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
     void renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
+
 
     Options                  mOptions;
     Qtr3dCamera             *mCamera;
@@ -84,9 +89,15 @@ private:
 
     Qtr3dAssets            *mContext;
 
-    Qtr3dPlainShader        *mPlainShader;
-    Qtr3dVertexMeshShader   *mVertexMeshShader;
-    Qtr3dTexturedShader     *mTexturedMeshShader;
+    /*
+     TODO:
+        Refactoring to a flexible Render-Pipeline.
+        Application should be able to provide new customized pipeline(s)
+    */
+    Qtr3dPlainShader        *mPlainShader;          // Render-Pipeline 1: one "global" color for complete mesh
+    Qtr3dVertexMeshShader   *mVertexMeshShader;     // Render-Pipeline 2: each vertex is colored
+    Qtr3dTexturedShader     *mTexturedMeshShader;   // Render-Pipeline 3: each vertex has u/v texture coordinates
+    Qtr3dPcShader           *mPointCloudShader;     // Render-Pipeline 4: fast Point-Cloud renderung. No lighning. No animation.
 };
 
 #endif

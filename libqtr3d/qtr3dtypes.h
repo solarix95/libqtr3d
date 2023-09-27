@@ -287,6 +287,33 @@ typedef struct Qtr3dTexCoord_t {
 
 } Qtr3dTexCoord;
 
+// Usage: Qtr3dPointCloud
+typedef struct Qtr3dPcVertex_t {
+    Qtr3dVector p;      // Point
+
+
+    inline Qtr3dVertex_t operator=(const Qtr3dVertex_t &other) {
+        p = other.p;
+        return other;
+    }
+
+    Qtr3dPcVertex_t() {
+        p = {0.0f, 0.0f, 0.0f};
+
+    }
+
+    Qtr3dPcVertex_t(const QVector3D &v) {
+        p = { v.x(), v.y(), v.z() };
+
+    }
+
+    Qtr3dPcVertex_t(const Qtr3dVertex_t &v) {
+        p = v.p;
+    }
+
+
+} Qtr3dPcVertex;
+
 class Qtr3dEnvironment {
 public:
     Qtr3dEnvironment() : mClearColor(Qt::black), mFogDistance(-1) {}

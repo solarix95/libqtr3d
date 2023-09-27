@@ -18,6 +18,38 @@ Qtr3dShader::Qtr3dShader(QObject *parent, const QString &eglFile, const QString 
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dShader::Qtr3dShader(QObject *parent, const QString &vertFile, const QString &fragFile)
+ : QObject(parent)
+ , mDefaultLighting(Qtr3d::NoLighting)
+ , mCurrentType(Qtr3d::DefaultLighting)
+{
+    auto *vertexShader   = new QOpenGLShader(QOpenGLShader::Vertex);
+    auto *fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+    auto *program        = new QOpenGLShaderProgram();
+
+
+    vertexShader->compileSourceCode(shaderCode(QString(":/%1.vert").arg(vertFile)));
+    Q_ASSERT(vertexShader->isCompiled());
+
+    fragmentShader->compileSourceCode(shaderCode(QString(":/%1.frag").arg(fragFile)));
+    Q_ASSERT(fragmentShader->isCompiled());
+
+    program->addShader(vertexShader);
+    program->addShader(fragmentShader);
+
+    bool done = program->link();
+    Q_ASSERT_X(done,"Shader Linker", program->log().toUtf8().data());
+
+    mShaders[Qtr3d::DefaultLighting].vertexShader   = vertexShader;
+    mShaders[Qtr3d::DefaultLighting].fragmentShader = fragmentShader;
+    mShaders[Qtr3d::DefaultLighting].program        = program;
+
+    mShaders[Qtr3d::NoLighting].vertexShader   = vertexShader;
+    mShaders[Qtr3d::NoLighting].fragmentShader = fragmentShader;
+    mShaders[Qtr3d::NoLighting].program        = program;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dShader::setDefaultLighting(Qtr3d::LightingType l)
 {
     mDefaultLighting = l;
@@ -37,8 +69,36 @@ GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlag
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dShader::releaseBO(GLuint &bufferId)
+{
+    if (!bufferId)
+        return;
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glDeleteBuffers(1,&bufferId);
+    bufferId = 0;
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dShader::onProgramChange()
 {
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+{
+    Q_ASSERT(0 && "not implemented");
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+{
+    Q_ASSERT(0 && "not implemented");
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+{
+    Q_ASSERT(0 && "not implemented");
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -79,11 +139,13 @@ void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, con
     }
 }
 
+
 //-------------------------------------------------------------------------------------------------
 QOpenGLShaderProgram *Qtr3dShader::currentProgram()
 {
-    Q_ASSERT(mShaders.contains(mCurrentType));
-    return mShaders[mCurrentType].program;
+    if (mShaders.contains(mCurrentType))
+        return mShaders[mCurrentType].program;
+    return mShaders[Qtr3d::DefaultLighting].program;
 }
 
 //-------------------------------------------------------------------------------------------------

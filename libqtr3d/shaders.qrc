@@ -3,9 +3,10 @@
         <file alias="plain.vert">shaders/plain.vert</file>
         <file alias="colored.vert">shaders/colored.vert</file>
         <file alias="textured.vert">shaders/textured.vert</file>
-
         <file alias="nolight.frag">shaders/nolight.frag</file>
         <file alias="flatlight.frag">shaders/flatlight.frag</file>
         <file alias="phonglight.frag">shaders/phonglight.frag</file>
+        <file alias="pointcloud.frag">shaders/pointcloud.frag</file>
+        <file alias="pointcloud.vert">shaders/pointcloud.vert</file>
     </qresource>
 </RCC>

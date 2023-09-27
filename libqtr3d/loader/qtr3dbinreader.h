@@ -26,6 +26,8 @@ public:
     quint16 readUint16();
     quint32 readUint32();
     qint32  readInt32();
+    qint64  readInt64();
+    quint64 readUint64();
     float   readFloat();
     double  readDouble();
     QString readAsciiZ();

@@ -11,6 +11,7 @@
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
 #include "qtr3dmesh.h"
+#include "qtr3dpointcloud.h"
 #include "qtr3dmodelanimator.h"
 #include "qtr3dassets.h"
 #include "physics/qtr3dfpsloop.h"
@@ -18,6 +19,7 @@
 #include "shaders/qtr3dtexturedmeshshader.h"
 #include "shaders/qtr3dvertexmeshshader.h"
 #include "shaders/qtr3dplainshader.h"
+#include "shaders/qtr3dpcshader.h"
 
 //-------------------------------------------------------------------------------------------------
 struct pQtr3dStateZ {
@@ -138,6 +140,13 @@ Qtr3dModel *Qtr3dWidget::createModel()
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dPointCloud *Qtr3dWidget::createPointCloud()
+{
+    makeCurrent();
+    return assets()->createPointCloud();
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dGeometryState *Qtr3dWidget::createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype)
 {
     return assets()->createState(buffer, ltype);
@@ -169,6 +178,7 @@ void Qtr3dWidget::paint3D()
 {
     paintMeshes();
     paintModels();
+    paintPointClouds();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -197,6 +207,7 @@ void Qtr3dWidget::initializeGL()
     mPlainShader        = new Qtr3dPlainShader(this);
     mVertexMeshShader   = new Qtr3dVertexMeshShader(this);
     mTexturedMeshShader = new Qtr3dTexturedShader(this);
+    mPointCloudShader   = new Qtr3dPcShader(this);
     mTextures           = new Qtr3dTextureFactory();
 
     emit initialized();
@@ -357,6 +368,33 @@ void Qtr3dWidget::paintModels()
             else {
                 renderAnimatedModel(*model,state);
             }
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paintPointClouds()
+{
+    const auto &clouds = assets()->pointClouds();
+    for(auto *cloud: clouds) {
+
+        const auto &states = cloud->bufferStates();
+
+        if (states.isEmpty())
+            continue;
+
+        for(auto *state: states) {
+            if (!state->enabled())
+                continue;
+
+            /*
+            QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
+            if (previewCenter.z() > 0) {
+                continue;
+            }
+            */
+            mPointCloudShader->setProgram(Qtr3d::NoLighting);
+            mPointCloudShader->render(*cloud,state->modelView(),QVector<QMatrix4x4>(), *camera(),Qtr3d::NoLighting,*primaryLightSource(), assets()->environment());
         }
     }
 }

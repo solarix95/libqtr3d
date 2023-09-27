@@ -31,6 +31,7 @@ bool   meshByTexture(Qtr3dMesh &mesh, const QImage &texture, float width = -1, f
 bool   meshByChessboard(Qtr3dMesh &mesh, int tilesPerRow, float size, const QColor &color1, const QColor &color2);
 bool   normalMeshByMesh(Qtr3dMesh &mesh, const Qtr3dMesh &sourceMesh, float vectorLenght, QColor color = Qt::red);
 QImage textureByPath(const QString &localPathOrFile, const QString &textureName);
+bool   cloudByFile(Qtr3dPointCloud &cloud, const QString &filename);
 
 bool   appendSphere2Mesh(Qtr3dMesh &mesh, int sectors, const QColor &color, const QMatrix4x4 &transform);
 }

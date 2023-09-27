@@ -13,9 +13,11 @@
 #include <QVariantList>
 #include "qtr3dfactory.h"
 #include "qtr3dmesh.h"
+#include "qtr3dpointcloud.h"
 #include "loader/qtr3dobjloader.h"
 #include "loader/qtr3dstlloader.h"
 #include "loader/qtr3dplyloader.h"
+#include "loader/qtr3de57loader.h"
 #include "loader/qtr3d3dsloader.h"
 #include "loader/qtr3dglbloader.h"
 #include "utils/qtr3dutils.h"
@@ -468,6 +470,9 @@ bool Qtr3d::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLo
     if (Qtr3dPlyLoader::supportsFile(filename))
         return Qtr3dPlyLoader::loadFile(model,filename);
 
+    if (Qtr3dE57Loader::supportsFile(filename))
+        return Qtr3dE57Loader::loadFile(model,filename);
+
     if (Qtr3dObjLoader::supportsFile(filename))
         return Qtr3dObjLoader::loadFile(model,filename, opts);
 
@@ -894,3 +899,28 @@ bool Qtr3d::appendSphere2Mesh(Qtr3dMesh &mesh, int sectors, const QColor &color,
     return true;
 }
 
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::cloudByFile(Qtr3dPointCloud &cloud, const QString &filename)
+{
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QTextStream in(&file);
+
+    cloud.startCloud();
+
+
+    while(!in.atEnd() && cloud.verticesCount() < 4) {
+        QString line = in.readLine();
+        QStringList  fields = line.split(" ");
+        if (fields.count() != 7)
+            continue;
+
+        cloud.addVertex(QVector3D(fields[0].toFloat(), fields[1].toFloat(), fields[2].toFloat()),
+                        QColor(fields[4].toInt(), fields[5].toInt(), fields[6].toInt()));
+    }
+    cloud.endCloud();
+
+    return cloud.renderedVerticesCount() > 0;
+}
