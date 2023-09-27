@@ -27,8 +27,8 @@ Project Roadmap
 | Version       | Features      | Status|
 | ------------- |:-------------:| :-----:|
 | 0.1           | static models, simple lighting, camera control, native GLB-Loader, basic animations | WIP |
-| 0.2           | multiple lights, shadows | open |
-| 0.3           | Skeletal animation       | open |
+| 0.2           | Skeletal animation       | WIP  |
+| 0.3           | multiple lights, shadows | open |
 
 3D Fileformat Compatibility
 ---------------------------------
@@ -41,4 +41,11 @@ Project Roadmap
 | OBJ          | native         |  Low         |
 | 3DS          | native         |  Low         |
 | [ALL](https://github.com/assimp/assimp/blob/master/doc/Fileformats.md) | ASSIMP    |  High   |
+
+3D Resources+Assets
+- https://nasa3d.arc.nasa.gov/models
+- http://graphics.stanford.edu/data/3Dscanrep/
+- http://www.semantic3d.net/
+- https://www.solarsystemscope.com/textures/
+- https://heightmap.skydark.pl/
 
