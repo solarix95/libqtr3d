@@ -44,8 +44,8 @@ void Qtr3dBillboard::stateDeleted(QObject *state)
 //-------------------------------------------------------------------------------------------------
 float Qtr3dBillboard::alphaX() const
 {
-    QVector2D v2 = { mCamera->pos().y() - mState->pos().y(),
-                     mCamera->pos().z() - mState->pos().z()};
+    QVector2D v2 = { (float)(mCamera->pos().y - mState->pos().y),
+                     (float)(mCamera->pos().z - mState->pos().z)};
 
     bool turn180 = v2.y() < 0;
     QVector2D v1 = { (turn180 ? -1.0f : 1.0f), 0.0f};
@@ -63,8 +63,8 @@ float Qtr3dBillboard::alphaX() const
 //-------------------------------------------------------------------------------------------------
 float Qtr3dBillboard::alphaY() const
 {
-    QVector2D v2 = { mCamera->pos().x() - mState->pos().x(),
-                     mCamera->pos().z() - mState->pos().z()};
+    QVector2D v2 = { (float)(mCamera->pos().x - mState->pos().x),
+                     (float)(mCamera->pos().z - mState->pos().z)};
 
     bool turn180 = v2.y() < 0;
     QVector2D v1 = { (turn180 ? -1.0f : 1.0f), 0.0f};
@@ -78,10 +78,11 @@ float Qtr3dBillboard::alphaY() const
     return turn180 ? -90-alpha : 90-alpha;
 }
 
+//-------------------------------------------------------------------------------------------------
 float Qtr3dBillboard::alphaZ() const
 {
-    QVector2D v2 = { mCamera->pos().x() - mState->pos().x(),
-                     mCamera->pos().y() - mState->pos().y()};
+    QVector2D v2 = { (float)(mCamera->pos().x - mState->pos().x),
+                     (float)(mCamera->pos().y - mState->pos().y)};
 
     bool turn180 = v2.y() < 0;
     QVector2D v1 = { (turn180 ? -1.0f : 1.0f), 0.0f};

@@ -71,6 +71,12 @@ Qtr3dGeometryState *Qtr3dAssets::createState(Qtr3dGeometry *buffer, Qtr3d::Light
 }
 
 //-------------------------------------------------------------------------------------------------
+const QList<Qtr3dGeometry *> &Qtr3dAssets::geometries() const
+{
+    return mGeometries;
+}
+
+//-------------------------------------------------------------------------------------------------
 const QList<Qtr3dMesh*> &Qtr3dAssets::meshes() const
 {
     return mMeshes;
@@ -153,7 +159,8 @@ Qtr3dMesh *Qtr3dAssets::registerMesh(Qtr3dMesh *mesh)
     connect(mesh, &Qtr3dMesh::destroyed, this, [this](QObject *obj){
        mMeshes.removeOne((Qtr3dMesh*)obj);
     });
-    return mesh;
+
+    return (Qtr3dMesh*)registerGeometry(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -165,7 +172,7 @@ Qtr3dModel *Qtr3dAssets::registerModel(Qtr3dModel *model)
     connect(model, &Qtr3dModel::destroyed, this, [this](QObject *obj){
        mModels.removeOne((Qtr3dModel*)obj);
     });
-    return model;
+    return (Qtr3dModel*)registerGeometry(model);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -177,5 +184,18 @@ Qtr3dPointCloud *Qtr3dAssets::registerPointCloud(Qtr3dPointCloud *cloud)
     connect(cloud, &Qtr3dPointCloud::destroyed, this, [this](QObject *obj){
        mPointClouds.removeOne((Qtr3dPointCloud*)obj);
     });
-    return cloud;
+    return (Qtr3dPointCloud*)registerGeometry(cloud);
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dGeometry *Qtr3dAssets::registerGeometry(Qtr3dGeometry *geometry)
+{
+    Q_ASSERT(geometry);
+    Q_ASSERT(!mGeometries.contains(geometry));
+    mGeometries << geometry;
+    connect(geometry, &QObject::destroyed, this, [this](QObject *obj){
+       mGeometries.removeOne((Qtr3dGeometry*)obj);
+    });
+
+    return geometry;
 }

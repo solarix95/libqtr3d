@@ -18,11 +18,13 @@ class Qtr3dGlbLoader : public Qtr3dModelLoader
 public:
     static bool supportsFile(const QString &filename);
     static bool loadFile(Qtr3dModel &model, const QString &filename);
+    static bool loadFile(Qtr3dModel &model, const QByteArray &fileContent);
+
 
     Qtr3dGlbLoader();
     virtual ~Qtr3dGlbLoader();
 
-    virtual bool loadModel(Qtr3dModel &model, const QString &filename);
+    virtual bool loadModel(Qtr3dModel &model, const QByteArray &fileBuffer);
 
 protected:
 

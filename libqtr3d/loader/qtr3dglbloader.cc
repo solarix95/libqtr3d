@@ -16,8 +16,14 @@ bool Qtr3dGlbLoader::supportsFile(const QString &filename)
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dGlbLoader::loadFile(Qtr3dModel &model, const QString &filename)
 {
+    return loadFile(model, fileContent(filename,-1));
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dGlbLoader::loadFile(Qtr3dModel &model, const QByteArray &fileBuffer)
+{
     Qtr3dGlbLoader loader;
-    return loader.loadModel(model,filename);
+    return loader.loadModel(model, fileBuffer);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -27,17 +33,12 @@ Qtr3dGlbLoader::Qtr3dGlbLoader()
 Qtr3dGlbLoader::~Qtr3dGlbLoader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QString &filename)
+bool Qtr3dGlbLoader::loadModel(Qtr3dModel &model, const QByteArray &fileBuffer)
 {
-    QByteArray header = fileHeader(filename,100);
-    if (header.isEmpty())
+    if (fileBuffer.isEmpty())
         return returnError("Empty file");
 
-    QFile f(filename);
-    if (!f.open(QIODevice::ReadOnly))
-        return returnError("Can't open file");
-
-    Qtr3dBinReader reader(f.readAll());
+    Qtr3dBinReader reader(fileBuffer);
 
     // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#glb-file-format-specification
     quint32 magic   = reader.readUint32();

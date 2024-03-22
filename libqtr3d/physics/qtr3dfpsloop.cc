@@ -24,9 +24,9 @@ void Qtr3dFpsLoop::setFps(int fps)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dFpsLoop::setSpeed(int procent)
+void Qtr3dFpsLoop::setSpeed(float factor)
 {
-    mSpeed = procent;
+    mSpeed = factor;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -70,6 +70,6 @@ void Qtr3dFpsLoop::process()
 
     mCurrentFps = 1000/elapsedMs;
     mStopWatch.start();
-    emit step(float(elapsedMs)*(mSpeed/100), mSpeed*normalizedSpeed);
+    emit step(float(elapsedMs)*mSpeed, mSpeed*normalizedSpeed, elapsedMs);
     emit stepDone();
 }

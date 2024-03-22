@@ -12,7 +12,7 @@ public:
     Qtr3dFpsLoop(QObject *parent = nullptr);
 
     void setFps(int fps);
-    void setSpeed(int procent);
+    void setSpeed(float factor);
 
     bool isActive()   const;
     int  interval()   const;
@@ -20,7 +20,7 @@ public:
     int  currentFps() const;
 
 signals:
-    void step(float ms, float normalizedSpeed);
+    void step(float simulationTime, float normalizedSpeed, int realtimeMs);
     void stepDone();
 
 private slots:
@@ -29,7 +29,7 @@ private slots:
 private:
     QTimer         mTimer;
     QElapsedTimer  mStopWatch;
-    int            mSpeed;
+    float          mSpeed;
     int            mCurrentFps;
 };
 

@@ -34,9 +34,8 @@ void Qtr3dEgoCameraController::parentKeyPress(QKeyEvent *e)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dEgoCameraController::parentMouseWheel(float delta)
 {
-    float correctionFactor = (360+(-1*delta))/360.0;
-
-    QVector3D vpos = correctionFactor * (mCamera->pos() - mCamera->lookAtCenter());
+    double correctionFactor = (360+(-1*delta))/360.0;
+    auto  vpos = correctionFactor * (mCamera->pos() - mCamera->lookAtCenter());
     mCamera->setPos(mCamera->lookAtCenter() + vpos);
     emit positionChanged(mCamera->pos());
 }

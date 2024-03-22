@@ -13,7 +13,7 @@ QMatrix4x4  Qtr3dModel::Node::translation() const
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dModel::Qtr3dModel(Qtr3dAssets *context)
-    : Qtr3dGeometry(context)
+    : Qtr3dGeometry(ModelPipeline, context)
 {
 }
 

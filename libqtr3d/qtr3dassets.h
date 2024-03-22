@@ -30,6 +30,7 @@ public:
 
     Qtr3dGeometryState *createState(Qtr3dGeometry *buffer, Qtr3d::LightingType ltype = Qtr3d::DefaultLighting);
 
+    const QList<Qtr3dGeometry*>   &geometries() const;
     const QList<Qtr3dMesh*>       &meshes() const;
     const QList<Qtr3dModel*>      &models() const;
     const QList<Qtr3dPointCloud*> &pointClouds() const;
@@ -46,6 +47,9 @@ private:
     Qtr3dMesh       *registerMesh(Qtr3dMesh *mesh);
     Qtr3dModel      *registerModel(Qtr3dModel *model);
     Qtr3dPointCloud *registerPointCloud(Qtr3dPointCloud *cloud);
+    Qtr3dGeometry   *registerGeometry(Qtr3dGeometry *geometry);
+
+    QList<Qtr3dGeometry*>   mGeometries;
 
     QList<Qtr3dMesh*>       mMeshes;
     QList<Qtr3dPointCloud*> mPointClouds;

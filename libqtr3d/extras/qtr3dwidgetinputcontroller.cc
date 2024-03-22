@@ -104,8 +104,9 @@ void Qtr3dWidgetInputController::parentDraggingAbs(QPoint /*delta*/)
 }
 
 //---------------------------------------------------------------------------------------
-void Qtr3dWidgetInputController::parentDraggingRel(QPointF /*delta*/)
+void Qtr3dWidgetInputController::parentDraggingRel(QPointF delta)
 {
+    emit draggingRelative(delta);
 }
 
 //---------------------------------------------------------------------------------------

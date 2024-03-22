@@ -2,6 +2,7 @@
 #define QTR3DSHADER_H
 
 #include <QObject>
+#include <QString>
 #include <QOpenGLFunctions>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
@@ -25,6 +26,7 @@ public:
 
     void setDefaultLighting(Qtr3d::LightingType l);
     inline Qtr3d::LightingType defaultLighting() const { return mDefaultLighting; }
+    inline QString             lastError() const       { return mError;           }
 
     void setProgram(Qtr3d::LightingType lightType);
 
@@ -46,6 +48,7 @@ protected:
 
 private:
     void initShader(Qtr3d::LightingType lightType, const QString &extension, const QString &fragVaryingCode, const QString &fragColorCode);
+    bool compileShader(QOpenGLShader *vShader, QOpenGLShader *fShader, QOpenGLShaderProgram *program, const QByteArray &vCode, const QByteArray &fCode);
     static QByteArray shaderCode(const QString &name);
 
     struct ShaderComponents {
@@ -58,6 +61,7 @@ private:
 
     QMap<int, ShaderComponents> mShaders;
     Qtr3d::LightingType         mCurrentType;
+    QString                     mError;
 
 };
 

@@ -30,6 +30,9 @@ protected:
     virtual void parentDraggingRel(QPointF delta); // % of the screen
     virtual void parentDragEnd();
 
+signals:
+    void draggingRelative(QPointF delta);
+
 private:
     QWidget *parentWidget();
 

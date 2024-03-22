@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector3D>
+#include "../math3d/qtr3ddblvector.h"
 #include "../utils/qtr3dpidcontroller.h"
 
 class Qtr3dWidget;
@@ -33,8 +34,8 @@ private:
     QVector3D           mTargetOrientation;
     float               mOffset;
 
-    Qtr3dPidController<QVector3D> mPosController;
-    Qtr3dPidController<QVector3D> mDirController;
+    Qtr3dPidController<Qtr3dDblVector3D> mPosController;
+    Qtr3dPidController<Qtr3dDblVector3D> mDirController;
 };
 
 #endif // QTR3DFOLLOWCAMERA_H

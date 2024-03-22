@@ -31,12 +31,12 @@ ViewerForm::ViewerForm(QWidget *parent)
 
     QObject::connect(ui->viewer, &Qtr3dWidget::initialized, [this]() {
         connect(ui->viewer,&MainView::statisticsChanged, this, [this]() {
-            auto *context = ui->viewer->bufferContext();
-            ui->lblTargetFps->setText(QString::number(context->loop().targetFps()));
-            ui->lblCurrentFps->setText(QString::number(context->loop().currentFps()));
+            auto *assets = ui->viewer->assets();
+            ui->lblTargetFps->setText(QString::number(assets->loop().targetFps()));
+            ui->lblCurrentFps->setText(QString::number(assets->loop().currentFps()));
             ui->lblStateCount->setText(QString::number(ui->viewer->stateCount()));
             ui->lblLoad->setText(QString::number(ui->viewer->cpuLoad()));
-            ui->lblModelCount->setText(QString("%1/%2/%3").arg(context->totalModelCount()).arg(context->totalMeshCount()).arg(context->totalVerticesCount()));
+            ui->lblModelCount->setText(QString("%1/%2/%3").arg(assets->totalModelCount()).arg(assets->totalMeshCount()).arg(assets->totalVerticesCount()));
         }, Qt::QueuedConnection);
     });
 }

@@ -6,7 +6,7 @@
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dMesh::Qtr3dMesh(Qtr3dAssets *parent)
-    : Qtr3dGeometry(parent)
+    : Qtr3dGeometry(MeshPipeline,parent)
     , mVerticesBufferId(0)
     , mElementBufferId(0)
     , mVertexCount(0)

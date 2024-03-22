@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
         // Texture by https://learnopengl.com/Advanced-OpenGL/Blending
         auto *window = w.createMesh();
         window->setTexture(QImage(":/blending_transparent_window.png"));
-        window->setBlendingEnabled(true);           // Enable Alpha Transparency for blending_transparent_window.png
+
+        window->setRenderOptions(Qtr3dGeometry::BlendingOptions);         // Enable Alpha Transparency for blending_transparent_window.png
         window->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
         window->addQuad({-1, 1, 0},{ 1, 1,0},{ 1,-1,0},{-1,-1,0});     // Front
         window->endMesh();
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
         // Simple Vertex Window
        auto *glas = w.createMesh();
        glas->setDefaultColor(QColor(255,0,0,127)); // 127 =~ 0.5 Opacity
-       glas->setBlendingEnabled(true);             // Enable Alpha Transparency
+       glas->setRenderOptions(Qtr3dGeometry::BlendingOptions);           // Enable Alpha Transparency
        glas->startMesh(Qtr3d::Triangle, Qtr3d::CounterClockWise);
        glas->addQuad({0, 1,  1}, {0, 1,-1}, {0,-1,-1}, {0,-1, 1});  // Right
        glas->endMesh();

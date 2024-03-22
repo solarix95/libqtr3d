@@ -53,7 +53,9 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dorbitcameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.h \
-    $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dpidcontroller.h
+    $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dpidcontroller.h \
+    $$LIBQTR3D_PATH/libqtr3d/math3d/qtr3ddblvector.h \
+    $$LIBQTR3D_PATH/libqtr3d/math3d/qtr3ddblmatrix.h
 
 SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dwidget.cc \
@@ -90,7 +92,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.cc \
-    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameracontroller.cc \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfreecameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3degocameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dwidgetinputcontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfollowcamera.cc \
@@ -98,6 +100,8 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameramovement.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dsprite.cc \
+    $$LIBQTR3D_PATH/libqtr3d/math3d/qtr3ddblvector.cc \
+    $$LIBQTR3D_PATH/libqtr3d/math3d/qtr3ddblmatrix.cc
 
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/shaders.qrc
 RESOURCES += $$LIBQTR3D_PATH/libqtr3d/misc.qrc

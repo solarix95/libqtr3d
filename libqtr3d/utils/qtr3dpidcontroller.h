@@ -30,6 +30,12 @@ public:
         return  proportional + integral + derivative;
     }
 
+    void reset() {
+        mPreviousError = T();
+        mIntegralError = T();
+        mFirstCall = true;
+    }
+
 private:
     T    Kp, Ki, Kd;
     T    mPreviousError;

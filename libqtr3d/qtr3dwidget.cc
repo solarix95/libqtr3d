@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 #include <QSurfaceFormat>
+#include <QMessageBox>
 
 #include "qtr3dtexturefactory.h"
 #include "qtr3dlightsource.h"
@@ -171,14 +172,20 @@ void Qtr3dWidget::preparePainting()
     f->glClearColor(clearColor.redF() ,  clearColor.greenF() ,  clearColor.blueF() ,  1.0f ) ;
     f->glEnable(GL_CULL_FACE) ;
     f->glCullFace(GL_BACK);
+
+    f->glEnable(GL_DEPTH_TEST);
+    f->glDepthFunc(GL_LEQUAL);
+
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paint3D()
 {
-    paintMeshes();
-    paintModels();
-    paintPointClouds();
+
+    // paintMeshes();
+    // paintModels();
+    // paintPointClouds();
+    paintGeometries();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -201,13 +208,10 @@ void Qtr3dWidget::initializeGL()
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->initializeOpenGLFunctions();
 
-    f->glEnable(GL_DEPTH_TEST);
-    f->glDepthFunc(GL_LEQUAL);
-
-    mPlainShader        = new Qtr3dPlainShader(this);
-    mVertexMeshShader   = new Qtr3dVertexMeshShader(this);
-    mTexturedMeshShader = new Qtr3dTexturedShader(this);
-    mPointCloudShader   = new Qtr3dPcShader(this);
+    mPlainShader        = new Qtr3dPlainShader(this);      handleShaderError("Plain",         mPlainShader);
+    mVertexMeshShader   = new Qtr3dVertexMeshShader(this); handleShaderError("Colored Mesh",  mVertexMeshShader);
+    mTexturedMeshShader = new Qtr3dTexturedShader(this);   handleShaderError("Textured Mesh", mTexturedMeshShader);
+    mPointCloudShader   = new Qtr3dPcShader(this);         handleShaderError("Point Cloud",   mPointCloudShader);
     mTextures           = new Qtr3dTextureFactory();
 
     emit initialized();
@@ -265,7 +269,93 @@ void Qtr3dWidget::preInitializing()
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::paintGeometries()
+{
+    QList<Qtr3dGeometry*> frontList;
+    QList<Qtr3dGeometry*> regularList;
+    QList<Qtr3dGeometry*> zOrderedList;
+
+    const auto &rootList = assets()->geometries();
+    for(auto *geometry: rootList) {
+        if (geometry->bufferStates().isEmpty())
+            continue;
+
+        Qtr3dShader *shader = nullptr;
+        switch (geometry->shader()) {
+        case Qtr3d::PlainShader:
+            shader = mPlainShader; break;
+        case Qtr3d::ColoredShader:
+            shader = mVertexMeshShader; break;
+        case Qtr3d::TexturedShader:
+            shader = mTexturedMeshShader; break;
+        default: break;
+        }
+
+        if (!shader)
+            continue;
+
+        // Background-Option overrides all others. Blending is not possible. Usecase: Skybox
+        if (geometry->renderOptions().testFlag(Qtr3dGeometry::BackgroundOption)) {
+            frontList << geometry;
+            continue;
+        }
+
+        if (geometry->renderOptions().testFlag(Qtr3dGeometry::ZOrderOption)) {
+            zOrderedList << geometry;
+            continue;
+        }
+
+        regularList << geometry;
+    }
+
+
+    for (auto *geometry: frontList)
+        renderGeometry(geometry);
+
+    for (auto *geometry: regularList)
+        renderGeometry(geometry);
+
+    QList<pQtr3dStateZ> blendRenderPipeline;
+    for (auto *geometry: zOrderedList) {
+        for (auto *state: geometry->bufferStates()) {
+            QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
+            if (previewCenter.z() > state->radius())
+                continue;
+            blendRenderPipeline << pQtr3dStateZ((state->pos() - camera()->pos()).length(),state);
+        }
+    }
+    std::sort(blendRenderPipeline.begin(), blendRenderPipeline.end(), stateZLessThan);
+
+    for(const auto &zInfo: blendRenderPipeline) {
+        const auto &geometry = zInfo.state->buffer();
+        const auto *mesh = dynamic_cast<const Qtr3dMesh*>(&geometry);
+        Q_ASSERT(mesh);
+
+        Qtr3dShader *shader = nullptr;
+        switch (mesh->shader()) {
+        case Qtr3d::PlainShader:
+            shader = mPlainShader; break;
+        case Qtr3d::ColoredShader:
+            shader = mVertexMeshShader; break;
+        case Qtr3d::TexturedShader:
+            shader = mTexturedMeshShader; break;
+        default: break;
+        }
+
+        Q_ASSERT(shader);
+        auto nextLightingTyp = zInfo.state->lightingType();
+        if (nextLightingTyp == Qtr3d::DefaultLighting)
+            nextLightingTyp = shader->defaultLighting();
+        shader->render(*mesh,zInfo.state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+    }
+
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintMeshes()
+/*
+    Main Render-Pipeline for simple Meshes.
+*/
 {
     const auto rootBuffers = assets()->meshes();
 
@@ -299,7 +389,7 @@ void Qtr3dWidget::paintMeshes()
             if (previewCenter.z() > state->radius())
                 continue;
 
-            if (mesh->blending()) {
+            if (mesh->hasRenderOption(Qtr3dGeometry::ZOrderOption)) {
                 blendRenderPipeline << pQtr3dStateZ((state->pos() - camera()->pos()).length(),state);
                 continue;
             }
@@ -309,7 +399,7 @@ void Qtr3dWidget::paintMeshes()
                 nextLightingTyp = shader->defaultLighting();
 
 
-            shader->render(*mesh,state->modelView(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 
@@ -320,7 +410,8 @@ void Qtr3dWidget::paintMeshes()
     for(const auto &zInfo: blendRenderPipeline) {
         const auto &geometry = zInfo.state->buffer();
         const auto *mesh = dynamic_cast<const Qtr3dMesh*>(&geometry);
-        Q_ASSERT(mesh);
+        if (!mesh)
+            continue;
 
         Qtr3dShader *shader = nullptr;
         switch (mesh->shader()) {
@@ -337,7 +428,7 @@ void Qtr3dWidget::paintMeshes()
         auto nextLightingTyp = zInfo.state->lightingType();
         if (nextLightingTyp == Qtr3d::DefaultLighting)
             nextLightingTyp = shader->defaultLighting();
-        shader->render(*mesh,zInfo.state->modelView(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+        shader->render(*mesh,zInfo.state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
     }
 }
 
@@ -394,7 +485,56 @@ void Qtr3dWidget::paintPointClouds()
             }
             */
             mPointCloudShader->setProgram(Qtr3d::NoLighting);
-            mPointCloudShader->render(*cloud,state->modelView(),QVector<QMatrix4x4>(), *camera(),Qtr3d::NoLighting,*primaryLightSource(), assets()->environment());
+            mPointCloudShader->render(*cloud,state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),Qtr3d::NoLighting,*primaryLightSource(), assets()->environment());
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
+{
+    Qtr3dShader *shader = nullptr;
+    switch (buffer->shader()) {
+    case Qtr3d::PlainShader:
+        shader = mPlainShader; break;
+    case Qtr3d::ColoredShader:
+        shader = mVertexMeshShader; break;
+    case Qtr3d::TexturedShader:
+        shader = mTexturedMeshShader; break;
+    default: break;
+    }
+
+    Q_ASSERT(shader);
+
+    const auto &states = buffer->bufferStates();
+    shader->setProgram(Qtr3d::DefaultLighting);
+    for(auto *state: states) {
+        if (!state->enabled())
+            continue;
+
+        QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
+        if (previewCenter.z() > state->radius())
+            continue;
+
+        auto nextLightingTyp = state->lightingType();
+        if (nextLightingTyp == Qtr3d::DefaultLighting)
+            nextLightingTyp = shader->defaultLighting();
+
+        switch(buffer->pipeLine()) {
+        case Qtr3dGeometry::MeshPipeline:
+            shader->render(*(Qtr3dMesh*)buffer,state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            break;
+        case Qtr3dGeometry::PointCloudPipeline:
+            mPointCloudShader->setProgram(Qtr3d::NoLighting);
+            mPointCloudShader->render(*(Qtr3dPointCloud*)buffer,state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),Qtr3d::NoLighting,*primaryLightSource(), assets()->environment());
+            break;
+         case Qtr3dGeometry::ModelPipeline:
+            if (!state->animator())
+                renderStaticModel(*(Qtr3dModel*)buffer,state);
+            else {
+                renderAnimatedModel(*(Qtr3dModel*)buffer,state);
+            }
+            break;
         }
     }
 }
@@ -427,11 +567,12 @@ void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState 
             // for (int i=0; i<mesh->vertexCount(); i++) {
             //    qDebug() << i << mesh->vertex(i).p.toQVector();
             //}
-            shader->render(*mesh,state->modelView() * node->translation(), QVector<QMatrix4x4>(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,state->modelView().toFloat() * node->translation(), QVector<QMatrix4x4>(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 }
 
+//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state)
 {
     const auto &nodes  = model.nodes();
@@ -465,8 +606,16 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             globalInverseTransform.setToIdentity();
             Qtr3dModel::setupSkeleton(skeleton,node->rootNode(),mesh, state->animator(),rootTransform, globalInverseTransform);
 
-            shader->render(*mesh,state->modelView(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,state->modelView().toFloat(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::handleShaderError(const QString &name, Qtr3dShader *shader)
+{
+    if (shader->lastError().isEmpty())
+        return;
+    QMessageBox::warning(this,QString("Shader: '%1'").arg(name), QString("Shader Error: \n%1").arg(shader->lastError()));
 }
 

@@ -34,5 +34,6 @@ void main() {
         fragNormal     = normalize(vec3(turnNorm.x - fragPos.x,turnNorm.y - fragPos.y,turnNorm.z - fragPos.z));
 
         // Project and send to the fragment shader
-        gl_Position  = projection * modelview * vertex;
+        gl_Position   = projection * modelview * vertex; // * vec4(vertex.x, vertex.y, vertex.z, 1); // vertex;
+        // gl_Position.z = gl_Position.w - 0.0001;
 }

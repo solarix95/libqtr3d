@@ -75,12 +75,15 @@ signals:
 
 private:
     void preInitializing();
+    void paintGeometries();
+
     void paintMeshes();
     void paintModels();
     void paintPointClouds();
+    void renderGeometry(Qtr3dGeometry *buffer);
     void renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
     void renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
-
+    void handleShaderError(const QString &name, Qtr3dShader *shader);
 
     Options                  mOptions;
     Qtr3dCamera             *mCamera;

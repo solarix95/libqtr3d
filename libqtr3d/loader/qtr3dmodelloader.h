@@ -22,7 +22,7 @@ public:
 
     QString lastError() const;
 
-    static QByteArray fileHeader(const QString &filename, int byteCount = 100);
+    static QByteArray fileContent(const QString &filename, int maxByteCount = 100);
     static QString    addPath(const QString &sourceFIle, const QString &targetFile);
     static bool       isValidExternalTexture(const QString &textureFile);
 

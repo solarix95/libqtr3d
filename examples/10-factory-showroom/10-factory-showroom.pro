@@ -7,6 +7,7 @@ TARGET = 10-factory-showroom
 
 INCLUDEPATH += .
 QT += core gui widgets
+CONFIG += debug
 
 LIBQTR3D_PATH = ../../
 

@@ -23,18 +23,18 @@ MainView::MainView(QWidget *parent)
 
         auto *redModel = createMesh();
         Qtr3d::meshByText(*redModel,"R",QFont("Arial",200),QColor("#77FF0000"));
-        redModel->setBlendingEnabled(true);
+        redModel->setRenderOption(Qtr3dGeometry::BlendingOption);
         auto *state = createState(redModel);
         state->setPos({0,0,-5});
 
         auto *greenModel = createMesh();
         Qtr3d::meshByText(*greenModel,"G",QFont("Arial",200),QColor("#7700FF00"));
-        greenModel->setBlendingEnabled(true);
+        greenModel->setRenderOption(Qtr3dGeometry::BlendingOption);
         state->setPos({0,0,-7});
 
         auto *blueModel = createMesh();
         Qtr3d::meshByText(*blueModel,"B",QFont("Arial",200),QColor("#770000FF"));
-        blueModel->setBlendingEnabled(true);
+        blueModel->setRenderOption(Qtr3dGeometry::BlendingOption);
 
         QTimer *t = new QTimer(this);
         connect(t, &QTimer::timeout, this, [this,redModel,greenModel,blueModel]() {

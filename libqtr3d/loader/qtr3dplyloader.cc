@@ -5,7 +5,7 @@
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dPlyLoader::supportsFile(const QString &filename)
 {
-    return (fileHeader(filename).startsWith("ply\n"));
+    return (fileContent(filename).startsWith("ply\n"));
 }
 
 //-------------------------------------------------------------------------------------------------

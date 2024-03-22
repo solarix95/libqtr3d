@@ -45,6 +45,7 @@ Project Roadmap
 3D Resources+Assets
 ---------------------------------
 - https://nasa3d.arc.nasa.gov/models
+- https://github.com/nasa/NASA-3D-Resources/
 - http://graphics.stanford.edu/data/3Dscanrep/
 - http://www.semantic3d.net/
 - https://www.solarsystemscope.com/textures/

@@ -3,7 +3,7 @@
 #include "celestialbody.h"
 
 CelestialBody::CelestialBody(Qtr3dGeometryState &state, float weight, QVector3D pos, QVector3D direction)
-    : Qtr3dStandardEntity(state, pos, {0,0,0}, {0,0,0})
+    : Qtr3dStandardEntity(&state, pos, {0,0,0}, {0,0,0})
     , mWeight(weight)
 {
     setMovement(direction);

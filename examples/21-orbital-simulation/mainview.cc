@@ -31,7 +31,7 @@ MainView::MainView()
         mesh->material() = Qtr3d::Material(1,0,0);
         auto *sun1 = createState(mesh);
         sun1->setScale(2.0);
-        sun1->setRotation({90,0,0});
+        sun1->setRotation({0,0,0});
 
 
         mesh = createMesh();

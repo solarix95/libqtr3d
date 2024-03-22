@@ -90,12 +90,24 @@ void Qtr3dTexturedShader::drawMesh(const Qtr3dMesh &buffer)
     default: break;
     }
 
-    if (buffer.blending()) {
+    if (buffer.hasRenderOption(Qtr3dGeometry::BlendingOption)) {
         f->glEnable(GL_BLEND);
         f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {
         f->glDisable(GL_BLEND);
     }
+
+
+    /*
+    if (buffer.hasRenderOption(Qtr3dGeometry::NoZBufferOption)) {
+        f->glDepthMask(false);
+        f->glDisable(GL_DEPTH_TEST);
+    } else {
+        f->glDepthMask(true);
+        f->glEnable(GL_DEPTH_TEST);
+        f->glDepthFunc(GL_LEQUAL);
+    }
+    */
 
     // Textures
     f->glActiveTexture( GL_TEXTURE0 );

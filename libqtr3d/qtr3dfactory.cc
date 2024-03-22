@@ -347,7 +347,12 @@ bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bo
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
+bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap, bool asTexture){
+    return meshBySphere(mesh,sectors,sectors,1,true,colorMap);
+}
+#if 0
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap, bool asTexture)
 {
     if (sectors < 3 || colorMap.isNull())
         return false;
@@ -367,7 +372,11 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
     };
 
     /* top */
-    mesh.addVertex({cx,cy,cz + radius}, QVector3D(0.f, 0.f, 1.f), getColor(0.5,0));
+    if (asTexture) {
+        mesh.setTexture(colorMap);
+        mesh.addVertex({cx,cy,cz + radius}, QVector3D(0.f, 0.f, 1.f),0.5,0);
+    } else
+        mesh.addVertex({cx,cy,cz + radius}, QVector3D(0.f, 0.f, 1.f), getColor(0.5,0));
 
     float stepXY = 2*PI/sectors;
     float angleZ  = PI/(sectors-1);
@@ -377,15 +386,22 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
         float r = sin(angleZ) * radius;
         float z = cos(angleZ);
 
-        for (int s=0; s<sectors; s++) {
+        for (int s=0; s<=sectors; s++) {
+
+            qDebug() << s << (1-s/(float)sectors) << (1.0f/sectors);
 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
 
             QVector3D p(r*x + cx, r*y + cy, radius*z + cz);
-            mesh.addVertex(p,
-                           p.normalized(),
-                           getColor(1-s/(float)sectors,1.f/sectors));
+            if (asTexture)
+                mesh.addVertex(p,
+                               p.normalized(),
+                               1-s/(float)sectors,1.f/sectors);
+            else
+                mesh.addVertex(p,
+                               p.normalized(),
+                               getColor(1-s/(float)sectors,1.f/sectors));
 
             /*
             mesh.addVertex({r*x + cx, r*y + cy, radius*z + cz},
@@ -393,9 +409,12 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
                            getColor(1-s/(float)sectors,1.f/sectors));
            */
 
+            if (s == sectors)
+                continue;
             mesh.addIndex(s+1);
             mesh.addIndex(0); // all polygons to the top center
-            mesh.addIndex(s == (sectors-1) ? 1 : s+2);
+            // mesh.addIndex(s == (sectors-1) ? 1 : s+2);
+            mesh.addIndex(s+2);
         }
     }
 
@@ -404,15 +423,20 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
         float r = sin((ring+2)*angleZ) * radius;
         float z = cos((ring+2)*angleZ);
 
-        for (int s=0; s<sectors; s++) {
+        for (int s=0; s<=sectors; s++) {
 
             float x = sin(stepXY*s);
             float y = cos(stepXY*s);
 
             QVector3D p(r*x + cx, r*y + cy, radius*z + cz);
-            mesh.addVertex(p,
-                           p.normalized(),
-                           getColor(1-s/(float)sectors,(ring+2.f)/sectors));
+            if (asTexture)
+                mesh.addVertex(p,
+                               p.normalized(),
+                               1-s/(float)sectors,(ring+2.f)/sectors);
+            else
+                mesh.addVertex(p,
+                               p.normalized(),
+                               getColor(1-s/(float)sectors,(ring+2.f)/sectors));
             /*
             mesh.addVertex({r*x + cx, r*y + cy, radius*z + cz},
                            QVector3D(x,y,z),
@@ -423,8 +447,12 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
     }
 
     /* Button */
-    mesh.addVertex({cx, cy, cz - radius},
-                   QVector3D(cx, cy, cz - radius).normalized(), getColor(0.5,1));
+    if (asTexture)
+        mesh.addVertex({cx, cy, cz - radius},
+                       QVector3D(cx, cy, cz - radius).normalized(), 0.5,1);
+    else
+        mesh.addVertex({cx, cy, cz - radius},
+                       QVector3D(cx, cy, cz - radius).normalized(), getColor(0.5,1));
 
     for (int ring = 0; ring<sectors-3; ring++) {
         for (int s=0; s<sectors; s++) {
@@ -433,13 +461,17 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
 
             // Oberes Dreieck
             mesh.addIndex(first + s);
-            mesh.addIndex(s == sectors - 1 ? (first) : (first + s + 1));
+
+            // mesh.addIndex(s == sectors - 1 ? (first) : (first + s + 1));
+            mesh.addIndex(first + s + 1);
+
             mesh.addIndex(first + s + sectors);
 
             // Unteres Dreieck
             mesh.addIndex(first + s);
             mesh.addIndex(first + s + sectors);
-            mesh.addIndex(s == 0 ? (first + 2*sectors - 1) : (first + s + sectors - 1));
+            // mesh.addIndex(s == 0 ? (first + 2*sectors - 1) : (first + s + sectors - 1));
+            mesh.addIndex(first + s + sectors - 1);
         }
     }
 
@@ -456,6 +488,7 @@ bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap)
     mesh.endMesh();
     return true;
 }
+#endif
 
 //-------------------------------------------------------------------------------------------------
 bool Qtr3d::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLoader::Options opts)
@@ -923,4 +956,92 @@ bool Qtr3d::cloudByFile(Qtr3dPointCloud &cloud, const QString &filename)
     cloud.endCloud();
 
     return cloud.renderedVerticesCount() > 0;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, int rings, float radius, bool renderOutside, const QImage &colorMap, bool asTexture)
+{
+    if (sectors < 3 || colorMap.isNull())
+        return false;
+
+    const float PI = M_PI;
+
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setFaceOrientation(renderOutside ? Qtr3d::ClockWise : Qtr3d::CounterClockWise);
+
+    auto getColor = [&](float xProc, float yProc) {
+        return colorMap.pixel(xProc * (colorMap.width()-1),
+                              yProc * (colorMap.height()-1));
+    };
+
+    if (asTexture)
+        mesh.setTexture(colorMap);
+
+    float const R = 1./(float)(rings-1);
+    float const S = 1./(float)(sectors-1);
+    int r, s;
+
+    for(r = 0; r < rings; ++r) {
+        for(s = 0; s < sectors; ++s) {
+            float const y = sin( -PI/2 + PI * r * R );
+            float const x = cos(2*PI * s * S) * sin( PI * r * R );
+            float const z = sin(2*PI * s * S) * sin( PI * r * R );
+
+            if (asTexture) {
+                mesh.addVertex({radius*x,radius*y,radius*z},
+                               (renderOutside ? 1:-1) * QVector3D(x,y,z).normalized(),s*S, r*R);
+            } else {
+                mesh.addVertex({radius*x,radius*y,radius*z},
+                               (renderOutside ? 1:-1) * QVector3D(x,y,z).normalized(),getColor(s*S, r*R));
+            }
+
+        }
+    }
+
+    for(r = 0; r < rings-1; ++r) {
+        for(s = 0; s < sectors-1; ++s) {
+            int const idx = r * sectors + s;
+
+            mesh.addIndex(idx);
+            mesh.addIndex(idx+1);
+            mesh.addIndex(idx+sectors);
+
+            mesh.addIndex(idx+1);
+            mesh.addIndex(idx+1+sectors);
+            mesh.addIndex(idx+sectors);
+
+            // std::cout << idx+1 << " " << idx+1+sectors << " " << idx+sectors << std::endl;
+        }
+    }
+
+    mesh.endMesh();
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::modelByFileBuffer(Qtr3dModel &model, const QString &filename, const QByteArray &fileBuffer, Qtr3dModelLoader::Options opts)
+{
+#ifdef WITH_LIBASSIMP
+    if (Qtr3dAssimpLoader::supportsFile(filename))
+        return Qtr3dAssimpLoader::loadFile(model,filename);
+#endif
+    if (Qtr3dStlLoader::supportsFile(filename))
+        return Qtr3dStlLoader::loadFile(model,filename);
+
+    if (Qtr3dPlyLoader::supportsFile(filename))
+        return Qtr3dPlyLoader::loadFile(model,filename);
+
+    if (Qtr3dE57Loader::supportsFile(filename))
+        return Qtr3dE57Loader::loadFile(model,filename);
+
+    if (Qtr3dObjLoader::supportsFile(filename))
+        return Qtr3dObjLoader::loadFile(model,filename, opts);
+
+    if (Qtr3d3dsLoader::supportsFile(filename))
+        return Qtr3d3dsLoader::loadFile(model,filename);
+
+    if (Qtr3dGlbLoader::supportsFile(filename))
+        return Qtr3dGlbLoader::loadFile(model,fileBuffer);
+    return false;
+
 }

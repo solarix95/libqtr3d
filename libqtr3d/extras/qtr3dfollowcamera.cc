@@ -52,8 +52,8 @@ void Qtr3dFollowCamera::process()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dFollowCamera::follow()
 {
-    QVector3D targetDirection = (mTargetDirection.isNull() ? (mState->pos()-mCamera->pos()) : mTargetDirection).normalized();
-    QVector3D targetPos       = (mState->pos() -  mDistance*targetDirection) + mOffset*mTargetOrientation;
+    QVector3D targetDirection  = (mTargetDirection.isNull() ? (mState->pos()-mCamera->pos()).toFloat() : mTargetDirection).normalized();
+    Qtr3dDblVector3D targetPos = (mState->pos() -  Qtr3dDblVector3D(mDistance*targetDirection)) + Qtr3dDblVector3D(mOffset*mTargetOrientation);
 
     // bool posIsStable = ((mCamera->pos() - newCameraPos).length()    < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);
     //bool cenIsStable = ((targetPos      - newCameraCenter).length() < (mCamera->pos() - mCamera->lookAtCenter()).length()*0.005);

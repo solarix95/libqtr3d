@@ -104,7 +104,7 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
     default: break;
     }
 
-    if (buffer.blending()) {
+    if (buffer.hasRenderOption(Qtr3dGeometry::BlendingOption)) {
         f->glEnable(GL_BLEND);
         f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {

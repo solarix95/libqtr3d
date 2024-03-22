@@ -28,17 +28,12 @@ Qtr3dShader::Qtr3dShader(QObject *parent, const QString &vertFile, const QString
     auto *program        = new QOpenGLShaderProgram();
 
 
-    vertexShader->compileSourceCode(shaderCode(QString(":/%1.vert").arg(vertFile)));
-    Q_ASSERT(vertexShader->isCompiled());
-
-    fragmentShader->compileSourceCode(shaderCode(QString(":/%1.frag").arg(fragFile)));
-    Q_ASSERT(fragmentShader->isCompiled());
-
-    program->addShader(vertexShader);
-    program->addShader(fragmentShader);
-
-    bool done = program->link();
-    Q_ASSERT_X(done,"Shader Linker", program->log().toUtf8().data());
+    if (!compileShader(vertexShader,fragmentShader,program,
+                       shaderCode(QString(":/%1.vert").arg(vertFile)),
+                       shaderCode(QString(":/%1.frag").arg(fragFile))))
+    {
+        return;
+    }
 
     mShaders[Qtr3d::DefaultLighting].vertexShader   = vertexShader;
     mShaders[Qtr3d::DefaultLighting].fragmentShader = fragmentShader;
@@ -164,24 +159,47 @@ void Qtr3dShader::initShader(Qtr3d::LightingType lightType, const QString &eglFi
     }
     Q_ASSERT(!lighting.isEmpty());
 
-    vertexShader->compileSourceCode(shaderCode(QString(":/%1.vert").arg(eglFile)));
-    Q_ASSERT(vertexShader->isCompiled());
 
-    fragmentShader->compileSourceCode(shaderCode(QString(":/%1.frag").arg(lighting))
-                                      .replace("#QTR3d_SHADER_PASS", fragVaryingCode.toUtf8())
-                                      .replace("#QTR3D_FRAGMENT_COLOR",fragColorCode.toUtf8()));
-
-    Q_ASSERT(fragmentShader->isCompiled());
-
-    program->addShader(vertexShader);
-    program->addShader(fragmentShader);
-
-    bool done = program->link();
-    Q_ASSERT_X(done,"Shader Linker", program->log().toUtf8().data());
+    if (!compileShader(vertexShader,fragmentShader, program,
+                       shaderCode(QString(":/%1.vert").arg(eglFile)),
+                       shaderCode(QString(":/%1.frag").arg(lighting))
+                                                             .replace("#QTR3d_SHADER_PASS", fragVaryingCode.toUtf8())
+                                                             .replace("#QTR3D_FRAGMENT_COLOR",fragColorCode.toUtf8())))
+    {
+        return;
+    }
 
     mShaders[lightType].program        = program;
     mShaders[lightType].vertexShader   = vertexShader;
     mShaders[lightType].fragmentShader = fragmentShader;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dShader::compileShader(QOpenGLShader *vShader, QOpenGLShader *fShader, QOpenGLShaderProgram *program, const QByteArray &vCode, const QByteArray &fCode)
+{
+    vShader->compileSourceCode(vCode);
+    if (!vShader->isCompiled()) {
+        mError = vShader->log();
+        vShader->deleteLater(); fShader->deleteLater(); program->deleteLater();
+        return false;
+    }
+
+    fShader->compileSourceCode(fCode);
+    if (!fShader->isCompiled()) {
+        mError = fShader->log();
+        vShader->deleteLater(); fShader->deleteLater(); program->deleteLater();
+        return false;
+    }
+
+    program->addShader(vShader);
+    program->addShader(fShader);
+    if (!program->link()) {
+        mError = fShader->log();
+        vShader->deleteLater(); fShader->deleteLater(); program->deleteLater();
+        return false;
+    }
+
+    return true;
 }
 
 //-------------------------------------------------------------------------------------------------

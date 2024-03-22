@@ -15,12 +15,14 @@ QString Qtr3dModelLoader::lastError() const
 }
 
 //-------------------------------------------------------------------------------------------------
-QByteArray Qtr3dModelLoader::fileHeader(const QString &filename, int byteCount)
+QByteArray Qtr3dModelLoader::fileContent(const QString &filename, int maxByteCount)
 {
     QFile f(filename);
     if (!f.open(QIODevice::ReadOnly))
         return QByteArray();
-    return f.read(byteCount);
+    if (maxByteCount >= 0)
+        return f.read(maxByteCount);
+    return f.readAll();
 }
 
 //-------------------------------------------------------------------------------------------------

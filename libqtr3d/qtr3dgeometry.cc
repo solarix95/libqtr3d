@@ -2,14 +2,15 @@
 #include "qtr3dgeometry.h"
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometry::Qtr3dGeometry(Qtr3dAssets *parent)
+Qtr3dGeometry::Qtr3dGeometry(Pipeline pl, Qtr3dAssets *parent)
     : QObject(parent)
+    , mPipeline(pl)
     , mContext(parent)
     , mParentBuffer(nullptr)
     , mShader(Qtr3d::PlainShader)
     , mFaceOrientation(Qtr3d::DefaultOrientation)
-    , mBlending(false)
 {
+    mRenderOptions = DefaultRenderOption;
     mMin = QVector3D(  std::numeric_limits<double>::max(),
                        std::numeric_limits<double>::max(),
                        std::numeric_limits<double>::max() );
@@ -22,6 +23,12 @@ Qtr3dGeometry::Qtr3dGeometry(Qtr3dAssets *parent)
 Qtr3dGeometry::~Qtr3dGeometry()
 {
     qDeleteAll(mBufferStates);
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dGeometry::Pipeline Qtr3dGeometry::pipeLine() const
+{
+    return mPipeline;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -75,15 +82,27 @@ const Qtr3d::Material &Qtr3dGeometry::material() const
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometry::setBlendingEnabled(bool enabled)
+void Qtr3dGeometry::setRenderOption(RenderOption o, bool enabled)
 {
-    mBlending = enabled;
+    mRenderOptions.setFlag(o,enabled);
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dGeometry::blending() const
+void Qtr3dGeometry::setRenderOptions(int optionMask)
 {
-    return mBlending;
+    mRenderOptions = (RenderOptions)optionMask;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dGeometry::RenderOptions Qtr3dGeometry::renderOptions() const
+{
+    return mRenderOptions;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dGeometry::hasRenderOption(RenderOption o) const
+{
+    return mRenderOptions.testFlag(o);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dPointCloud::Qtr3dPointCloud(Qtr3dAssets *parent)
- : Qtr3dGeometry(parent)
+ : Qtr3dGeometry(PointCloudPipeline,parent)
  , mVerticesBufferId(0)
  , mElementBufferId(0)
  , mColorBufferId(0)

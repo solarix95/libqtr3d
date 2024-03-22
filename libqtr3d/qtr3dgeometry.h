@@ -6,6 +6,7 @@
 #include <QVector3D>
 #include <QVector4D>
 #include <QMatrix4x4>
+#include <QFlags>
 #include "qtr3dgeometrystate.h"
 #include "qtr3dassets.h"
 #include "qtr3dtypes.h"
@@ -17,9 +18,27 @@ class Qtr3dGeometry : public QObject
 {
     Q_OBJECT
 public:
-    Qtr3dGeometry(Qtr3dAssets *parent);
+    enum Pipeline {
+        MeshPipeline,
+        ModelPipeline,
+        PointCloudPipeline
+    };
+
+    enum RenderOption {
+        DefaultRenderOption = 0x00,
+        ZOrderOption        = 0x01,
+        BlendingOption      = 0x02,
+        NoZBufferOption     = 0x04,
+        BackgroundOption    = 0x08,  // Skybox. Rendered First
+
+        BlendingOptions     = BlendingOption | ZOrderOption,
+    };
+    Q_DECLARE_FLAGS(RenderOptions, RenderOption)
+
+    Qtr3dGeometry(Pipeline t, Qtr3dAssets *parent);
     virtual ~Qtr3dGeometry();
 
+    Pipeline            pipeLine() const;
     Qtr3dAssets        *context();
     Qtr3d::ShaderType   shader() const;
     void                setFaceOrientation(Qtr3d::FaceOrientation orientation);
@@ -28,8 +47,11 @@ public:
     void            setDefaultColor(const QColor &c);
     Qtr3d::Material &material();
     const Qtr3d::Material &material() const;
-    void             setBlendingEnabled(bool enabled);
-    bool             blending() const;
+
+    void             setRenderOption(RenderOption o, bool enabled = true);
+    void             setRenderOptions(int optionMask);
+    RenderOptions    renderOptions() const;
+    bool             hasRenderOption(RenderOption o) const;
 
     virtual QVector3D minValues() const; // lowest xyz
     virtual QVector3D maxValues() const; // max xyz
@@ -51,12 +73,13 @@ private slots:
     void stateDestroyed(QObject *state);
 
 private:
+    Pipeline                    mPipeline;
     Qtr3dAssets                *mContext;
     Qtr3dGeometry              *mParentBuffer;
 
     Qtr3d::ShaderType           mShader;
     Qtr3d::FaceOrientation      mFaceOrientation;
-    bool                        mBlending;
+    RenderOptions               mRenderOptions;
     Qtr3dGeometryBufferStates   mBufferStates;
 
     Qtr3d::Material             mMaterial;

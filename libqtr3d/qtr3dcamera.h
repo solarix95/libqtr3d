@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMatrix4x4>
 #include <QVector3D>
+#include "math3d/qtr3ddblmatrix.h"
 
 class Qtr3dWidget;
 class Qtr3dCamera : public QObject
@@ -17,54 +18,53 @@ public:
 
     // Minimal Setup
     void setPos(float x, float y, float z);
-    void setPos(const QVector3D &pos);
+    void setPos(double x, double y, double z);
+    void setPos(const Qtr3dDblVector3D &pos);
     void move(float dx, float dy, float dz);
     void setFov(float angle);
     void setFov(float angle, float zNear, float zFar);
     void setGeometry(float width, float height);
-    QVector3D pos() const;
-    QVector3D lookAtCenter() const;
+    Qtr3dDblVector3D pos() const;
+    Qtr3dDblVector3D lookAtCenter() const;
 
     // Camera Modes
-    void lookAt(const QVector3D &toCenter, const QVector3D &up);
-    void lookAt(const QVector3D &pos, const QVector3D &toCenter, const QVector3D &up);
+    void lookAt(const Qtr3dDblVector3D &toCenter, const QVector3D &up);
+    void lookAt(const Qtr3dDblVector3D &pos, const Qtr3dDblVector3D &toCenter, const QVector3D &up);
+
+    void setupWorldMatrix(QMatrix4x4 &matrix, bool absolutPos = true);
+
     void lookAtTurn(float dxAngle, float dyAngle);
     void rotate(float xAngle, float yAngle, float zAngle);
 
+
     // Shader/Renderer-Interface
-    inline const QMatrix4x4 &projection() const  { return mProjectionMatrix; }
-    inline const QMatrix4x4 &worldMatrix() const { return mWorldMatrix; }
+    inline QMatrix4x4 projection()  const  { return mProjectionMatrix.toFloat(); }
+    inline QMatrix4x4 worldMatrix() const  { return mWorldMatrix.toFloat();      }
 
 signals:
     void changed();
-    void positionChanged(QVector3D newPos);
+    void positionChanged(Qtr3dDblVector3D newPos);
 
 private:
     void updatePerspectiveMatrix();
 
-    enum Mode {
-        Fixed,
-        LookAt
-    };
-
     Qtr3dWidget *mWidget;
-    QVector3D  mPos;
-    float      mFov;    // Field of View
+
+    // Perspective
+    float      mFov;
     float      mZNear;
     float      mZFar;
     float      mWidth;
     float      mHeight;
 
-    // LookAt-Mode
-    QVector3D  mLookAt;
-    QVector3D  mUp;
+    // LookAt
+    Qtr3dDblVector3D  mPos;
+    Qtr3dDblVector3D  mLookAt;
+    QVector3D         mUp;
 
-    // Fixed Mode (default)
-    QVector3D  mAngles;
 
-    Mode       mMode;
-    QMatrix4x4 mWorldMatrix;
-    QMatrix4x4 mProjectionMatrix;
+    Qtr3dDblMatrix4x4 mWorldMatrix;
+    Qtr3dDblMatrix4x4 mProjectionMatrix;
 };
 
 #endif // QTR3DCAMERA_H

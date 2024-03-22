@@ -185,9 +185,9 @@ void ViewerForm::loadFile(const QString &filename)
     updateLight();
     updateVertexOrientation();
 
-    qDebug() << mModel->radius() << (1/mModel->radius()) << mModelState->center();
+    // qDebug() << mModel->radius() << (1/mModel->radius()) << mModelState->center();
 
     mModelState->setScale(1/mModel->radius());
-    ui->viewer->camera()->lookAt(mModelState->center() + QVector3D({3,3,3}), mModelState->center(), {0,1,0});
+    ui->viewer->camera()->lookAt(mModelState->center() + Qtr3dDblVector3D(3,3,3), mModelState->center(), {0,1,0});
     initAnimationUi();
 }

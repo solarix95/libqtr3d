@@ -27,7 +27,7 @@ Qtr3dStlLoader::~Qtr3dStlLoader() = default;
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dStlLoader::loadModel(Qtr3dModel &model, const QString &filename)
 {
-    QByteArray header = fileHeader(filename,100);
+    QByteArray header = fileContent(filename,100);
     if (header.isEmpty())
         return false;
 

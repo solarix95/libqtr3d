@@ -94,13 +94,13 @@ void Qtr3dGeometryState::setRotation(const QVector3D &rotationAngles)
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryState::setModelView(const QMatrix4x4 &modelView)
+void Qtr3dGeometryState::setModelView(const Qtr3dDblMatrix4x4 &modelView)
 {
     if (mModelView == modelView)
         return;
 
     mModelView = modelView;
-    mPos       = mModelView * QVector3D(0,0,0);
+    mPos       = mModelView * Qtr3dDblVector3D(0,0,0);
     emit updated();
 }
 
@@ -111,9 +111,9 @@ float Qtr3dGeometryState::radius() const
 }
 
 //------------------------------------------------------------------------------------------------
-QVector3D Qtr3dGeometryState::center() const
+Qtr3dDblVector3D Qtr3dGeometryState::center() const
 {
-    return mPos + (mScale * mBuffer.center());
+    return mPos + Qtr3dDblVector3D(mScale * mBuffer.center());
 }
 
 //------------------------------------------------------------------------------------------------
@@ -127,9 +127,7 @@ void Qtr3dGeometryState::setAnimator(Qtr3dModelAnimator *animator)
 //------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::updateMatrix()
 {
-    mModelView = QMatrix4x4();
     mModelView.setToIdentity();
-    // mModelView.data()[15] = 1.0;
 
     mModelView.translate(mPos);
 
@@ -138,5 +136,19 @@ void Qtr3dGeometryState::updateMatrix()
     mModelView.rotate(mRot.z(),0,0,1);
 
     mModelView.scale(mScale);
+
+    QMatrix4x4 m;
+    m.setToIdentity();
+
+    m.translate(mPos);
+    m.rotate(mRot.x(),1,0,0);
+    m.rotate(mRot.y(),0,1,0);
+    m.rotate(mRot.z(),0,0,1);
+
+    m.scale(mScale);
+    mModelView.fromFloat(m);
+
+    qDebug() << "Compare" << (m == mModelView.toFloat());
+
     emit updated();
 }
