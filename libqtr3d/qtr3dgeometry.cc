@@ -1,5 +1,6 @@
 #include "qtr3dassets.h"
 #include "qtr3dgeometry.h"
+#include "qtr3dtypes.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dGeometry::Qtr3dGeometry(Pipeline pl, Qtr3dAssets *parent)
@@ -10,7 +11,7 @@ Qtr3dGeometry::Qtr3dGeometry(Pipeline pl, Qtr3dAssets *parent)
     , mShader(Qtr3d::PlainShader)
     , mFaceOrientation(Qtr3d::DefaultOrientation)
 {
-    mRenderOptions = DefaultRenderOption;
+    mRenderOptions = Qtr3d::DefaultRenderOption;
     mMin = QVector3D(  std::numeric_limits<double>::max(),
                        std::numeric_limits<double>::max(),
                        std::numeric_limits<double>::max() );
@@ -82,7 +83,7 @@ const Qtr3d::Material &Qtr3dGeometry::material() const
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dGeometry::setRenderOption(RenderOption o, bool enabled)
+void Qtr3dGeometry::setRenderOption(Qtr3d::RenderOption o, bool enabled)
 {
     mRenderOptions.setFlag(o,enabled);
 }
@@ -90,17 +91,17 @@ void Qtr3dGeometry::setRenderOption(RenderOption o, bool enabled)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dGeometry::setRenderOptions(int optionMask)
 {
-    mRenderOptions = (RenderOptions)optionMask;
+    mRenderOptions = (Qtr3d::RenderOptions)optionMask;
 }
 
 //-------------------------------------------------------------------------------------------------
-Qtr3dGeometry::RenderOptions Qtr3dGeometry::renderOptions() const
+Qtr3d::RenderOptions Qtr3dGeometry::renderOptions() const
 {
     return mRenderOptions;
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dGeometry::hasRenderOption(RenderOption o) const
+bool Qtr3dGeometry::hasRenderOption(Qtr3d::RenderOption o) const
 {
     return mRenderOptions.testFlag(o);
 }

@@ -31,7 +31,7 @@ ViewerForm::ViewerForm(QWidget *parent)
 {
     ui->setupUi(this);
     ui->btnLoad->setEnabled(false);
-    ui->viewer->setOptions(Qtr3dWidget::MSAA4);
+    ui->viewer->setOptions((Qtr3dWidget::Options)Qtr3dWidget::MSAA4|Qtr3dWidget::OriginRebasing);
     ui->viewer->assets()->loop().setFps(30);
 
     QObject::connect(&ui->viewer->assets()->loop(), &Qtr3dFpsLoop::stepDone, ui->viewer,[&]() { ui->viewer->update();});
@@ -182,6 +182,7 @@ void ViewerForm::loadFile(const QString &filename)
         return;
 
     mModelState =  ui->viewer->createState(mModel);
+    mModelState->setPos({0,10,0});
     updateLight();
     updateVertexOrientation();
 

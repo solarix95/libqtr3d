@@ -24,21 +24,24 @@ public:
     void setEnabled(bool enabled);
 
     inline bool                    enabled() const { return mEnabled; }
-    inline const Qtr3dDblVector3D &pos() const     { return mPos; }
-    inline const QVector3D        &rot() const     { return mRot; }
 
-    void setPos(const QVector3D &pos);
-    void move(const QVector3D &pos);
-    void move(const QVector3D &pos, const QVector3D &rotation);
-    void setState(const QVector3D &pos, const QVector3D &rotation, const QVector3D &scale = {1,1,1});
+    // Positioning
+    inline const Qtr3dDblVector3D &pos() const     { return mPos; }
+    void setPos(const Qtr3dDblVector3D &pos);
+    void move(const Qtr3dDblVector3D &delta);
+
+    // ModelView
+    void setState(const Qtr3dDblVector3D &pos, const QVector3D &rotation, const QVector3D &scale = {1,1,1});
     void setScale(const QVector3D &scale);
     void setScale(float xyzScale);
     void setRotation(const QVector3D &rotationAngles);
-    void setModelView(const Qtr3dDblMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
+    inline const QVector3D        &rot() const     { return mRot; }
+    void setModelView(const QMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
+
     float radius() const;            // scaled buffer radius
     Qtr3dDblVector3D  center() const;        // absolute center
 
-    inline const Qtr3dDblMatrix4x4  &modelView() const  { return mModelView; };
+    const QMatrix4x4                 modelView(const Qtr3dDblVector3D &cameraPos = Qtr3dDblVector3D{0,0,0})  const;
     inline const QVector3D          &scale()     const  { return mScale;     };
     inline const Qtr3dGeometry      &buffer()    const  { return mBuffer;    };
 
@@ -53,7 +56,16 @@ private:
 
     Qtr3dGeometry    &mBuffer;
     bool              mEnabled;
-    Qtr3dDblMatrix4x4 mModelView;
+
+    enum ModelViewFlag {
+        NoFlag     = 0x00,
+        PosFlag    = 0x01,
+        ScaleFlag  = 0x02,
+        RotateFlag = 0x04
+    };
+    Q_DECLARE_FLAGS(ModelViewFlags, ModelViewFlag);
+
+    ModelViewFlags    mModelViewFlags;
     Qtr3dDblVector3D  mPos;
     QVector3D         mRot;
     QVector3D         mScale;

@@ -31,7 +31,7 @@ void Qtr3dPcShader::render(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelV
     currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
     currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
 
-    drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera.projection() , camera.worldMatrix());
+    drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera.projection() , camera.worldView());
 }
 
 //-------------------------------------------------------------------------------------------------

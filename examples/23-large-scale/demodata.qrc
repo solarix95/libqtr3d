@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>missing.png</file>
+        <file>1k_earth_daymap.jpg</file>
+        <file>skybox.jpg</file>
+    </qresource>
+</RCC>

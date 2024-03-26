@@ -39,7 +39,8 @@ public:
 
     // Shader/Renderer-Interface
     inline QMatrix4x4 projection()  const  { return mProjectionMatrix.toFloat(); }
-    inline QMatrix4x4 worldMatrix() const  { return mWorldMatrix.toFloat();      }
+
+    const  QMatrix4x4 worldView(bool withPosition = true)   const;
 
 signals:
     void changed();

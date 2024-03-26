@@ -12,6 +12,7 @@
 #include "qtr3dcamera.h"
 #include "qtr3dmodel.h"
 #include "qtr3dmesh.h"
+#include "qtr3dgeometry.h"
 #include "qtr3dpointcloud.h"
 #include "qtr3dmodelanimator.h"
 #include "qtr3dassets.h"
@@ -87,6 +88,12 @@ void Qtr3dWidget::setOptions(Options ops)
     }
 
     mOptions = ops;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::setOptions(int ops)
+{
+    setOptions((Options)ops);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -175,7 +182,6 @@ void Qtr3dWidget::preparePainting()
 
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LEQUAL);
-
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -295,12 +301,12 @@ void Qtr3dWidget::paintGeometries()
             continue;
 
         // Background-Option overrides all others. Blending is not possible. Usecase: Skybox
-        if (geometry->renderOptions().testFlag(Qtr3dGeometry::BackgroundOption)) {
+        if (geometry->renderOptions().testFlag(Qtr3d::BackgroundOption)) {
             frontList << geometry;
             continue;
         }
 
-        if (geometry->renderOptions().testFlag(Qtr3dGeometry::ZOrderOption)) {
+        if (geometry->renderOptions().testFlag(Qtr3d::ZOrderOption)) {
             zOrderedList << geometry;
             continue;
         }
@@ -318,7 +324,7 @@ void Qtr3dWidget::paintGeometries()
     QList<pQtr3dStateZ> blendRenderPipeline;
     for (auto *geometry: zOrderedList) {
         for (auto *state: geometry->bufferStates()) {
-            QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
+            QVector3D previewCenter = camera()->worldView().map(state->pos());
             if (previewCenter.z() > state->radius())
                 continue;
             blendRenderPipeline << pQtr3dStateZ((state->pos() - camera()->pos()).length(),state);
@@ -346,16 +352,14 @@ void Qtr3dWidget::paintGeometries()
         auto nextLightingTyp = zInfo.state->lightingType();
         if (nextLightingTyp == Qtr3d::DefaultLighting)
             nextLightingTyp = shader->defaultLighting();
-        shader->render(*mesh,zInfo.state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+        shader->render(*mesh,zInfo.state->modelView(),QVector<QMatrix4x4>(), camera()->worldView(), camera()->projection(),
+                       nextLightingTyp,*primaryLightSource(), assets()->environment());
     }
-
 }
 
-//-------------------------------------------------------------------------------------------------
+
+#if 0
 void Qtr3dWidget::paintMeshes()
-/*
-    Main Render-Pipeline for simple Meshes.
-*/
 {
     const auto rootBuffers = assets()->meshes();
 
@@ -432,7 +436,6 @@ void Qtr3dWidget::paintMeshes()
     }
 }
 
-//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintModels()
 {
     const auto &models = assets()->models();
@@ -463,7 +466,6 @@ void Qtr3dWidget::paintModels()
     }
 }
 
-//-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintPointClouds()
 {
     const auto &clouds = assets()->pointClouds();
@@ -490,6 +492,8 @@ void Qtr3dWidget::paintPointClouds()
     }
 }
 
+#endif
+
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
 {
@@ -508,11 +512,15 @@ void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
 
     const auto &states = buffer->bufferStates();
     shader->setProgram(Qtr3d::DefaultLighting);
+
+    bool originRebasing = mOptions.testFlag(OriginRebasing);
+    QMatrix4x4 worldView = camera()->worldView(originRebasing ? false:true);
+
     for(auto *state: states) {
         if (!state->enabled())
             continue;
 
-        QVector3D previewCenter = camera()->worldMatrix().map(state->pos());
+        QVector3D previewCenter = camera()->worldView().map(state->pos());
         if (previewCenter.z() > state->radius())
             continue;
 
@@ -522,11 +530,12 @@ void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
 
         switch(buffer->pipeLine()) {
         case Qtr3dGeometry::MeshPipeline:
-            shader->render(*(Qtr3dMesh*)buffer,state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*(Qtr3dMesh*)buffer,state->modelView(originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0}),QVector<QMatrix4x4>(), worldView, camera()->projection(),
+                           nextLightingTyp,*primaryLightSource(), assets()->environment());
             break;
         case Qtr3dGeometry::PointCloudPipeline:
             mPointCloudShader->setProgram(Qtr3d::NoLighting);
-            mPointCloudShader->render(*(Qtr3dPointCloud*)buffer,state->modelView().toFloat(),QVector<QMatrix4x4>(), *camera(),Qtr3d::NoLighting,*primaryLightSource(), assets()->environment());
+            mPointCloudShader->render(*(Qtr3dPointCloud*)buffer,state->modelView(),QVector<QMatrix4x4>(), *camera(),Qtr3d::NoLighting,*primaryLightSource(), assets()->environment());
             break;
          case Qtr3dGeometry::ModelPipeline:
             if (!state->animator())
@@ -542,6 +551,9 @@ void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState *state)
 {
+    bool originRebasing = mOptions.testFlag(OriginRebasing);
+    QMatrix4x4 worldView = camera()->worldView(originRebasing ? false:true);
+
     const auto &nodes  = model.nodes();
     for(auto *node: nodes.mNodes) {
         for (auto *mesh : node->mMeshes) {
@@ -567,7 +579,8 @@ void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState 
             // for (int i=0; i<mesh->vertexCount(); i++) {
             //    qDebug() << i << mesh->vertex(i).p.toQVector();
             //}
-            shader->render(*mesh,state->modelView().toFloat() * node->translation(), QVector<QMatrix4x4>(),*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,state->modelView((originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0})) * node->translation(), QVector<QMatrix4x4>(),worldView, camera()->projection(),
+                           nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 }
@@ -606,7 +619,7 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             globalInverseTransform.setToIdentity();
             Qtr3dModel::setupSkeleton(skeleton,node->rootNode(),mesh, state->animator(),rootTransform, globalInverseTransform);
 
-            shader->render(*mesh,state->modelView().toFloat(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,state->modelView(), skeleton,camera()->worldView(), camera()->projection(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 }

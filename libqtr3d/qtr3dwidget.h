@@ -31,6 +31,8 @@ public:
         NoOption,
         MSAA4   = 0x0001,
         MSAA16  = 0x0002,
+
+        OriginRebasing = 0x0010 // dynamic origin shifting for floating point precision optimization
     };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -39,6 +41,7 @@ public:
     virtual ~Qtr3dWidget();
 
     void                        setOptions(Options ops);
+    void                        setOptions(int ops);
     void                        setDefaultLighting(Qtr3d::LightingType t);
     Qtr3dCamera                *camera();
     Qtr3dTextureFactory        *textures();
@@ -77,9 +80,6 @@ private:
     void preInitializing();
     void paintGeometries();
 
-    void paintMeshes();
-    void paintModels();
-    void paintPointClouds();
     void renderGeometry(Qtr3dGeometry *buffer);
     void renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState *state);
     void renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state);

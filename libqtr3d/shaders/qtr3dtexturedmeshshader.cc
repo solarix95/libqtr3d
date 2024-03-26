@@ -30,7 +30,8 @@ void Qtr3dTexturedShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton,
+                                             const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
@@ -39,7 +40,8 @@ void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatri
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix,const Qtr3dLightSource &light)
+void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton,
+                                               const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix,const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
 
@@ -90,7 +92,7 @@ void Qtr3dTexturedShader::drawMesh(const Qtr3dMesh &buffer)
     default: break;
     }
 
-    if (buffer.hasRenderOption(Qtr3dGeometry::BlendingOption)) {
+    if (buffer.hasRenderOption(Qtr3d::BlendingOption)) {
         f->glEnable(GL_BLEND);
         f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {

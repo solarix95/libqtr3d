@@ -4,22 +4,24 @@
 
 //------------------------------------------------------------------------------------------------
 Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, Qtr3d::LightingType ltype)
- : QObject(parent)
- , mBuffer(*parent)
- , mEnabled(true)
- , mLightingType(ltype)
- , mAnimator(nullptr)
+    : QObject(parent)
+    , mBuffer(*parent)
+    , mEnabled(true)
+    , mModelViewFlags(NoFlag)
+    , mLightingType(ltype)
+    , mAnimator(nullptr)
 {
     setState({0,0,0},{0,0,0},{1,1,1});
 }
 
 //------------------------------------------------------------------------------------------------
 Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, const QVector3D &pos, const QVector3D &rotation)
- : QObject(parent)
- , mBuffer(*parent)
- , mEnabled(true)
- , mLightingType(Qtr3d::DefaultLighting)
- , mAnimator(nullptr)
+    : QObject(parent)
+    , mBuffer(*parent)
+    , mEnabled(true)
+    , mModelViewFlags(NoFlag)
+    , mLightingType(Qtr3d::DefaultLighting)
+    , mAnimator(nullptr)
 {
     setState(pos,rotation,{1,1,1});
 }
@@ -43,41 +45,31 @@ void Qtr3dGeometryState::setEnabled(bool enabled)
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryState::setPos(const QVector3D &pos)
+void Qtr3dGeometryState::setPos(const Qtr3dDblVector3D &pos)
 {
     mPos = pos;
     updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryState::move(const QVector3D &pos)
+void Qtr3dGeometryState::move(const Qtr3dDblVector3D &delta)
 {
-    mPos = pos;
+    mPos = mPos + delta;
     updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryState::move(const QVector3D &pos, const QVector3D &rotation)
+void Qtr3dGeometryState::setState(const Qtr3dDblVector3D &pos, const QVector3D &rotation, const QVector3D &scale)
 {
-    mPos = pos;
-    mRot = rotation;
-    updateMatrix();
-}
-
-//------------------------------------------------------------------------------------------------
-void Qtr3dGeometryState::setState(const QVector3D &pos, const QVector3D &rotation, const QVector3D &scale)
-{
-    mPos = pos;
-    mRot = rotation;
+    mPos   = pos;
+    mRot   = rotation;
     mScale = scale;
-    updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::setScale(const QVector3D &scale)
 {
     mScale = scale;
-    updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -90,18 +82,21 @@ void Qtr3dGeometryState::setScale(float xyzScale)
 void Qtr3dGeometryState::setRotation(const QVector3D &rotationAngles)
 {
     mRot = rotationAngles;
-    updateMatrix();
 }
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dGeometryState::setModelView(const Qtr3dDblMatrix4x4 &modelView)
+void Qtr3dGeometryState::setModelView(const QMatrix4x4 &modelView)
 {
+    Q_ASSERT(0);
+
+    /*
     if (mModelView == modelView)
         return;
 
     mModelView = modelView;
     mPos       = mModelView * Qtr3dDblVector3D(0,0,0);
     emit updated();
+    */
 }
 
 //------------------------------------------------------------------------------------------------
@@ -117,6 +112,26 @@ Qtr3dDblVector3D Qtr3dGeometryState::center() const
 }
 
 //------------------------------------------------------------------------------------------------
+const QMatrix4x4 Qtr3dGeometryState::modelView(const Qtr3dDblVector3D &cameraPos) const
+{
+    QMatrix4x4 m;
+    m.setToIdentity();
+
+    m.translate((mPos-cameraPos).toFloat());
+
+    if (!mRot.isNull()) {
+        m.rotate(mRot.x(),1,0,0);
+        m.rotate(mRot.y(),0,1,0);
+        m.rotate(mRot.z(),0,0,1);
+    }
+
+    if (!mScale.isNull())
+        m.scale(mScale);
+
+    return m;
+}
+
+//------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::setAnimator(Qtr3dModelAnimator *animator)
 {
     if (mAnimator)
@@ -127,6 +142,7 @@ void Qtr3dGeometryState::setAnimator(Qtr3dModelAnimator *animator)
 //------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::updateMatrix()
 {
+    /*
     mModelView.setToIdentity();
 
     mModelView.translate(mPos);
@@ -146,9 +162,9 @@ void Qtr3dGeometryState::updateMatrix()
     m.rotate(mRot.z(),0,0,1);
 
     m.scale(mScale);
-    mModelView.fromFloat(m);
+    mModelView = m;
 
-    qDebug() << "Compare" << (m == mModelView.toFloat());
 
+    */
     emit updated();
 }

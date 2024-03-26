@@ -98,7 +98,7 @@ void Qtr3dPlainShader::drawMesh(const Qtr3dMesh &buffer)
     default: break;
     }
 
-    if (buffer.hasRenderOption(Qtr3dGeometry::BlendingOption)) {
+    if (buffer.hasRenderOption(Qtr3d::BlendingOption)) {
         f->glEnable(GL_BLEND);
         f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {

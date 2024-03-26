@@ -24,17 +24,6 @@ public:
         PointCloudPipeline
     };
 
-    enum RenderOption {
-        DefaultRenderOption = 0x00,
-        ZOrderOption        = 0x01,
-        BlendingOption      = 0x02,
-        NoZBufferOption     = 0x04,
-        BackgroundOption    = 0x08,  // Skybox. Rendered First
-
-        BlendingOptions     = BlendingOption | ZOrderOption,
-    };
-    Q_DECLARE_FLAGS(RenderOptions, RenderOption)
-
     Qtr3dGeometry(Pipeline t, Qtr3dAssets *parent);
     virtual ~Qtr3dGeometry();
 
@@ -48,10 +37,10 @@ public:
     Qtr3d::Material &material();
     const Qtr3d::Material &material() const;
 
-    void             setRenderOption(RenderOption o, bool enabled = true);
+    void             setRenderOption(Qtr3d::RenderOption o, bool enabled = true);
     void             setRenderOptions(int optionMask);
-    RenderOptions    renderOptions() const;
-    bool             hasRenderOption(RenderOption o) const;
+    Qtr3d::RenderOptions renderOptions() const;
+    bool             hasRenderOption(Qtr3d::RenderOption o) const;
 
     virtual QVector3D minValues() const; // lowest xyz
     virtual QVector3D maxValues() const; // max xyz
@@ -79,7 +68,7 @@ private:
 
     Qtr3d::ShaderType           mShader;
     Qtr3d::FaceOrientation      mFaceOrientation;
-    RenderOptions               mRenderOptions;
+    Qtr3d::RenderOptions        mRenderOptions;
     Qtr3dGeometryBufferStates   mBufferStates;
 
     Qtr3d::Material             mMaterial;

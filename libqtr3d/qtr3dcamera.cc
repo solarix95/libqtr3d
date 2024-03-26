@@ -45,7 +45,7 @@ void Qtr3dCamera::setPos(const Qtr3dDblVector3D &pos)
         return;
 
     mPos = pos;
-    updatePerspectiveMatrix();
+    emit changed();
     emit positionChanged(mPos);
 }
 
@@ -53,7 +53,7 @@ void Qtr3dCamera::setPos(const Qtr3dDblVector3D &pos)
 void Qtr3dCamera::move(float dx, float dy, float dz)
 {
     mPos += QVector3D(dx,dy,dz);
-    updatePerspectiveMatrix();
+    emit changed();
     emit positionChanged(mPos);
 }
 
@@ -99,18 +99,18 @@ void Qtr3dCamera::lookAt(const Qtr3dDblVector3D &toCenter, const QVector3D &up)
 {
     mLookAt = toCenter;
     mUp     = up;
-    updatePerspectiveMatrix();
+    emit changed();
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dCamera::lookAt(const Qtr3dDblVector3D &pos, const Qtr3dDblVector3D &toCenter, const QVector3D &up)
 {
-    bool changedPos = mPos == pos;
+    bool changedPos = mPos != pos;
     mPos    = pos;
     mLookAt = toCenter;
     mUp     = up;
 
-    updatePerspectiveMatrix();
+    emit changed();
     if (changedPos)
         emit positionChanged(mPos);
 }
@@ -137,36 +137,31 @@ void Qtr3dCamera::lookAtTurn(float dxAngle, float dyAngle)
 
     vpos = turnMatrix.map(vpos);
     mPos = mLookAt + vpos;
-    updatePerspectiveMatrix();
+
+    emit changed();
     emit positionChanged(mPos);
 }
-
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dCamera::rotate(float xAngle, float yAngle, float zAngle)
 {
-   Q_ASSERT(0);
+    Q_ASSERT(0);
 }
 
+//-------------------------------------------------------------------------------------------------
+const QMatrix4x4 Qtr3dCamera::worldView(bool withPosition) const
+{
+    QMatrix4x4 m;
+    if (withPosition)
+        m.lookAt(mPos ,mLookAt,mUp);
+    else
+        m.lookAt(Qtr3dDblVector3D{0,0,0},mLookAt-mPos,mUp);
+    return m;
+}
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dCamera::updatePerspectiveMatrix()
 {
-    mWorldMatrix = mProjectionMatrix = Qtr3dDblMatrix4x4();
-
     mProjectionMatrix.perspective(mFov,mWidth/(float)mHeight,mZNear,mZFar);
-
-
-    QMatrix4x4 mat;
-    qDebug() << "Camera" << mPos.toFloat() << mLookAt.toFloat() << mUp;
-    mat.lookAt(mPos,mLookAt,mUp);
-
-    mWorldMatrix.fromFloat(mat);
-
-    mat = QMatrix4x4();
-    mat.perspective(mFov,mWidth/(float)mHeight,mZNear ,mZFar);
-    mProjectionMatrix.fromFloat(mat);
-
-    // mWorldMatrix.optimize();
     emit changed();
 }

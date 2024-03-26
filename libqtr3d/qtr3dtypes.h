@@ -5,6 +5,7 @@
 #include <QVector4D>
 #include <QOpenGLTexture>
 #include <QColor>
+#include <QFlags>
 #include <GL/gl.h>
 
 typedef GLfloat        Qtr3dScalar;
@@ -39,6 +40,17 @@ enum LightingType {
     FlatLighting,
     PhongLighting
 };
+
+enum RenderOption {
+    DefaultRenderOption = 0x00,
+    ZOrderOption        = 0x01,
+    BlendingOption      = 0x02,
+    NoZBufferOption     = 0x04,
+    BackgroundOption    = 0x08,  // Skybox. Rendered First
+
+    BlendingOptions     = BlendingOption | ZOrderOption,
+};
+Q_DECLARE_FLAGS(RenderOptions, RenderOption)
 
 struct MaterialLayer {
     QVector3D     strength;   // lighting strength
