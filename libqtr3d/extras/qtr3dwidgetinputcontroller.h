@@ -13,7 +13,7 @@ class Qtr3dWidgetInputController : public QObject
 {
     Q_OBJECT
 public:
-    explicit Qtr3dWidgetInputController(Qtr3dWidget *parent);
+    explicit Qtr3dWidgetInputController(QWidget *parent);
     virtual ~Qtr3dWidgetInputController();
 
 protected:
@@ -32,6 +32,7 @@ protected:
 
 signals:
     void draggingRelative(QPointF delta);
+    void mouseWheel(float delta);
 
 private:
     QWidget *parentWidget();

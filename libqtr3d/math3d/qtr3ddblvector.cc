@@ -123,6 +123,7 @@ const Qtr3dDblVector3D operator*(double factor, const Qtr3dDblVector3D &vector)
     return Qtr3dDblVector3D(vector.x*factor, vector.y*factor, vector.z*factor);
 }
 
+
 //-------------------------------------------------------------------------------------------------
 const Qtr3dDblVector3D operator*(const Qtr3dDblVector3D &vector, const Qtr3dDblVector3D &factor)
 {
@@ -137,6 +138,12 @@ const Qtr3dDblVector3D operator/(const Qtr3dDblVector3D &vector, double divisor)
 
 //-------------------------------------------------------------------------------------------------
 const Qtr3dDblVector3D operator*(const Qtr3dDblVector3D &vector, double factor)
+{
+    return Qtr3dDblVector3D(vector.x*factor, vector.y*factor, vector.z*factor);
+}
+
+//-------------------------------------------------------------------------------------------------
+const Qtr3dDblVector3D operator*(const Qtr3dDblVector3D &vector, float factor)
 {
     return Qtr3dDblVector3D(vector.x*factor, vector.y*factor, vector.z*factor);
 }

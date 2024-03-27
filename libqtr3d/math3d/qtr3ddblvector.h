@@ -40,6 +40,7 @@ const Qtr3dDblVector3D operator-(const Qtr3dDblVector3D &v1, const Qtr3dDblVecto
 const Qtr3dDblVector3D operator-(const Qtr3dDblVector3D &v1);
 const Qtr3dDblVector3D operator*(double factor, const Qtr3dDblVector3D &vector);
 const Qtr3dDblVector3D operator*(const Qtr3dDblVector3D &vector, double factor);
+const Qtr3dDblVector3D operator*(const Qtr3dDblVector3D &vector, float factor);
 const Qtr3dDblVector3D operator*(const Qtr3dDblVector3D &vector, const Qtr3dDblVector3D &factor);
 const Qtr3dDblVector3D operator/(const Qtr3dDblVector3D &vector, double divisor);
 bool operator==(const Qtr3dDblVector3D &v1, const Qtr3dDblVector3D &v2);

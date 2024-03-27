@@ -6,7 +6,7 @@
 #include "../qtr3dwidget.h"
 
 //---------------------------------------------------------------------------------------
-Qtr3dWidgetInputController::Qtr3dWidgetInputController(Qtr3dWidget *parent)
+Qtr3dWidgetInputController::Qtr3dWidgetInputController(QWidget *parent)
     : QObject(parent)
     , mIsDragging(false)
     , mCurrentModifier(Qt::NoModifier)
@@ -86,9 +86,9 @@ void Qtr3dWidgetInputController::parentMouseEvent(QMouseEvent *e)
 }
 
 //---------------------------------------------------------------------------------------
-void Qtr3dWidgetInputController::parentMouseWheel(float /*delta*/)
+void Qtr3dWidgetInputController::parentMouseWheel(float delta)
 {
-
+    emit mouseWheel(delta);
 }
 
 //---------------------------------------------------------------------------------------
