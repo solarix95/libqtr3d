@@ -43,9 +43,12 @@ void main() {
             gl_Position.z = gl_Position.w - 0.0001;
         */
         gl_Position   = projection * modelview * vec4(vertex.x, vertex.y, vertex.z, 1);
+
         float z_ndc = gl_Position.z / gl_Position.w;
-        if (z_ndc > 1) {
-                // Adjust z to be just slightly less than w, keeping it within the far clipping range
-                gl_Position.z = gl_Position.w - 0.0001;
-         }
+        if (z_ndc >= 1) {
+            // Adjust z to be just slightly less than w, keeping it within the far clipping range
+            gl_Position.z = gl_Position.w - 0.0001;
+        }
+
+
 }
