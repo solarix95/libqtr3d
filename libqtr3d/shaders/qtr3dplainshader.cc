@@ -1,4 +1,6 @@
 #include "qtr3dplainshader.h"
+
+#include "../qtr3dcamera.h"
 #include "../qtr3dgeometrystate.h"
 #include "../qtr3dlightsource.h"
 
@@ -24,9 +26,10 @@ void Qtr3dPlainShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    const auto worldMatrix = camera.worldView(!originRebasing());
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
     currentProgram()->setUniformValue(mModelColor,mesh.material().ambient().mcolorf4());
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
 
@@ -37,11 +40,12 @@ void Qtr3dPlainShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
 {
+    const auto worldMatrix = camera.worldView(!originRebasing());
     QVector3D lightPos = worldMatrix.map(light.pos());
 
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
     currentProgram()->setUniformValue(mLightPos,lightPos);
     currentProgram()->setUniformValue(mModelColor,mesh.material().ambient().mcolorf4());
 
@@ -61,9 +65,11 @@ void Qtr3dPlainShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dPlainShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    const auto worldMatrix = camera.worldView(!originRebasing());
+
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
     currentProgram()->setUniformValue(mModelColor,mesh.material().ambient().mcolorf4());
 
     currentProgram()->setUniformValue("material.ambient",  mesh.material().ambient().strength);

@@ -10,6 +10,7 @@
 Qtr3dShader::Qtr3dShader(QObject *parent, const QString &eglFile, const QString &fragVaryingCode, const QString &fragColorCode)
  : QObject(parent)
  , mDefaultLighting(Qtr3d::NoLighting)
+ , mOriginRebasing(false)
  , mCurrentType(Qtr3d::DefaultLighting)
 {
     initShader(Qtr3d::NoLighting,    eglFile, fragVaryingCode, fragColorCode);
@@ -21,6 +22,7 @@ Qtr3dShader::Qtr3dShader(QObject *parent, const QString &eglFile, const QString 
 Qtr3dShader::Qtr3dShader(QObject *parent, const QString &vertFile, const QString &fragFile)
  : QObject(parent)
  , mDefaultLighting(Qtr3d::NoLighting)
+ , mOriginRebasing(false)
  , mCurrentType(Qtr3d::DefaultLighting)
 {
     auto *vertexShader   = new QOpenGLShader(QOpenGLShader::Vertex);
@@ -51,6 +53,12 @@ void Qtr3dShader::setDefaultLighting(Qtr3d::LightingType l)
     Q_ASSERT(mDefaultLighting != Qtr3d::DefaultLighting);
 }
 
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::setOriginRebasing(bool r)
+{
+    mOriginRebasing = r;
+}
+
 // Simple helper to make a single buffer object.
 //-------------------------------------------------------------------------------------------------
 GLuint Qtr3dShader::makeBO(void* data, GLsizei size, GLenum type, int accessFlags ) {
@@ -79,24 +87,6 @@ void Qtr3dShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
-{
-    Q_ASSERT(0 && "not implemented");
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
-{
-    Q_ASSERT(0 && "not implemented");
-}
-
-//-------------------------------------------------------------------------------------------------
-void Qtr3dShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
-{
-    Q_ASSERT(0 && "not implemented");
-}
-
-//-------------------------------------------------------------------------------------------------
 void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 {
     if (mCurrentType == lightType)
@@ -110,7 +100,7 @@ void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &worldView, const QMatrix4x4 &projection,
+void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera,
                          Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
 {
     if (mesh.meshType() < Qtr3d::Triangle) // No Lighing for dots and lines... otherwise you can't see basic shapes in complex models...
@@ -122,15 +112,19 @@ void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, con
     currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
     currentProgram()->setUniformValue("pushToBack",    GLint(mesh.renderOptions().testFlag(Qtr3d::BackgroundOption) ? 1:0));
 
+    // Rebase Test:
+    //qDebug() << "MODEL AT" << modelView.map({0,0,0});
+    //qDebug() << "WORLD AT" << worldView.map({0,0,0});
+
     switch(lighting) {
     case Qtr3d::NoLighting:
-        drawBuffer_NoLight(mesh, modelView, meshSkeleton, projection,worldView);
+        drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera);
         break;
     case Qtr3d::FlatLighting:
-        drawBuffer_FlatLight(mesh, modelView, meshSkeleton, projection, worldView, light);
+        drawBuffer_FlatLight(mesh, modelView, meshSkeleton, camera, light);
         break;
     case Qtr3d::PhongLighting:
-        drawBuffer_PhongLight(mesh, modelView, meshSkeleton, projection, worldView, light);
+        drawBuffer_PhongLight(mesh, modelView, meshSkeleton, camera, light);
         break;
     default:break;
     }

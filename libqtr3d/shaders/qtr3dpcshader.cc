@@ -27,19 +27,34 @@ void Qtr3dPcShader::onProgramChange()
 void Qtr3dPcShader::render(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
 {
     currentProgram()->bind();
-
     currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
     currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
 
-    drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera.projection() , camera.worldView());
+    drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera);
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    auto worldMatrix = camera.worldView(!originRebasing());
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
     drawMesh(mesh);
+}
+
+void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera)
+{
+    Q_ASSERT(0);
+}
+
+void Qtr3dPcShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
+{
+    Q_ASSERT(0);
+}
+
+void Qtr3dPcShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
+{
+    Q_ASSERT(0);
 }
 
 //-------------------------------------------------------------------------------------------------

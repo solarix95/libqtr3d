@@ -220,6 +220,13 @@ void Qtr3dWidget::initializeGL()
     mPointCloudShader   = new Qtr3dPcShader(this);         handleShaderError("Point Cloud",   mPointCloudShader);
     mTextures           = new Qtr3dTextureFactory();
 
+    bool originRebasing = mOptions.testFlag(OriginRebasing);
+
+    mPlainShader->setOriginRebasing(originRebasing);
+    mVertexMeshShader->setOriginRebasing(originRebasing);
+    mTexturedMeshShader->setOriginRebasing(originRebasing);
+    mPointCloudShader->setOriginRebasing(originRebasing);
+
     emit initialized();
 }
 
@@ -322,11 +329,19 @@ void Qtr3dWidget::paintGeometries()
         renderGeometry(geometry);
 
     QList<pQtr3dStateZ> blendRenderPipeline;
+    bool originRebasing = mOptions.testFlag(OriginRebasing);
+    QMatrix4x4 worldView = camera()->worldView(originRebasing ? false:true);
     for (auto *geometry: zOrderedList) {
         for (auto *state: geometry->bufferStates()) {
-            QVector3D previewCenter = camera()->worldView().map(state->pos());
+
+            /*
+
+            TODO
+
+            QVector3D previewCenter = worldView.map(state->pos());
             if (previewCenter.z() > state->radius())
                 continue;
+            */
             blendRenderPipeline << pQtr3dStateZ((state->pos() - camera()->pos()).length(),state);
         }
     }
@@ -352,7 +367,8 @@ void Qtr3dWidget::paintGeometries()
         auto nextLightingTyp = zInfo.state->lightingType();
         if (nextLightingTyp == Qtr3d::DefaultLighting)
             nextLightingTyp = shader->defaultLighting();
-        shader->render(*mesh,zInfo.state->modelView(),QVector<QMatrix4x4>(), camera()->worldView(), camera()->projection(),
+        shader->render(*mesh,zInfo.state->modelView(originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0}),
+                       QVector<QMatrix4x4>(), *camera(),
                        nextLightingTyp,*primaryLightSource(), assets()->environment());
     }
 }
@@ -520,9 +536,14 @@ void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
         if (!state->enabled())
             continue;
 
-        QVector3D previewCenter = camera()->worldView().map(state->pos());
+        /*
+
+        TODO: Adjust code to rebase
+
+        QVector3D previewCenter = camera()->worldView().map(state->pos()); // worldView.map(state->pos()); //
         if (previewCenter.z() > state->radius())
             continue;
+        */
 
         auto nextLightingTyp = state->lightingType();
         if (nextLightingTyp == Qtr3d::DefaultLighting)
@@ -530,7 +551,7 @@ void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
 
         switch(buffer->pipeLine()) {
         case Qtr3dGeometry::MeshPipeline:
-            shader->render(*(Qtr3dMesh*)buffer,state->modelView(originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0}),QVector<QMatrix4x4>(), worldView, camera()->projection(),
+            shader->render(*(Qtr3dMesh*)buffer,state->modelView(originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0}),QVector<QMatrix4x4>(), *camera(),
                            nextLightingTyp,*primaryLightSource(), assets()->environment());
             break;
         case Qtr3dGeometry::PointCloudPipeline:
@@ -579,7 +600,7 @@ void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState 
             // for (int i=0; i<mesh->vertexCount(); i++) {
             //    qDebug() << i << mesh->vertex(i).p.toQVector();
             //}
-            shader->render(*mesh,state->modelView((originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0})) * node->translation(), QVector<QMatrix4x4>(),worldView, camera()->projection(),
+            shader->render(*mesh,state->modelView((originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0})) * node->translation(), QVector<QMatrix4x4>(),*camera(),
                            nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
@@ -619,7 +640,7 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             globalInverseTransform.setToIdentity();
             Qtr3dModel::setupSkeleton(skeleton,node->rootNode(),mesh, state->animator(),rootTransform, globalInverseTransform);
 
-            shader->render(*mesh,state->modelView(), skeleton,camera()->worldView(), camera()->projection(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,state->modelView(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 }

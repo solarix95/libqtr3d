@@ -4,10 +4,12 @@
 #include <QVector>
 #include <QObject>
 #include <QList>
+#include <QSize>
+#include <QOpenGLTexture>
+
 #include "qtr3dgeometry.h"
 #include "qtr3dtypes.h"
 
-class QOpenGLTexture;
 class Qtr3dMesh : public Qtr3dGeometry
 {
 public:
@@ -67,6 +69,7 @@ public:
     inline GLuint colorBufferId() const   { return mColorBufferId;  }
     inline GLuint texcoordBufferId() const{ return mTexcoorBufferId;  }
     inline GLuint textureId() const       { return mTexture ? mTexture->textureId():0; }
+    inline QSize  textureSize() const     { return mTexture ? QSize(mTexture->width(),mTexture->height()) : QSize(); }
     GLenum        bufferType() const;
     QVector<QMatrix4x4> animatedSkeleton() const;
 

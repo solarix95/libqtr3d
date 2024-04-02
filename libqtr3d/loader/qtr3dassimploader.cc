@@ -57,7 +57,7 @@ bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Opti
     QFileInfo fi(filename);
     auto *scene = aiImportFileFromMemory(fileBuffer.constData(),fileBuffer.length(),aiProcessPreset_TargetRealtime_MaxQuality,fi.completeSuffix().toUtf8().constData());
 #else
-    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_Fast ); // aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
+    auto *scene = aiImportFile(filename.toUtf8().constData(),aiProcessPreset_TargetRealtime_Fast | aiProcess_OptimizeMeshes); // aiProcessPreset_TargetRealtime_Fast); // aiProcessPreset_TargetRealtime_MaxQuality);
 #endif
     if (!scene || (scene->mNumMeshes <= 0))
         return false;

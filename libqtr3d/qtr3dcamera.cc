@@ -156,6 +156,9 @@ const QMatrix4x4 Qtr3dCamera::worldView(bool withPosition) const
         m.lookAt(mPos ,mLookAt,mUp);
     else
         m.lookAt(Qtr3dDblVector3D{0,0,0},mLookAt-mPos,mUp);
+
+    // Rebase verification
+    // qDebug() << "Camera look at" << m.map({0,0,0});
     return m;
 }
 

@@ -1,6 +1,8 @@
 #include "qtr3dvertexmeshshader.h"
+
 #include "../qtr3dgeometrystate.h"
 #include "../qtr3dlightsource.h"
+#include "../qtr3dcamera.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dVertexMeshShader::Qtr3dVertexMeshShader(QObject *parent)
@@ -31,10 +33,10 @@ void Qtr3dVertexMeshShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
-    currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
+    currentProgram()->setUniformValue(mModelviewMatrix,camera.worldView(!originRebasing()) * modelView);
 
     currentProgram()->setUniformValueArray("bones",meshSkeleton.data(),meshSkeleton.count());
     currentProgram()->setUniformValue("numBones",GLint(meshSkeleton.count()));
@@ -43,11 +45,12 @@ void Qtr3dVertexMeshShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMat
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
 {
+    auto worldMatrix = camera.worldView(!originRebasing());
     QVector3D lightPos = worldMatrix * light.pos();
 
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
     // currentProgram()->setUniformValue(mNormalviewMatrix,modelWorldMatrix.inverted());
 
     currentProgram()->setUniformValue(mLightPos,lightPos);
@@ -68,15 +71,16 @@ void Qtr3dVertexMeshShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QM
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dVertexMeshShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
 
     currentProgram()->setUniformValue("material.ambient", mesh.material().ambient().strength);
     currentProgram()->setUniformValue("material.diffuse", mesh.material().diffuse().strength);
     currentProgram()->setUniformValue("material.specular",mesh.material().specular().strength);
     currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
+    auto worldMatrix = camera.worldView(!originRebasing());
     currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
@@ -110,6 +114,9 @@ void Qtr3dVertexMeshShader::drawMesh(const Qtr3dMesh &buffer)
     } else {
         f->glDisable(GL_BLEND);
     }
+
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Vertices
     f->glBindBuffer( GL_ARRAY_BUFFER, buffer.vertexBufferId() );

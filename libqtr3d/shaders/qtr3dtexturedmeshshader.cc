@@ -1,11 +1,13 @@
 
 #include "qtr3dtexturedmeshshader.h"
+
+#include "../qtr3dcamera.h"
 #include "../qtr3dlightsource.h"
 #include "../qtr3dmesh.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dTexturedShader::Qtr3dTexturedShader(QObject *parent)
-    : Qtr3dShader(parent, "textured", "varying vec2 fragTexcoords; uniform sampler2D textureId;", "texture2D( textureId, fragTexcoords );")
+    : Qtr3dShader(parent, "textured", "varying vec2 fragTexcoords; uniform sampler2D textureId;", "interpolatedTextureColor( textureId, fragTexcoords );")
     , mVertexPosition(-1)
     , mVertexNormal(-1)
     , mVertexTexcoords(-1)
@@ -31,19 +33,22 @@ void Qtr3dTexturedShader::onProgramChange()
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton,
-                                             const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix)
+                                             const Qtr3dCamera &camera)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    const auto worldMatrix = camera.worldView(!originRebasing());
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
     currentProgram()->setUniformValue(mModelviewMatrix,worldMatrix * modelView);
+
 
     drawMesh(mesh);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton,
-                                               const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix,const Qtr3dLightSource &light)
+                                               const Qtr3dCamera &camera,const Qtr3dLightSource &light)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    const auto worldMatrix = camera.worldView(!originRebasing());
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
 
     currentProgram()->setUniformValue("material.ambient", mesh.material().ambient().strength);
     currentProgram()->setUniformValue("material.diffuse", mesh.material().diffuse().strength);
@@ -59,15 +64,16 @@ void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMat
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const QMatrix4x4 &perspectiveMatrix, const QMatrix4x4 &worldMatrix, const Qtr3dLightSource &light)
+void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
 {
-    currentProgram()->setUniformValue(mProjectionMatrix,perspectiveMatrix);
+    currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
 
     currentProgram()->setUniformValue("material.ambient", mesh.material().ambient().strength);
     currentProgram()->setUniformValue("material.diffuse", mesh.material().diffuse().strength);
     currentProgram()->setUniformValue("material.specular",mesh.material().specular().strength);
     currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
+    const auto worldMatrix = camera.worldView(!originRebasing());
     currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
@@ -110,6 +116,9 @@ void Qtr3dTexturedShader::drawMesh(const Qtr3dMesh &buffer)
         f->glDepthFunc(GL_LEQUAL);
     }
     */
+
+    currentProgram()->setUniformValue("texture.width",   GLint(buffer.textureSize().width()));
+    currentProgram()->setUniformValue("texture.height",  GLint(buffer.textureSize().height()));
 
     // Textures
     f->glActiveTexture( GL_TEXTURE0 );
