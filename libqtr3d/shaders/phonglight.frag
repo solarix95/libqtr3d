@@ -49,17 +49,19 @@ vec4 interpolatedTextureColor(sampler2D id, vec2 coords) {
 
     float x = coords[0];
     float y = coords[1];
+    float tw = float(texture.width);
+    float th = float(texture.height);
 
-    float stepX = 1.0/(float)texture.width;
-    float stepY = 1.0/(float)texture.height;
+    float stepX = 1.0/float(texture.width);
+    float stepY = 1.0/float(texture.height);
     float stepX2 = stepX/2.0;
     float stepY2 = stepY/2.0;
 
-    int pixelX = (int)(x * (float)texture.width);
-    int pixelY = (int)(y * (float)texture.height);
+    int pixelX = int(x * tw);
+    int pixelY = int(y * th);
 
-    float centerX = (((float)pixelX)/(float)texture.width)  + stepX2;
-    float centerY = (((float)pixelY)/(float)texture.height) + stepY2;
+    float centerX = (float(pixelX)/tw)  + stepX2;
+    float centerY = (float(pixelY)/th) + stepY2;
 
     float weightLeft   = 1.0;
     float weightRight  = 1.0;
@@ -206,8 +208,6 @@ vec4 interpolatedTextureColor(sampler2D id, vec2 coords) {
 
     return color11;
 }
-
-
 
 void main() {
         // fog shortcut
