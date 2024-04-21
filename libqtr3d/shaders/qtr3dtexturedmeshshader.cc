@@ -55,7 +55,7 @@ void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMat
     currentProgram()->setUniformValue("material.specular",mesh.material().specular().strength);
     currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
-    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
+    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos() - (originRebasing() ? camera.pos() : Qtr3dDblVector3D{0,0,0})));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 
@@ -74,7 +74,7 @@ void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMa
     currentProgram()->setUniformValue("material.shininess",mesh.material().shininess());
 
     const auto worldMatrix = camera.worldView(!originRebasing());
-    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos()));
+    currentProgram()->setUniformValue("light.pos",     worldMatrix.map(light.pos() - (originRebasing() ? camera.pos() : Qtr3dDblVector3D{0,0,0})));
     currentProgram()->setUniformValue("light.ambient", light.strengthAmbient());
     currentProgram()->setUniformValue("light.color",   light.colorf());
 

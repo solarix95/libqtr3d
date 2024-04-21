@@ -187,5 +187,10 @@ void Qtr3dGeometry::setShader(Qtr3d::ShaderType t)
 void Qtr3dGeometry::stateDestroyed(QObject *state)
 {
     mBufferStates.removeOne((Qtr3dGeometryState*)state);
+
+    if (mBufferStates.isEmpty()) {
+        qDebug() << "AUTO DELETING Geometry";
+        deleteLater();
+    }
 }
 

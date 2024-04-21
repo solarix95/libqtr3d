@@ -1,8 +1,8 @@
 #ifndef QTR3D_DOUBLE_VECTOR_H
 #define QTR3D_DOUBLE_VECTOR_H
 
-
 #include <QVector3D>
+#include <QString>
 
 //----------------------------------------- Double Vector 3D -------------------------------------------------
 class Qtr3dDblVector3D {

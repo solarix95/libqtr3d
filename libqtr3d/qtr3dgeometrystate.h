@@ -65,10 +65,22 @@ private:
     };
     Q_DECLARE_FLAGS(ModelViewFlags, ModelViewFlag);
 
+    enum ModelViewMode {
+        DefaultModelViewMode, // ModelView calculated by Scale + Rotation
+        CustomMatrixViewMode  // ModelView created/set by external controller
+    };
+
     ModelViewFlags    mModelViewFlags;
+    ModelViewMode     mModelViewMode;
     Qtr3dDblVector3D  mPos;
+
+
+    // DefaultModelViewMode
     QVector3D         mRot;
     QVector3D         mScale;
+
+    // CustomMatrixViewMode
+    QMatrix4x4        mModelView;
 
     Qtr3d::LightingType mLightingType;
 

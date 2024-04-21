@@ -8,6 +8,7 @@ Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, Qtr3d::LightingTyp
     , mBuffer(*parent)
     , mEnabled(true)
     , mModelViewFlags(NoFlag)
+    , mModelViewMode(DefaultModelViewMode)
     , mLightingType(ltype)
     , mAnimator(nullptr)
 {
@@ -20,6 +21,7 @@ Qtr3dGeometryState::Qtr3dGeometryState(Qtr3dGeometry *parent, const QVector3D &p
     , mBuffer(*parent)
     , mEnabled(true)
     , mModelViewFlags(NoFlag)
+    , mModelViewMode(DefaultModelViewMode)
     , mLightingType(Qtr3d::DefaultLighting)
     , mAnimator(nullptr)
 {
@@ -87,7 +89,8 @@ void Qtr3dGeometryState::setRotation(const QVector3D &rotationAngles)
 //------------------------------------------------------------------------------------------------
 void Qtr3dGeometryState::setModelView(const QMatrix4x4 &modelView)
 {
-    Q_ASSERT(0);
+    mModelViewMode = CustomMatrixViewMode;
+    mModelView = modelView;
 
     /*
     if (mModelView == modelView)
@@ -119,14 +122,20 @@ const QMatrix4x4 Qtr3dGeometryState::modelView(const Qtr3dDblVector3D &cameraPos
 
     m.translate((mPos-cameraPos).toFloat());
 
-    if (!mRot.isNull()) {
-        m.rotate(mRot.x(),1,0,0);
-        m.rotate(mRot.y(),0,1,0);
-        m.rotate(mRot.z(),0,0,1);
+    switch (mModelViewMode) {
+    case DefaultModelViewMode: {
+        if (!mRot.isNull()) {
+            m.rotate(mRot.x(),1,0,0);
+            m.rotate(mRot.y(),0,1,0);
+            m.rotate(mRot.z(),0,0,1);
+        }
+        if (!mScale.isNull())
+            m.scale(mScale);
+    } break;
+    case CustomMatrixViewMode: {
+        m *= mModelView;
+    } break;
     }
-
-    if (!mScale.isNull())
-        m.scale(mScale);
 
     return m;
 }

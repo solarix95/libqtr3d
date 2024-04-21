@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
 
         // Basic Physic + Animation Setup
         w.assets()->loop().setFps(50);
-        w.assets()->space().forceField().setConstantForce({0,-0.001,0}); // Simulate "Gravitation"
+        w.assets()->space().forceField().setConstantForce({0,-0.00001,0}); // Simulate "Gravitation"
 
         // Create the "physical" representation of the ball:
-        auto *ballEntity = new Qtr3dStandardEntity(*ball,{0,5,0});
+        auto *ballEntity = new Qtr3dStandardEntity(ball,{0,5,0});
         w.assets()->space().append(ballEntity);
         ballEntity->setPos({0,5,0}); // the "enity" controls now the graphical "state" and updates the position
 

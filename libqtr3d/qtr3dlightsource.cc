@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------------------------
 Qtr3dLightSource::Qtr3dLightSource(QObject *parent)
     : QObject(parent)
-    , mPos({0,0,0})
+    , mPos(0,0,0)
     , mColor(Qt::white)
 {
 }
@@ -19,13 +19,13 @@ Qtr3dLightSource::Qtr3dLightSource(const QVector3D &p, QColor color, QObject *pa
 Qtr3dLightSource::~Qtr3dLightSource() = default;
 
 //------------------------------------------------------------------------------------------------
-void Qtr3dLightSource::setPos(const QVector3D &p)
+void Qtr3dLightSource::setPos(const Qtr3dDblVector3D &p)
 {
     mPos = p;
 }
 
 //------------------------------------------------------------------------------------------------
-QVector3D Qtr3dLightSource::pos() const
+Qtr3dDblVector3D Qtr3dLightSource::pos() const
 {
     return mPos;
 }

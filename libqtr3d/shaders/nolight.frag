@@ -189,22 +189,6 @@ vec4 interpolatedTextureColor(sampler2D id, vec2 coords) {
     }
 
     return color11;
-
-
-
-
-    return color11;
-
-    /*
-
-
-    // Left-Line
-    if (weightLeft < 1.0 && weightTop >= 1.0 && weightBottom >= 1.0) {
-        // return mix(myColor,colorTop,weightTop);
-        return mix(colorLeft,myColor,weightLeft);
-    }
-    */
-
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -5,6 +5,8 @@
 #include <QColor>
 #include <QVector3D>
 
+#include "math3d/qtr3ddblvector.h"
+
 class Qtr3dLightSource : public QObject
 {
     Q_OBJECT
@@ -13,7 +15,7 @@ public:
     Qtr3dLightSource(const QVector3D &p, QColor color, QObject *parent = nullptr);
     virtual ~Qtr3dLightSource();
 
-    QVector3D pos() const;
+    Qtr3dDblVector3D pos() const;
     QColor    color() const;
     QVector3D colorf() const;
     QVector3D ambientColor() const;
@@ -21,7 +23,7 @@ public:
 
 public slots:
     void      setColor(QColor c);
-    void      setPos(const QVector3D &p);
+    void      setPos(const Qtr3dDblVector3D &p);
     void      setAmbientStrength(float kAmbient);
     void      setAmbientStrength(const QVector3D &ambient);
 
@@ -29,7 +31,7 @@ signals:
     void changed(Qtr3dLightSource *light);
 
 private:
-    QVector3D mPos;
+    Qtr3dDblVector3D mPos;
     QColor    mColor;
 
     QVector3D mAmbientFactor;
