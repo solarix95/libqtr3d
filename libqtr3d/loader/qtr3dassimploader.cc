@@ -1,5 +1,6 @@
 #include <QFile>
 #include <QFileInfo>
+#include <QImage>
 
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
@@ -10,7 +11,7 @@
 
 //-------------------------------------------------------------------------------------------------
 void        qtr3dAssimpNode(const aiScene *ascene, aiNode *anode, Qtr3dModel &model, const QMatrix4x4 &parentTransform);
-void        qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model);
+void        qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model, const QString &filename);
 void        qtr3dAssimpNode(const aiScene *ascene, aiNode *anode, Qtr3dModel &model,  Qtr3dModel::Node *parent = nullptr);
 void        qtr3dAssimpAnimation(const aiScene *ascene, aiAnimation *aanim, Qtr3dModel &model);
 QString     qtr3dString(const aiString &astring);
@@ -29,8 +30,7 @@ Qtr3dAssimpLoader::~Qtr3dAssimpLoader() = default;
 //-------------------------------------------------------------------------------------------------
 bool Qtr3dAssimpLoader::loadModel(Qtr3dModel &model, const QString &filename, Options opts)
 {
-    Qtr3dAssimpLoader loader;
-    return loader.loadModel(model,filename, opts);
+    return loadFile(model, filename, opts);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Opti
     }
 
     for (unsigned i=0; i<scene->mNumMeshes; i++)
-        qtr3dAssimpMesh(scene,scene->mMeshes[i],model);
+        qtr3dAssimpMesh(scene,scene->mMeshes[i],model,filename);
 
     qtr3dAssimpNode(scene, scene->mRootNode, model);
 
@@ -86,32 +86,33 @@ bool Qtr3dAssimpLoader::loadFile(Qtr3dModel &model, const QString &filename,Opti
 }
 
 //-------------------------------------------------------------------------------------------------
-void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
+void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model, const QString &filename)
 {
     Q_ASSERT(amesh);
 
     auto *mesh       = model.context()->createMesh(false)->startMesh(Qtr3d::Triangle);
-    auto *amaterial  = amesh->mMaterialIndex >= 0 ? ascene->mMaterials[amesh->mMaterialIndex ] : nullptr;
+    auto *amaterial  = amesh->mMaterialIndex < ascene->mNumMaterials ? ascene->mMaterials[amesh->mMaterialIndex] : nullptr;
 
     if (amaterial && amesh->mTextureCoords[0]) {
         aiString path;
         if (amaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            QImage img;
             auto *textureData = ascene->GetEmbeddedTexture(path.data);
             if (textureData) {
-                QImage img;
                 /*
-                          mHeight: If this value is zero, pcData points to an compressed texture in any format (e.g. JPEG).
-                          mWidth:  If mHeight is zero the texture is compressed in a format like JPEG. In this case mWidth specifies the size of the memory area pcData is pointing to, in bytes.
-                        */
-                if (textureData->mHeight <= 0 && textureData->mWidth > 0) {
+                  mHeight: If this value is zero, pcData points to a compressed texture.
+                  mWidth:  If mHeight is zero, mWidth is the byte size of pcData.
+                */
+                if (textureData->mHeight <= 0 && textureData->mWidth > 0)
                     img = QImage::fromData((const uchar *)textureData->pcData, textureData->mWidth);
-
-                    if (!img.isNull()) {
-                        mesh->setTexture(img);
-                    }
-                }
+            } else {
+                const QString textureFile = Qtr3dModelLoader::addPath(filename, QString::fromUtf8(path.C_Str()));
+                if (Qtr3dModelLoader::isValidExternalTexture(textureFile))
+                    img = QImage(textureFile);
             }
 
+            if (!img.isNull())
+                mesh->setTexture(img);
         }
     }
 
@@ -124,15 +125,14 @@ void qtr3dAssimpMesh(const aiScene *ascene, aiMesh *amesh, Qtr3dModel &model)
 
     for (unsigned v=0; v<amesh->mNumVertices; v++) {
         if (mesh->hasTexture()) {
-            mesh->addVertex(QVector3D(amesh->mVertices[v].x,
-                                      amesh->mVertices[v].y,
-                                      amesh->mVertices[v].z),
-                            QVector3D(amesh->mNormals[v].x,
-                                      amesh->mNormals[v].y,
-                                      amesh->mNormals[v].z),
-                            amesh->mTextureCoords[0][v].x,
-                    amesh->mTextureCoords[0][v].y
-                    );
+            const QVector3D pos(amesh->mVertices[v].x, amesh->mVertices[v].y, amesh->mVertices[v].z);
+            if (amesh->mNormals)
+                mesh->addVertex(pos,
+                                QVector3D(amesh->mNormals[v].x, amesh->mNormals[v].y, amesh->mNormals[v].z),
+                                amesh->mTextureCoords[0][v].x,
+                                amesh->mTextureCoords[0][v].y);
+            else
+                mesh->addVertex(pos, amesh->mTextureCoords[0][v].x, amesh->mTextureCoords[0][v].y);
         } else {
             if (amesh->mNormals)
                 mesh->addVertex(QVector3D(amesh->mVertices[v].x,

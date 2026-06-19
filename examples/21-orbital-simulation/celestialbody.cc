@@ -2,11 +2,16 @@
 #include <libqtr3d/physics/qtr3dabstractspace.h>
 #include "celestialbody.h"
 
-CelestialBody::CelestialBody(Qtr3dGeometryState &state, float weight, QVector3D pos, QVector3D direction)
+CelestialBody::CelestialBody(Qtr3dGeometryState &state, float mass, QVector3D pos, QVector3D velocity)
     : Qtr3dStandardEntity(&state, pos, {0,0,0}, {0,0,0})
-    , mWeight(weight)
+    , mMass(mass)
 {
-    setMovement(direction);
+    setMovement(velocity);
+}
+
+float CelestialBody::mass() const
+{
+    return mMass;
 }
 
 void CelestialBody::centerForces(QList<QVector3D> &forces) const
@@ -21,8 +26,12 @@ void CelestialBody::centerForces(QList<QVector3D> &forces) const
         if (d <= 0)
             continue;
 
+        const CelestialBody *body = dynamic_cast<const CelestialBody*>(other);
+        if (!body)
+            continue;
+
         v.normalize();
 
-        forces.append( v * ((((CelestialBody*)other)->mWeight)/(d*d)) );
+        forces.append(v * (body->mass()/(d*d)));
     }
 }

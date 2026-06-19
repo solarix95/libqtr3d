@@ -2,10 +2,15 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QCursor>
 #include <QFileDialog>
+#include <QFileInfo>
+#include <QLabel>
+#include <QMessageBox>
+#include <QSizePolicy>
 #include <QStandardPaths>
 #include <QCoreApplication>
 
@@ -28,8 +33,31 @@ ViewerForm::ViewerForm(QWidget *parent)
     , mModel(nullptr)
     , mModelState(nullptr)
     , mCameraMove(nullptr)
+    , mModelInfo(nullptr)
+    , mCameraPreset(nullptr)
 {
     ui->setupUi(this);
+
+    mModelInfo = new QLabel(this);
+    mModelInfo->setMinimumWidth(260);
+    mModelInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    mCameraPreset = new QComboBox(this);
+    mCameraPreset->addItems({tr("Fit"), tr("Front"), tr("Side"), tr("Top"), tr("Iso")});
+
+    auto *btnFit = new QPushButton(tr("Fit"), this);
+    auto *btnScreenshot = new QPushButton(tr("Screenshot"), this);
+
+    ui->horizontalLayout->insertWidget(0, mModelInfo, 1);
+    ui->horizontalLayout->insertWidget(1, mCameraPreset);
+    ui->horizontalLayout->insertWidget(2, btnFit);
+    ui->horizontalLayout->insertWidget(3, btnScreenshot);
+
+    connect(btnFit, &QPushButton::clicked, this, &ViewerForm::fitCamera);
+    connect(btnScreenshot, &QPushButton::clicked, this, &ViewerForm::saveScreenshot);
+    connect(mCameraPreset, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ViewerForm::applyCameraPreset);
+
+    updateModelInfo();
     ui->btnLoad->setEnabled(false);
     ui->viewer->setOptions((Qtr3dWidget::Options)Qtr3dWidget::MSAA4);
     ui->viewer->assets()->loop().setFps(30);
@@ -170,7 +198,9 @@ void ViewerForm::loadFile(const QString &filename)
         mModel->deleteLater();
         mModel = nullptr;
         mModelState = nullptr;
+        mCurrentFile.clear();
         initAnimationUi();
+        updateModelInfo();
     }
     mModel = ui->viewer->createModel();
 
@@ -178,8 +208,17 @@ void ViewerForm::loadFile(const QString &filename)
     bool done = Qtr3d::modelByFile(*mModel,filename);
     QApplication::restoreOverrideCursor();
 
-    if (!done)
+    if (!done) {
+        mModel->deleteLater();
+        mModel = nullptr;
+        mModelState = nullptr;
+        mCurrentFile.clear();
+        updateModelInfo();
+        QMessageBox::warning(this, tr("Load failed"), tr("Could not load model:\n%1").arg(filename));
         return;
+    }
+
+    mCurrentFile = filename;
 
     mModelState =  ui->viewer->createState(mModel);
     updateLight();
@@ -187,7 +226,121 @@ void ViewerForm::loadFile(const QString &filename)
 
     // qDebug() << mModel->radius() << (1/mModel->radius()) << mModelState->center();
 
-    mModelState->setScale(1/mModel->radius());
-    ui->viewer->camera()->lookAt(mModelState->center() + Qtr3dDblVector3D(3,3,3), mModelState->center(), {0,1,0});
+    const double modelRadius = mModel->radius();
+    mModelState->setScale(modelRadius > 0.001 ? float(1.0/modelRadius) : 1.0f);
+    fitCamera();
     initAnimationUi();
+    updateModelInfo();
 }
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dDblVector3D ViewerForm::modelCenter() const
+{
+    return mModelState ? mModelState->center() : Qtr3dDblVector3D(0,0,0);
+}
+
+//-------------------------------------------------------------------------------------------------
+float ViewerForm::modelViewRadius() const
+{
+    if (!mModelState)
+        return 1.0f;
+
+    const float radius = mModelState->radius();
+    return radius > 0.001f ? radius : 1.0f;
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::fitCamera()
+{
+    const Qtr3dDblVector3D center = modelCenter();
+    const float distance = modelViewRadius() * 3.0f;
+    ui->viewer->camera()->lookAt(center + Qtr3dDblVector3D(distance, distance, distance), center, {0,1,0});
+    ui->viewer->update();
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::applyCameraPreset(int index)
+{
+    if (!mModelState)
+        return;
+
+    const Qtr3dDblVector3D center = modelCenter();
+    const float distance = modelViewRadius() * 3.0f;
+
+    switch (index) {
+    case 0:
+        fitCamera();
+        return;
+    case 1:
+        ui->viewer->camera()->lookAt(center + Qtr3dDblVector3D(0,0,distance), center, {0,1,0});
+        break;
+    case 2:
+        ui->viewer->camera()->lookAt(center + Qtr3dDblVector3D(distance,0,0), center, {0,1,0});
+        break;
+    case 3:
+        ui->viewer->camera()->lookAt(center + Qtr3dDblVector3D(0,distance,0), center, {0,0,-1});
+        break;
+    case 4:
+        ui->viewer->camera()->lookAt(center + Qtr3dDblVector3D(distance,distance,distance), center, {0,1,0});
+        break;
+    default:
+        return;
+    }
+
+    ui->viewer->update();
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::saveScreenshot()
+{
+    QString dir = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    if (dir.isEmpty())
+        dir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+
+    QString base = QFileInfo(mCurrentFile).completeBaseName();
+    if (base.isEmpty())
+        base = QStringLiteral("qtr3dviewer");
+
+    const QString defaultFile = dir + QLatin1Char('/') + base + QLatin1Char('-')
+            + QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-hhmmss")) + QStringLiteral(".png");
+
+    const QString filename = QFileDialog::getSaveFileName(this, tr("Save Screenshot"), defaultFile, tr("PNG Images (*.png)"));
+    if (filename.isEmpty())
+        return;
+
+    const QImage image = ui->viewer->grabFramebuffer();
+    if (!image.save(filename))
+        QMessageBox::warning(this, tr("Screenshot failed"), tr("Could not save screenshot:\n%1").arg(filename));
+}
+
+//-------------------------------------------------------------------------------------------------
+void ViewerForm::updateModelInfo()
+{
+    if (!mModel || !mModelState) {
+        mModelInfo->setText(tr("No model loaded"));
+        mModelInfo->setToolTip(QString());
+        return;
+    }
+
+    const QFileInfo fileInfo(mCurrentFile);
+    const QString fileName = fileInfo.fileName().isEmpty() ? tr("Model") : fileInfo.fileName();
+    const Qtr3dDblVector3D center = mModelState->center();
+
+    mModelInfo->setText(tr("%1 | meshes %2 | nodes %3 | anim %4 | r %5")
+                        .arg(fileName)
+                        .arg(mModel->meshes().count())
+                        .arg(mModel->nodes().count())
+                        .arg(mModel->animations().count())
+                        .arg(modelViewRadius(), 0, 'f', 2));
+
+    mModelInfo->setToolTip(tr("File: %1\nMeshes: %2\nNodes: %3\nAnimations: %4\nCenter: %5, %6, %7\nView radius: %8")
+                           .arg(mCurrentFile)
+                           .arg(mModel->meshes().count())
+                           .arg(mModel->nodes().count())
+                           .arg(mModel->animations().count())
+                           .arg(center.x, 0, 'f', 3)
+                           .arg(center.y, 0, 'f', 3)
+                           .arg(center.z, 0, 'f', 3)
+                           .arg(modelViewRadius(), 0, 'f', 3));
+}
+

@@ -1,3 +1,4 @@
+#include <cmath>
 #include "qtr3dmodelanimator.h"
 #include "qtr3dmodelanimation.h"
 
@@ -22,6 +23,7 @@ void Qtr3dModelAnimator::start()
 //-------------------------------------------------------------------------------------------------
 void Qtr3dModelAnimator::stop()
 {
+    mIsEnabled = false;
     mAnimationTimer.invalidate();
 }
 
@@ -64,15 +66,20 @@ void Qtr3dModelAnimator::setTicksPerSecond(int tps)
 float Qtr3dModelAnimator::locicalAnimationTime() const
 {
     if (!mAnimationTimer.isValid())
-        return 0.0;
+        return 0.0f;
 
     int tps = mOverrideTickesPerSecond > 0 ? mOverrideTickesPerSecond : mAnimation->ticksPerSec();
+    if (tps <= 0)
+        tps = 1;
 
-    float curTimeSecs  = float(mAnimationTimer.elapsed()/1000.0);
-    float curTimeTicks = curTimeSecs*tps;
+    const float curTimeSecs = float(mAnimationTimer.elapsed()) / 1000.0f;
+    float curTimeTicks = curTimeSecs * float(tps);
+    const float duration = mAnimation->duration();
 
-    if (mLoop)
-        curTimeTicks = (int)curTimeTicks % (int)mAnimation->duration();
+    if (mLoop && duration > 0.0f)
+        curTimeTicks = std::fmod(curTimeTicks, duration);
+    else if (duration > 0.0f && curTimeTicks > duration)
+        curTimeTicks = duration;
 
     return curTimeTicks;
 }

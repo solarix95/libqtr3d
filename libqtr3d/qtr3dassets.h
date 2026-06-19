@@ -14,6 +14,8 @@ class Qtr3dPointCloud;
 class Qtr3dGeometryState;
 class Qtr3dFpsLoop;
 class Qtr3dAbstractSpace;
+class Qtr3dSimulationLoop;
+class Qtr3dSimulationWorld;
 
 class Qtr3dAssets : public QOpenGLContext
 {
@@ -37,6 +39,8 @@ public:
     Qtr3dEnvironment              &environment();
     Qtr3dFpsLoop                  &loop();
     Qtr3dAbstractSpace            &space();
+    Qtr3dSimulationLoop           &simulationLoop();
+    Qtr3dSimulationWorld          &simulationWorld();
 
     // Statistics only
     int totalModelCount()     const;

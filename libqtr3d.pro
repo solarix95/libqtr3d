@@ -17,6 +17,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dpointcloud.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.h \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dcameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodel.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelanimation.h \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmodelanimator.h \
@@ -29,6 +30,10 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dpcshader.h \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dvertexmeshshader.h \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dtexturedmeshshader.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dsimulationloop.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dactor.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dmotionbody.h \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dsimulationworld.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dabstractspace.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dabstractentity.h \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dstandardentity.h \
@@ -46,9 +51,13 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.h \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfreecameracontroller.h \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfirstpersoncameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3degocameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dwidgetinputcontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfollowcamera.h \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dthirdpersoncameracontroller.h \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dchasecameracontroller.h \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dtopdowncameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameramovement.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dorbitcameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.h \
@@ -62,6 +71,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometry.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dgeometrystate.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dcamera.cc \
+    $$LIBQTR3D_PATH/libqtr3d/qtr3dcameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dmesh.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dpointcloud.cc \
     $$LIBQTR3D_PATH/libqtr3d/qtr3dassets.cc \
@@ -76,6 +86,10 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dplainshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dpcshader.cc \
     $$LIBQTR3D_PATH/libqtr3d/shaders/qtr3dtexturedmeshshader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dsimulationloop.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dactor.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dmotionbody.cc \
+    $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dsimulationworld.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dabstractspace.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dabstractentity.cc \
     $$LIBQTR3D_PATH/libqtr3d/physics/qtr3dfpsloop.cc \
@@ -93,9 +107,13 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfreecameracontroller.cc \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfirstpersoncameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3degocameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dwidgetinputcontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfollowcamera.cc \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dthirdpersoncameracontroller.cc \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dchasecameracontroller.cc \
+    $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dtopdowncameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dorbitcameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dcameramovement.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dbillboard.cc \

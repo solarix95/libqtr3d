@@ -1,36 +1,13 @@
 #ifndef QTR3DFPSLOOP_H
 #define QTR3DFPSLOOP_H
 
-#include <QTimer>
-#include <QElapsedTimer>
-#include <QObject>
+#include "qtr3dsimulationloop.h"
 
-class Qtr3dFpsLoop : public QObject
+class Qtr3dFpsLoop : public Qtr3dSimulationLoop
 {
-    Q_OBJECT
 public:
-    Qtr3dFpsLoop(QObject *parent = nullptr);
-
-    void setFps(int fps);
-    void setSpeed(float factor);
-
-    bool isActive()   const;
-    int  interval()   const;
-    int  targetFps()  const;
-    int  currentFps() const;
-
-signals:
-    void step(float simulationTime, float normalizedSpeed, int realtimeMs);
-    void stepDone();
-
-private slots:
-    void process();
-
-private:
-    QTimer         mTimer;
-    QElapsedTimer  mStopWatch;
-    float          mSpeed;
-    int            mCurrentFps;
+    explicit Qtr3dFpsLoop(QObject *parent = nullptr);
+    virtual ~Qtr3dFpsLoop();
 };
 
 #endif // QTR3DFPSLOOP_H

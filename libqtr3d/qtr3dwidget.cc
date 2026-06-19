@@ -17,6 +17,14 @@
 #include "qtr3dmodelanimator.h"
 #include "qtr3dassets.h"
 #include "physics/qtr3dfpsloop.h"
+#include "extras/qtr3dfreecameracontroller.h"
+#include "extras/qtr3dfirstpersoncameracontroller.h"
+#include "extras/qtr3dfollowcamera.h"
+#include "extras/qtr3dorbitcameracontroller.h"
+#include "extras/qtr3dthirdpersoncameracontroller.h"
+#include "extras/qtr3dchasecameracontroller.h"
+#include "extras/qtr3dtopdowncameracontroller.h"
+#include "qtr3dgeometrystate.h"
 #include "shaders/qtr3dshader.h"
 #include "shaders/qtr3dtexturedmeshshader.h"
 #include "shaders/qtr3dvertexmeshshader.h"
@@ -42,6 +50,7 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     , mCamera(nullptr)
     , mLightSource(nullptr)
     , mContext(nullptr)
+    , mCameraController(nullptr)
     , mPlainShader(nullptr)
     , mTexturedMeshShader(nullptr)
 {
@@ -55,6 +64,7 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     , mCamera(nullptr)
     , mLightSource(nullptr)
     , mContext(nullptr)
+    , mCameraController(nullptr)
     , mPlainShader(nullptr)
     , mTexturedMeshShader(nullptr)
 {
@@ -126,11 +136,78 @@ Qtr3dAssets *Qtr3dWidget::assets()
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dTextureFactory *Qtr3dWidget::textures()
+{
+    return mTextures;
+}
+
+//-------------------------------------------------------------------------------------------------
 Qtr3dLightSource *Qtr3dWidget::primaryLightSource()
 {
     if (!mLightSource)
         mLightSource = new Qtr3dLightSource({0,0,0},Qt::white);
     return mLightSource;
+}
+
+//-------------------------------------------------------------------------------------------------
+QObject *Qtr3dWidget::cameraController() const
+{
+    return mCameraController;
+}
+
+//-------------------------------------------------------------------------------------------------
+QObject *Qtr3dWidget::setCameraController(const Qtr3dCameraController &controller)
+{
+    if (mCameraController) {
+        removeEventFilter(mCameraController);
+        mCameraController->deleteLater();
+        mCameraController = nullptr;
+    }
+
+    switch (controller.type()) {
+    case Qtr3dCameraController::FreeFlyCamera:
+        mCameraController = new Qtr3dFreeCameraController(this);
+        break;
+    case Qtr3dCameraController::FirstPersonCamera: {
+        const QVector3D pos = controller.hasTargetPos() ? controller.targetPos() : QVector3D(0,0,10);
+        const QVector3D lookAt = controller.hasLookAtPos() ? controller.lookAtPos() : pos + QVector3D(0,0,-1);
+        camera()->lookAt(pos, lookAt, {0,1,0});
+        mCameraController = new Qtr3dFirstPersonCameraController(this);
+    } break;
+    case Qtr3dCameraController::OrbitCamera: {
+        Qtr3dDblVector3D center(0,0,0);
+        float radius = 1.0f;
+        if (controller.targetState()) {
+            center = controller.targetState()->center();
+            radius = controller.targetState()->radius();
+        } else if (controller.hasTargetPos()) {
+            center = controller.targetPos();
+        }
+        const float distance = controller.distance() > 0 ? controller.distance() : qMax(5.0f, radius*3.0f);
+        mCameraController = new Qtr3dOrbitCameraController(camera(), 30, 0.2f, center.toFloat() + QVector3D(0, distance*0.25f, distance), center.toFloat());
+        installEventFilter(mCameraController);
+    } break;
+    case Qtr3dCameraController::FollowCamera:
+        Q_ASSERT(controller.targetState());
+        mCameraController = new Qtr3dFollowCamera(this, controller.targetState(), controller.distance(), controller.offset());
+        break;
+    case Qtr3dCameraController::ThirdPersonCamera:
+        Q_ASSERT(controller.targetState());
+        mCameraController = new Qtr3dThirdPersonCameraController(this, controller.targetState(), controller.distance(), controller.height());
+        break;
+    case Qtr3dCameraController::ChaseCamera:
+        Q_ASSERT(controller.targetState());
+        mCameraController = new Qtr3dChaseCameraController(this, controller.targetState(), controller.distance(), controller.height());
+        break;
+    case Qtr3dCameraController::TopDownCamera:
+        if (controller.targetState())
+            mCameraController = new Qtr3dTopDownCameraController(this, controller.targetState(), controller.height());
+        else
+            mCameraController = new Qtr3dTopDownCameraController(this, controller.hasTargetPos() ? controller.targetPos() : QVector3D(0,0,0), controller.height());
+        break;
+    }
+
+    return mCameraController;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -174,7 +251,7 @@ void Qtr3dWidget::preparePainting()
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    f->glClear(GL_ALL_ATTRIB_BITS /*GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT*/);
     QColor clearColor = assets()->environment().clearColor();
     f->glClearColor(clearColor.redF() ,  clearColor.greenF() ,  clearColor.blueF() ,  1.0f ) ;
     f->glEnable(GL_CULL_FACE) ;
@@ -238,17 +315,25 @@ void Qtr3dWidget::paintGL()
     // OpenGLs Meshes, Models, ...
     paint3D();
 
-    // otherwise: can't see 2D Paintings..
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glDisable(GL_CULL_FACE);
+    f->glDisable(GL_DEPTH_TEST);
     f->glDisable(GL_BLEND);
+    f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    f->glUseProgram(0);
+    f->glActiveTexture(GL_TEXTURE0);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
+    for (GLuint i=0; i<16; ++i)
+        f->glDisableVertexAttribArray(i);
+
+    paint2D();
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::paintEvent(QPaintEvent *e)
 {
     QOpenGLWidget::paintEvent(e);
-    paint2D();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -606,6 +691,18 @@ void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState 
     }
 }
 
+static QMatrix4x4 qtr3dAnimatedNodeTransform(const Qtr3dModel::Node *node, Qtr3dModelAnimator *animator)
+{
+    QMatrix4x4 local = node->mTranslation;
+    if (animator)
+        animator->transform(node->mName, local);
+
+    if (!node->mParent)
+        return local;
+
+    return qtr3dAnimatedNodeTransform(node->mParent, animator) * local;
+}
+
 //-------------------------------------------------------------------------------------------------
 void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryState *state)
 {
@@ -638,9 +735,13 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
 
             QMatrix4x4 globalInverseTransform; // = nodes.mRootNode->mTranslation.inverted();
             globalInverseTransform.setToIdentity();
-            Qtr3dModel::setupSkeleton(skeleton,node->rootNode(),mesh, state->animator(),rootTransform, globalInverseTransform);
+            const int skeletonUpdates = Qtr3dModel::setupSkeleton(skeleton,node->rootNode(),mesh, state->animator(),rootTransform, globalInverseTransform);
 
-            shader->render(*mesh,state->modelView(), skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            QMatrix4x4 modelView = state->modelView();
+            if (skeletonUpdates <= 0)
+                modelView *= qtr3dAnimatedNodeTransform(node, state->animator());
+
+            shader->render(*mesh,modelView, skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
         }
     }
 }

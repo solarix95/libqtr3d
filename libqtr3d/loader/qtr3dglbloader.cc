@@ -65,6 +65,9 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
             break;
     }
 
+    if (!validateRequiredExtensions())
+        return false;
+
     // splitAccessors(mJsonStruct["accessors"].toList());
     /*
       1) load scenes
@@ -89,6 +92,23 @@ bool Qtr3dGlbLoader::loadGlbv2(Qtr3dBinReader &binReader)
         if (nodeIndex < 0 || nodeIndex >= allNodes.count())
             return returnError("Invalid Scene");
         createNode(allNodes[nodeIndex].toMap());
+    }
+
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dGlbLoader::validateRequiredExtensions()
+{
+    const QStringList supportedExtensions;
+
+    for (const QVariant &extension: mJsonStruct.value("extensionsRequired").toList()) {
+        const QString extensionName = extension.toString();
+        if (!supportedExtensions.contains(extensionName)) {
+            const QString error = QString("Unsupported required GLB extension: %1").arg(extensionName);
+            qWarning() << "Qtr3dGlbLoader:" << error;
+            return returnError(error);
+        }
     }
 
     return true;

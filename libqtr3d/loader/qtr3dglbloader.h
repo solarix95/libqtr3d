@@ -30,6 +30,7 @@ protected:
 
 private:
     bool loadGlbv2(Qtr3dBinReader &binReader);
+    bool validateRequiredExtensions();
     bool parseJunkv2(Qtr3dBinReader &binReader);
     void parseJsonJunk(const QByteArray &data);
     void parseBinaryJunk(const QByteArray &data);

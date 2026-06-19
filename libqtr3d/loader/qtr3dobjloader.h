@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QColor>
 #include <QVector3D>
+#include <QMap>
 #include "qtr3dmodelloader.h"
 
 
@@ -27,10 +28,18 @@ protected:
     void processFace(const QStringList &args);
     void processTextureCoords(const QStringList &args);
     void processSmoothshading(const QStringList &args);
+    void processUseMaterial(const QStringList &args);
     void processMaterialLib(const QString &sourcefile, const QStringList &args);
-    void processMaterialTexture(const QString &matlibFilename, const QStringList &args);
+    void processMaterialTexture(const QString &matlibFilename, const QStringList &args, const QString &materialName);
 
 private:
+    struct Triangle {
+        int v[3];
+        int t[3];
+        int n[3];
+        QString materialName;
+    };
+
     void setupTexturedMesh(Qtr3dModel &model);
     void setupSimpleMesh(Qtr3dModel &model);
     void setupVertexDotMesh(Qtr3dModel &model);
@@ -45,9 +54,12 @@ private:
     QList<int>        mFaceVertexIndexes;
     QList<int>        mFaceTextureIndexes;
     QList<int>        mFaceNormalsIndexes;
+    QList<Triangle>   mTriangles;
 
     // Textured Model:
     QString           mTextureName;
+    QString           mCurrentMaterial;
+    QMap<QString,QString> mMaterialTextures;
     QList<QPointF>    mTextureCoords;
 
     Qtr3dMesh *mMesh;

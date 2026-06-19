@@ -55,6 +55,7 @@ public:
     void addIndex(int vi, int ni = -1);
 
     void setTexture(const QImage &img);
+    void setTexture(Qtr3dTexture *texture, bool takeOwnership = false);
     bool hasTexture() const;
 
     // reader
@@ -98,6 +99,7 @@ private:
     QVector<Qtr3dTexCoord>   mTextureCoords;
 
     QOpenGLTexture          *mTexture;
+    bool                     mOwnsTexture;
 };
 
 typedef QList<Qtr3dMesh*> Qtr3dMeshes;

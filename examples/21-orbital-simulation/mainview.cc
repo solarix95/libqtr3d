@@ -3,7 +3,6 @@
 #include <libqtr3d/qtr3dcamera.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/qtr3dfactory.h>
-#include <libqtr3d/extras/qtr3degocameracontroller.h>
 #include <libqtr3d/physics/qtr3dabstractspace.h>
 #include <libqtr3d/physics/qtr3dforcefield.h>
 #include <libqtr3d/physics/qtr3dstandardentity.h>
@@ -59,21 +58,22 @@ MainView::MainView()
         primaryLightSource()->setPos({0,0,0});
         primaryLightSource()->setAmbientStrength(0.1);
 
-        camera()->setPos(0,0,-50);
+        camera()->setPos(0.0,0.0,-50.0);
 
         // Now let's add physic animation:
         // *************************************************
         assets()->loop().setFps(50);
-        assets()->space().append(new CelestialBody(*sun1,0.1,{0,0,0},{0,0,0}));
+        assets()->loop().setSpeed(10);
+        assets()->space().append(new CelestialBody(*sun1,20.0,{0,0,0},{0,0,0}));
 
-        assets()->space().append(new CelestialBody(*planet1,0.0001,{20,0,0},{0,0,-0.3}));
-        assets()->space().append(new CelestialBody(*planet2,0.0001,{30,0,0},{0,0,-0.25}));
-        assets()->space().append(new CelestialBody(*planet3,0.0001,{5,0,0},{0,0,-0.7}));
-        assets()->space().append(new CelestialBody(*planet4,0.0001,{50,20,0},{0,0,-0.2}));
+        assets()->space().append(new CelestialBody(*planet1,0.01,{20,0,0},{0,0,-1.0}));
+        assets()->space().append(new CelestialBody(*planet2,0.01,{30,0,0},{0,0,-0.82}));
+        assets()->space().append(new CelestialBody(*planet3,0.005,{5,0,0},{0,0,-2.0}));
+        assets()->space().append(new CelestialBody(*planet4,0.02,{50,20,0},{0,0,-0.61}));
 
         connect(&assets()->loop(), &Qtr3dFpsLoop::stepDone, this,[this]() { update(); });
 
-        new Qtr3dEgoCameraController(this);
+        setCameraController(Qtr3d::orbitCamera({0,0,0}));
     });
 
 }

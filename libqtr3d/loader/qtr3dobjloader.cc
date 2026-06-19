@@ -1,6 +1,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QImage>
 #include <QTextStream>
 
 #include "qtr3dobjloader.h"
@@ -70,6 +71,8 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Optio
             processFace(parts);
         else if (cmd == "s")
             processSmoothshading(parts);
+        else if (cmd == "usemtl")
+            processUseMaterial(parts);
         else if (cmd == "mtllib")
             processMaterialLib(filename,parts);
 
@@ -88,7 +91,7 @@ bool Qtr3dObjLoader::loadModel(Qtr3dModel &model, const QString &filename, Optio
         return true;
     }
 
-    if (!mTextureName.isEmpty() && !mTextureCoords.isEmpty())
+    if ((!mTextureName.isEmpty() || !mMaterialTextures.isEmpty()) && !mTextureCoords.isEmpty())
         setupTexturedMesh(model);
     else
         setupSimpleMesh(model);
@@ -154,63 +157,43 @@ void Qtr3dObjLoader::processFace(const QStringList &args)
     if (args.count() < 3 || args.count() > 4) // Triangles or Quads
         return;
 
-    QStringList i1 = args.at(0).split("/");
-    QStringList i2 = args.at(1).split("/");
-    QStringList i3 = args.at(2).split("/");
+    int v[4] = {-1,-1,-1,-1};
+    int t[4] = {-1,-1,-1,-1};
+    int n[4] = {-1,-1,-1,-1};
 
-    int v1 = i1.at(0).toInt()-1;
-    int v2 = i2.at(0).toInt()-1;
-    int v3 = i3.at(0).toInt()-1;
-
-    int t1 = i1.count() >= 2 ? i1.at(1).toInt()-1 : -1;
-    int t2 = i2.count() >= 2 ? i2.at(1).toInt()-1 : -1;
-    int t3 = i3.count() >= 2 ? i3.at(1).toInt()-1 : -1;
-
-    int n1 = i1.count() == 3 ? i1.at(2).toInt()-1 : -1;
-    int n2 = i2.count() == 3 ? i2.at(2).toInt()-1 : -1;
-    int n3 = i3.count() == 3 ? i3.at(2).toInt()-1 : -1;
-
-    mFaceVertexIndexes << v1;
-    mFaceVertexIndexes << v2;
-    mFaceVertexIndexes << v3;
-
-    mFaceTextureIndexes << t1;
-    mFaceTextureIndexes << t2;
-    mFaceTextureIndexes << t3;
-
-    mFaceNormalsIndexes << n1;
-    mFaceNormalsIndexes << n2;
-    mFaceNormalsIndexes << n3;
-
-
-    if (args.count() == 4) {
-
-        QStringList i4 = args.at(3).split("/");
-        int v4 = i4.at(0).toInt()-1;
-        int t4 = i4.count() >= 2 ? i4.at(1).toInt()-1 : -1;
-        int n4 = i4.count() == 3 ? i4.at(2).toInt()-1 : -1;
-
-        mFaceVertexIndexes << v1;
-        mFaceVertexIndexes << v3;
-        mFaceVertexIndexes << v4;
-
-        mFaceTextureIndexes << t1;
-        mFaceTextureIndexes << t3;
-        mFaceTextureIndexes << t4;
-
-        mFaceNormalsIndexes << n1;
-        mFaceNormalsIndexes << n3;
-        mFaceNormalsIndexes << n4;
+    for (int i=0; i<args.count(); ++i) {
+        QStringList indexes = args.at(i).split("/");
+        if (indexes.isEmpty())
+            return;
+        v[i] = indexes.at(0).toInt()-1;
+        if (indexes.count() >= 2 && !indexes.at(1).isEmpty())
+            t[i] = indexes.at(1).toInt()-1;
+        if (indexes.count() >= 3 && !indexes.at(2).isEmpty())
+            n[i] = indexes.at(2).toInt()-1;
     }
 
-    if (args.count() > 4)
-        qDebug() << "WTF";
+    auto addTriangle = [&](int a, int b, int c) {
+        Triangle tri;
+        tri.v[0] = v[a]; tri.v[1] = v[b]; tri.v[2] = v[c];
+        tri.t[0] = t[a]; tri.t[1] = t[b]; tri.t[2] = t[c];
+        tri.n[0] = n[a]; tri.n[1] = n[b]; tri.n[2] = n[c];
+        tri.materialName = mCurrentMaterial;
+        mTriangles << tri;
+
+        mFaceVertexIndexes << tri.v[0] << tri.v[1] << tri.v[2];
+        mFaceTextureIndexes << tri.t[0] << tri.t[1] << tri.t[2];
+        mFaceNormalsIndexes << tri.n[0] << tri.n[1] << tri.n[2];
+    };
+
+    addTriangle(0,1,2);
+    if (args.count() == 4)
+        addTriangle(0,2,3);
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::processTextureCoords(const QStringList &args)
 {
-    if (args.count() != 2)
+    if (args.count() < 2)
         return;
     mTextureCoords << QPointF(args[0].toFloat(), args[1].toFloat());
 }
@@ -222,12 +205,18 @@ void Qtr3dObjLoader::processSmoothshading(const QStringList &args)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dObjLoader::processUseMaterial(const QStringList &args)
+{
+    mCurrentMaterial = args.join(" ").trimmed();
+}
+
+//-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::processMaterialLib(const QString &sourcefile, const QStringList &args)
 {
-    if (args.count() != 1)
+    if (args.isEmpty())
         return;
 
-    QString mathlibFile = addPath(sourcefile,args.first());
+    QString mathlibFile = addPath(sourcefile,args.join(" "));
 
     if (!QFileInfo::exists(mathlibFile))
         return;
@@ -238,53 +227,119 @@ void Qtr3dObjLoader::processMaterialLib(const QString &sourcefile, const QString
 
     QTextStream in(&f);
 
-    QString     line;
-    QString     cmd;
-    QStringList parts;
-
+    QString currentMaterial;
     while (!in.atEnd())
     {
-        line = in.readLine().trimmed();
-        if (line.isEmpty() || line.startsWith("#"))
+        QString line = in.readLine().trimmed();
+        int commentPos = line.indexOf('#');
+        if (commentPos >= 0)
+            line = line.mid(0, commentPos).trimmed().simplified();
+        else
+            line = line.simplified();
+
+        if (line.isEmpty())
             continue;
 
-        // process https://en.wikipedia.org/wiki/Wavefront_.obj_file
-        parts = line.split(" ");
+        QStringList parts = line.split(" ");
         if (parts.isEmpty())
             continue;
-        cmd = parts.takeFirst();
-        if (cmd == "map_Kd")
-            processMaterialTexture(mathlibFile,parts);
+        const QString cmd = parts.takeFirst();
+        if (cmd == "newmtl")
+            currentMaterial = parts.join(" ").trimmed();
+        else if (cmd == "map_Kd")
+            processMaterialTexture(mathlibFile, parts, currentMaterial);
     }
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dObjLoader::processMaterialTexture(const QString &matlibFilename, const QStringList &args)
+void Qtr3dObjLoader::processMaterialTexture(const QString &matlibFilename, const QStringList &args, const QString &materialName)
 {
-    if (args.count() != 1)
+    if (args.isEmpty())
         return;
-    QString textureName = addPath(matlibFilename,args.first());
-    if (QFileInfo::exists(textureName))
+
+    bool hasOptions = false;
+    for (const QString &arg: args) {
+        if (arg.startsWith("-")) {
+            hasOptions = true;
+            break;
+        }
+    }
+
+    const QString textureFile = hasOptions ? args.last() : args.join(" ");
+    QString textureName = addPath(matlibFilename, textureFile);
+    if (!QFileInfo::exists(textureName))
+        return;
+
+    if (!materialName.isEmpty())
+        mMaterialTextures[materialName] = textureName;
+    if (mTextureName.isEmpty())
         mTextureName = textureName;
+}
+
+//-------------------------------------------------------------------------------------------------
+static bool qtr3dValidIndex(int index, int count)
+{
+    return index >= 0 && index < count;
 }
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dObjLoader::setupTexturedMesh(Qtr3dModel &model)
 {
-    Qtr3dMesh *mesh = model.context()->createMesh(false);
-    mesh->setTexture(QImage(mTextureName));
+    QMap<QString,QList<Triangle> > trianglesByTexture;
+    QList<Triangle> untexturedTriangles;
 
-    mesh->startMesh(Qtr3d::Triangle);
-
-    // Faces
-    for (int i=0; i<mFaceVertexIndexes.count(); i++) {
-        mesh->addVertex(mVertices[mFaceVertexIndexes.at(i)],
-                mNormals[mFaceNormalsIndexes.at(i)],
-                mTextureCoords[mFaceTextureIndexes.at(i)].x(),
-                mTextureCoords[mFaceTextureIndexes.at(i)].y());
+    for (const auto &tri: mTriangles) {
+        const QString textureName = mMaterialTextures.isEmpty() ? mTextureName : mMaterialTextures.value(tri.materialName);
+        if (!textureName.isEmpty())
+            trianglesByTexture[textureName] << tri;
+        else
+            untexturedTriangles << tri;
     }
-    mesh->endMesh();
-    model.addMesh(mesh, true);
+
+    auto addTriangleVertices = [this](Qtr3dMesh *mesh, const Triangle &tri, bool textured) {
+        for (int i=0; i<3; ++i) {
+            if (!qtr3dValidIndex(tri.v[i], mVertices.count()))
+                continue;
+            const QVector3D pos = mVertices.at(tri.v[i]);
+            const bool hasNormal = qtr3dValidIndex(tri.n[i], mNormals.count());
+            const bool hasTexCoord = textured && qtr3dValidIndex(tri.t[i], mTextureCoords.count());
+
+            if (hasTexCoord && hasNormal)
+                mesh->addVertex(pos, mNormals.at(tri.n[i]), mTextureCoords.at(tri.t[i]).x(), mTextureCoords.at(tri.t[i]).y());
+            else if (hasTexCoord)
+                mesh->addVertex(pos, mTextureCoords.at(tri.t[i]).x(), mTextureCoords.at(tri.t[i]).y());
+            else if (hasNormal)
+                mesh->addVertex(pos, mNormals.at(tri.n[i]));
+            else
+                mesh->addVertex(pos);
+        }
+    };
+
+    for (auto it = trianglesByTexture.constBegin(); it != trianglesByTexture.constEnd(); ++it) {
+        QImage texture(it.key());
+        if (texture.isNull()) {
+            untexturedTriangles << it.value();
+            continue;
+        }
+
+        Qtr3dMesh *mesh = model.context()->createMesh(false);
+        mesh->setTexture(texture);
+        mesh->startMesh(Qtr3d::Triangle);
+        for (const auto &tri: it.value())
+            addTriangleVertices(mesh, tri, true);
+        mesh->endMesh();
+        model.addMesh(mesh, true);
+    }
+
+    if (!untexturedTriangles.isEmpty()) {
+        Qtr3dMesh *mesh = model.context()->createMesh(false);
+        mesh->startMesh(Qtr3d::Triangle);
+        mesh->setDefaultColor(model.material().ambient().mcolor);
+        for (const auto &tri: untexturedTriangles)
+            addTriangleVertices(mesh, tri, false);
+        mesh->endMesh();
+        model.addMesh(mesh, true);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

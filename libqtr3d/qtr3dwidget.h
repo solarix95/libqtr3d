@@ -4,6 +4,7 @@
 #include <QOpenGLWidget>
 #include "qtr3dtypes.h"
 #include "qtr3dmodel.h"
+#include "qtr3dcameracontroller.h"
 
 class Qtr3dTexturedMesh;
 class Qtr3dTexturedShader;
@@ -47,6 +48,8 @@ public:
     Qtr3dTextureFactory        *textures();
     Qtr3dAssets                *assets();
     Qtr3dLightSource           *primaryLightSource();
+    QObject                    *cameraController() const;
+    QObject                    *setCameraController(const Qtr3dCameraController &controller);
 
     // Factories
     virtual Qtr3dMesh            *createMesh();
@@ -91,6 +94,7 @@ private:
     Qtr3dLightSource        *mLightSource;
 
     Qtr3dAssets            *mContext;
+    QObject                *mCameraController;
 
     /*
      TODO:

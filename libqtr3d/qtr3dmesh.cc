@@ -14,6 +14,7 @@ Qtr3dMesh::Qtr3dMesh(Qtr3dAssets *parent)
     , mTexcoorBufferId(0)
     , mMeshType(Qtr3d::UnknownMesh)
     , mTexture(nullptr)
+    , mOwnsTexture(false)
 {
 }
 
@@ -46,10 +47,10 @@ void Qtr3dMesh::reset()
     mNormals.clear();
     mTextureCoords.clear();
 
-    if (mTexture) {
+    if (mTexture && mOwnsTexture)
         delete mTexture;
-        mTexture = nullptr;
-    }
+    mTexture = nullptr;
+    mOwnsTexture = false;
     startMesh(Qtr3d::UnknownMesh);
 }
 
@@ -291,13 +292,27 @@ void Qtr3dMesh::setTexture(const QImage &img)
     if (img.isNull())
         return;
 
-    if (mTexture)
+    if (mTexture && mOwnsTexture)
         delete mTexture;
 
     mTexture = new Qtr3dTexture(img.mirrored());
+    mOwnsTexture = true;
     // mTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     // mTexture->setMagnificationFilter(QOpenGLTexture::Linear);
     mTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dMesh::setTexture(Qtr3dTexture *texture, bool takeOwnership)
+{
+    if (mTexture == texture)
+        return;
+
+    if (mTexture && mOwnsTexture)
+        delete mTexture;
+
+    mTexture = texture;
+    mOwnsTexture = takeOwnership;
 }
 
 //-------------------------------------------------------------------------------------------------

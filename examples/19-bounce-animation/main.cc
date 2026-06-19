@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
 
         // Basic Physic + Animation Setup
         w.assets()->loop().setFps(50);
-        w.assets()->space().forceField().setConstantForce({0,-0.00001,0}); // Simulate "Gravitation"
+        w.assets()->loop().setSpeed(1);
+        w.assets()->space().forceField().setConstantForce({0,-9.81,0}); // Simulate gravity in scene-units/s^2
 
         // Create the "physical" representation of the ball:
         auto *ballEntity = new Qtr3dStandardEntity(ball,{0,5,0});
@@ -65,13 +66,15 @@ int main(int argc, char *argv[])
             // Floor: "Bounce-Reaction"
             if (ballEntity->pos()[1] < ballEntity->collisionRadius()) {
                 ballEntity->setPos({0,ballEntity->collisionRadius(),0});
-                if (ballEntity->movement()[1] < 0)
-                    ballEntity->setMovement(0.9 * -ballEntity->movement()); // reverse and "dampering" the movement
+                if (ballEntity->movement()[1] < 0) {
+                    QVector3D velocity = ballEntity->movement();
+                    ballEntity->setMovement(-0.65f * velocity); // reverse and damp the velocity
+                }
             }
 
             // "Kick" at the end of the animation:
-            if ((abs((ballEntity->pos().length() - ballEntity->collisionRadius())) < 0.01) && (ballEntity->movement().length() < 0.01)) {
-                ballEntity->setMovement({0,0.5,0});
+            if ((abs((ballEntity->pos().length() - ballEntity->collisionRadius())) < 0.1) && (ballEntity->movement().length() < 0.1)) {
+                ballEntity->setMovement({0,10.0,0});
             }
         });
 

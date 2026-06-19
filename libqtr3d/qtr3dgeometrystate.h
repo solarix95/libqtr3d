@@ -43,6 +43,7 @@ public:
 
     const QMatrix4x4                 modelView(const Qtr3dDblVector3D &cameraPos = Qtr3dDblVector3D{0,0,0})  const;
     inline const QVector3D          &scale()     const  { return mScale;     };
+    inline Qtr3dGeometry           &buffer()           { return mBuffer;    };
     inline const Qtr3dGeometry      &buffer()    const  { return mBuffer;    };
 
     void                       setAnimator(Qtr3dModelAnimator *animator);

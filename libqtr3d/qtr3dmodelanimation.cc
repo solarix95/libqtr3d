@@ -44,6 +44,76 @@ QStringList Qtr3dModelAnimation::animatedNodes() const
 }
 
 //-------------------------------------------------------------------------------------------------
+static Qtr3dModelAnimation::PositionKey positionKeyAt(const QList<Qtr3dModelAnimation::PositionKey> &keys, float time)
+{
+    if (keys.isEmpty())
+        return Qtr3dModelAnimation::PositionKey();
+    if (keys.count() == 1 || time <= keys.first().mTime)
+        return keys.first();
+    if (time >= keys.last().mTime)
+        return keys.last();
+
+    for (int i=1; i<keys.count(); ++i) {
+        if (time <= keys[i].mTime) {
+            const auto &prev = keys[i-1];
+            const auto &next = keys[i];
+            const float delta = next.mTime - prev.mTime;
+            if (delta <= 0.0f)
+                return next;
+            const float factor = (time - prev.mTime) / delta;
+            return Qtr3dModelAnimation::PositionKey(time, prev.mValue + (next.mValue - prev.mValue) * factor);
+        }
+    }
+    return keys.last();
+}
+
+static Qtr3dModelAnimation::RotationKey rotationKeyAt(const QList<Qtr3dModelAnimation::RotationKey> &keys, float time)
+{
+    if (keys.isEmpty())
+        return Qtr3dModelAnimation::RotationKey();
+    if (keys.count() == 1 || time <= keys.first().mTime)
+        return keys.first();
+    if (time >= keys.last().mTime)
+        return keys.last();
+
+    for (int i=1; i<keys.count(); ++i) {
+        if (time <= keys[i].mTime) {
+            const auto &prev = keys[i-1];
+            const auto &next = keys[i];
+            const float delta = next.mTime - prev.mTime;
+            if (delta <= 0.0f)
+                return next;
+            const float factor = (time - prev.mTime) / delta;
+            return Qtr3dModelAnimation::RotationKey(time, QQuaternion::nlerp(prev.mValue, next.mValue, factor));
+        }
+    }
+    return keys.last();
+}
+
+static Qtr3dModelAnimation::ScaleKey scaleKeyAt(const QList<Qtr3dModelAnimation::ScaleKey> &keys, float time)
+{
+    if (keys.isEmpty())
+        return Qtr3dModelAnimation::ScaleKey();
+    if (keys.count() == 1 || time <= keys.first().mTime)
+        return keys.first();
+    if (time >= keys.last().mTime)
+        return keys.last();
+
+    for (int i=1; i<keys.count(); ++i) {
+        if (time <= keys[i].mTime) {
+            const auto &prev = keys[i-1];
+            const auto &next = keys[i];
+            const float delta = next.mTime - prev.mTime;
+            if (delta <= 0.0f)
+                return next;
+            const float factor = (time - prev.mTime) / delta;
+            return Qtr3dModelAnimation::ScaleKey(time, prev.mValue + (next.mValue - prev.mValue) * factor);
+        }
+    }
+    return keys.last();
+}
+
+//-------------------------------------------------------------------------------------------------
 bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMatrix4x4 &nodeTransform) const
 {
     if (!mChannels.contains(nodeName))
@@ -51,73 +121,23 @@ bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMat
 
     if (time > mDuration)
         time = mDuration;
+    if (time < 0.0f)
+        time = 0.0f;
 
     const auto &channel = mChannels[nodeName];
+    const PositionKey position = positionKeyAt(channel.mPositionKeys, time);
+    const RotationKey rotation = rotationKeyAt(channel.mRotationKeys, time);
+    const ScaleKey scale = scaleKeyAt(channel.mScaleKeys, time);
 
-    // Schritt 1: Interpolation der Position
-    int positionIndex = -1;
-    for (int j = 0; j < channel.mPositionKeys.count(); ++j) {
-        if (time <= channel.mPositionKeys[j].mTime) {
-            positionIndex = j;
-            break;
-        }
-    }
+    if (!position.isValid() && !rotation.isValid() && !scale.isValid())
+        return false;
 
-    QVector3D position;
-    if (channel.mPositionKeys.count() == 1 || positionIndex == 0) { // Sonderfall: vor dem ersten KeyFrame
-        position = channel.mPositionKeys[0].mValue;
-    } else if (positionIndex > 0) {
-        QVector3D startState = channel.mPositionKeys[positionIndex - 1].mValue;
-        QVector3D endState   = channel.mPositionKeys[positionIndex].mValue;
-        float deltaTime      = channel.mPositionKeys[positionIndex].mTime - channel.mPositionKeys[positionIndex - 1].mTime;
-        float factor         = (time - channel.mPositionKeys[positionIndex - 1].mTime) / deltaTime;
-        position             = startState + (endState - startState) * factor;
-    }
-
-    // Schritt 2: Interpolation der Rotation
-    int rotationIndex = -1;
-    for (int j = 0; j < channel.mRotationKeys.count(); ++j) {
-        if (time <= channel.mRotationKeys[j].mTime) {
-            rotationIndex = j;
-            break;
-        }
-    }
-    QQuaternion rotation;
-    if (channel.mRotationKeys.count() == 1 || rotationIndex == 0) { // Sonderfall: vor dem ersten KeyFrame
-        rotation = channel.mRotationKeys[0].mValue;
-    } else if (rotationIndex > 0) {
-        QQuaternion startState = channel.mRotationKeys[rotationIndex - 1].mValue;
-        QQuaternion endState   = channel.mRotationKeys[rotationIndex].mValue;
-        float deltaTime        = channel.mRotationKeys[rotationIndex].mTime - channel.mRotationKeys[rotationIndex - 1].mTime;
-        float factor           = (time - channel.mRotationKeys[rotationIndex - 1].mTime) / deltaTime;
-        rotation = QQuaternion::nlerp(startState,endState,factor);
-    }
-
-    // Schritt 3: Interpolation der Skalierung
-    int scaleIndex = -1;
-    for (int j = 0; j < channel.mScaleKeys.count(); ++j) {
-        if (time <= channel.mScaleKeys[j].mTime) {
-            scaleIndex = j;
-            break;
-        }
-    }
-    QVector3D scale(1,1,1);
-    if (channel.mScaleKeys.count() == 1 || scaleIndex == 0) { // Sonderfall: vor dem ersten KeyFrame
-        scale = channel.mScaleKeys[0].mValue;
-    } else if (scaleIndex > 0) {
-        QVector3D startState = channel.mScaleKeys[scaleIndex - 1].mValue;
-        QVector3D endState   = channel.mScaleKeys[scaleIndex].mValue;
-        float deltaTime      = channel.mScaleKeys[scaleIndex].mTime - channel.mScaleKeys[scaleIndex - 1].mTime;
-        float factor         = (time - channel.mScaleKeys[scaleIndex - 1].mTime) / deltaTime;
-        scale                = startState + (endState - startState) * factor;
-    }
-    QMatrix4x4 temp3;
-    temp3.scale(scale);
-
-    // nodeTransform = QMatrix4x4();
-    nodeTransform.translate(position);
-    nodeTransform.rotate(rotation);
-    nodeTransform.scale(scale);
+    if (position.isValid())
+        nodeTransform.translate(position.mValue);
+    if (rotation.isValid())
+        nodeTransform.rotate(rotation.mValue.normalized());
+    if (scale.isValid())
+        nodeTransform.scale(scale.mValue);
 
     return true;
 }

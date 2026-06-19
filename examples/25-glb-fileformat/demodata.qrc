@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="duck.glb">Duck.glb</file>
+    </qresource>
+</RCC>
+

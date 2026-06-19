@@ -2,6 +2,7 @@
 #include "qtr3dbillboard.h"
 #include "../qtr3dcamera.h"
 #include "../qtr3dgeometrystate.h"
+#include "../qtr3dmesh.h"
 
 //-------------------------------------------------------------------------------------------------
 Qtr3dSprite::Qtr3dSprite(Qtr3dGeometryState *state, QList<Qtr3dTexture *> textures, Qtr3dCamera *camera, bool billboard)
@@ -30,4 +31,11 @@ void Qtr3dSprite::setTexture(int index)
         return;
 
     Q_ASSERT(mTextureIndex >= 0 && mTextureIndex < mTextures.count());
+
+    Qtr3dMesh *mesh = dynamic_cast<Qtr3dMesh*>(&mState->buffer());
+    if (!mesh)
+        return;
+
+    mesh->setTexture(mTextures[mTextureIndex]);
 }
+

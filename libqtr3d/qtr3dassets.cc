@@ -121,6 +121,18 @@ Qtr3dAbstractSpace &Qtr3dAssets::space()
 }
 
 //-------------------------------------------------------------------------------------------------
+Qtr3dSimulationLoop &Qtr3dAssets::simulationLoop()
+{
+    return loop();
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dSimulationWorld &Qtr3dAssets::simulationWorld()
+{
+    return space();
+}
+
+//-------------------------------------------------------------------------------------------------
 int Qtr3dAssets::totalModelCount() const
 {
     return mModels.count();
