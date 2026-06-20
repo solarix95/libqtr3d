@@ -2,6 +2,8 @@
 #define QTR3DFACTORY_H
 
 #include <QVariant>
+#include <QVector3D>
+#include <QColor>
 #include <libqtr3d/loader/qtr3dmodelloader.h>
 
 class Qtr3dMesh;
@@ -22,7 +24,13 @@ bool   meshByHighmap(Qtr3dMesh &mesh, const QString &highmapImageName, const QIm
 bool   meshByHighmap(Qtr3dMesh &mesh, const Qtr3dHighmap &highmap, const QImage &texture);
 bool   meshByXyzAxis(Qtr3dMesh &mesh, float length = 1); // Debug Purpose
 bool   meshByStarsky(Qtr3dMesh &mesh, float radius, int starCount, const QColor &color);
+bool   meshByBox(Qtr3dMesh &mesh, const QVector3D &size, const QColor &color);
+bool   meshByPlane(Qtr3dMesh &mesh, float width, float depth, const QColor &color);
 bool   meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color);
+bool   meshByCylinder(Qtr3dMesh &mesh, int sectors, float radius, float height, bool topClosed, bool bottomClosed, const QColor &color);
+bool   meshByTube(Qtr3dMesh &mesh, int sectors, float radius, float height, const QColor &color);
+bool   meshByCone(Qtr3dMesh &mesh, int sectors, bool bottomClosed, const QColor &color);
+bool   meshByCone(Qtr3dMesh &mesh, int sectors, float radius, float height, bool bottomClosed, const QColor &color);
 bool   meshBySphere(Qtr3dMesh &mesh, int sectors, const QColor &color);
 bool   meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap, bool asTexture = false);
 bool   meshBySphere(Qtr3dMesh &mesh, int sectors, int rings, float radius, bool renderOutside, const QImage &colorMap, bool asTexture = true);

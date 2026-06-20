@@ -1,9 +1,23 @@
-.gitignore
+# Editor and OS noise
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+.DS_Store
+Thumbs.db
+
+# Logs and runtime dumps
+*.log
+core
+core.*
 
 # C++ objects and libs
 *.slo
 *.lo
 *.o
+*.obj
 *.a
 *.la
 *.lai
@@ -11,13 +25,31 @@
 *.so.*
 *.dll
 *.dylib
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.idb
+*.gcda
+*.gcno
+*.gcov
 
-# Qt-es
+# Build directories
+build/
+build-*/
+*-build-*/
+build-*-*
+debug/
+release/
+Debug/
+Release/
+
+# Qt / qmake
 object_script.*.Release
 object_script.*.Debug
 *_plugin_import.cpp
-/.qmake.cache
-/.qmake.stash
+.qmake.cache
+.qmake.stash
 *.pro.user
 *.pro.user.*
 *.qbs.user
@@ -25,6 +57,7 @@ object_script.*.Debug
 *.moc
 moc_*.cpp
 moc_*.h
+moc_predefs.h
 qrc_*.cpp
 ui_*.h
 *.qmlc
@@ -33,25 +66,73 @@ Makefile*
 *build-*
 *.qm
 *.prl
+.rcc/
 
 # Qt unit tests
 target_wrapper.*
 
-# QtCreator
+# Qt Creator / clangd
 *.autosave
+.qtc_clangd/
 
-# QtCreator Qml
+# Qt Creator QML
 *.qmlproject.user
 *.qmlproject.user.*
 
-# QtCreator CMake
+# Qt Creator CMake
 CMakeLists.txt.user*
 
-# QtCreator 4.8< compilation database
+# Qt Creator 4.8< compilation database
 compile_commands.json
 
-# QtCreator local machine specific files for imported projects
+# Qt Creator local machine specific files for imported projects
 *creator.user*
 
 *_qmlcache.qrc
 
+# Shell
+*.pid
+*.pid.lock
+
+# In-source qmake binary outputs used by this tree
+/apps/qtr3dglobe/qtr3dglobe
+/apps/qtr3dviewer/3dviewer
+/apps/qtr3dviewer/qtr3dviewer
+/benchmarks/blending-benchmark/blending-benchmark
+/benchmarks/model-benchmark/model-benchmark
+/benchmarks/particle-benchmark/particle-benchmark
+/examples/02-hello-world-triangles/02-hello-world-triangles
+/examples/03-flat-cube/02-flat-cube
+/examples/03-flat-cube/03-flat-cube
+/examples/04-flat-light-cube/02-flat-light-cube
+/examples/04-flat-light-cube/04-flat-light-cube
+/examples/04-smooth-light-cube/04-smooth-light-cube
+/examples/05-textured-cube/05-textured-cube
+/examples/06-simple-model/06-simple-model
+/examples/07-obj-fileformat/07-obj-fileformat
+/examples/08-stl-fileformat/08-stl-fileformat
+/examples/09-json-fileformat/09-json-fileformat
+/examples/10-factory-showroom/04-factory-showroom
+/examples/10-factory-showroom/05-factory-showroom
+/examples/10-factory-showroom/10-factory-showroom
+/examples/11-color-map/04-factory-showroom
+/examples/11-color-map/11-color-map
+/examples/12-blending/12-blending
+/examples/13-billboard/13-billboard
+/examples/14-light-master/14-light-master
+/examples/15-billboard-sprite-animation/15-billboard-sprite-animation
+/examples/16-material-master/15-multi-color-material
+/examples/16-material-master/16-material-master
+/examples/17-fog-map/17-fog-map
+/examples/18-text/18-text
+/examples/19-bounce-animation/19-bounce-animation
+/examples/20-2d-approach/20-2d-approach
+/examples/21-orbital-simulation/21-orbital-simulation
+/examples/22-follow-camera/22-follow-camera
+/examples/23-large-scale/23-large-scale
+/examples/23-large-scale/32-large-scale
+/examples/24-texture-filter/24-texture-filter
+/examples/25-glb-fileformat/25-glb-fileformat
+/examples/26-pointcloud/26-pointcloud
+/examples/27-camera-controllers/27-camera-controllers
+/examples/28-json-model/28-json-model

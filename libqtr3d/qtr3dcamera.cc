@@ -143,7 +143,7 @@ void Qtr3dCamera::lookAtTurn(float dxAngle, float dyAngle)
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dCamera::rotate(float xAngle, float yAngle, float zAngle)
+void Qtr3dCamera::rotate(float /*xAngle*/, float /*yAngle*/, float /*zAngle*/)
 {
     Q_ASSERT(0);
 }

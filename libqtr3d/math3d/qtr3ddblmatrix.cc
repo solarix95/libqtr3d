@@ -149,7 +149,7 @@ const double &Qtr3dDblMatrix4x4::columnMajorC(int row, int column) const
 }
 
 //-------------------------------------------------------------------------------------------------
-const Qtr3dDblMatrix4x4 &Qtr3dDblMatrix4x4::operator*(const Qtr3dDblVector3D &v) const
+const Qtr3dDblMatrix4x4 &Qtr3dDblMatrix4x4::operator*(const Qtr3dDblVector3D &/*v*/) const
 {
     Q_ASSERT(0); // TBD and Test
     return *this;

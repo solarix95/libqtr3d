@@ -381,8 +381,10 @@ void Qtr3dWidget::paintGeometries()
         Qtr3dShader *shader = nullptr;
         switch (geometry->shader()) {
         case Qtr3d::PlainShader:
+            qDebug() << "Plain";
             shader = mPlainShader; break;
         case Qtr3d::ColoredShader:
+            qDebug() << "Colored";
             shader = mVertexMeshShader; break;
         case Qtr3d::TexturedShader:
             shader = mTexturedMeshShader; break;
@@ -392,6 +394,7 @@ void Qtr3dWidget::paintGeometries()
         if (!shader)
             continue;
 
+        qDebug() << "Render shader" << shader;
         // Background-Option overrides all others. Blending is not possible. Usecase: Skybox
         if (geometry->renderOptions().testFlag(Qtr3d::BackgroundOption)) {
             frontList << geometry;

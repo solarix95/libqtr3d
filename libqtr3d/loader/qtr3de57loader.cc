@@ -26,7 +26,7 @@ Qtr3dE57Loader::Qtr3dE57Loader()
 Qtr3dE57Loader::~Qtr3dE57Loader() = default;
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dE57Loader::loadModel(Qtr3dModel &model, const QString &filename)
+bool Qtr3dE57Loader::loadModel(Qtr3dModel &/*model*/, const QString &filename)
 /*
       Format:
         [HEADER] - 48 bytes C-Struct

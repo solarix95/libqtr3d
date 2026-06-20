@@ -24,7 +24,7 @@ void Qtr3dPcShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPcShader::render(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
+void Qtr3dPcShader::render(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, Qtr3d::LightingType /*lighting*/, const Qtr3dLightSource &/*light*/, const Qtr3dEnvironment &env)
 {
     currentProgram()->bind();
     currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
@@ -34,7 +34,7 @@ void Qtr3dPcShader::render(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelV
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera)
+void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dPointCloud &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &/*meshSkeleton*/, const Qtr3dCamera &camera)
 {
     auto worldMatrix = camera.worldView(!originRebasing());
     currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
@@ -42,17 +42,17 @@ void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dPointCloud &mesh, const QMatri
     drawMesh(mesh);
 }
 
-void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera)
+void Qtr3dPcShader::drawBuffer_NoLight(const Qtr3dMesh &/*mesh*/, const QMatrix4x4 &/*modelView*/, const QVector<QMatrix4x4> &/*meshSkeleton*/, const Qtr3dCamera &/*camera*/)
 {
     Q_ASSERT(0);
 }
 
-void Qtr3dPcShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
+void Qtr3dPcShader::drawBuffer_FlatLight(const Qtr3dMesh &/*mesh*/, const QMatrix4x4 &/*modelView*/, const QVector<QMatrix4x4> &/*meshSkeleton*/, const Qtr3dCamera &/*camera*/, const Qtr3dLightSource &/*light*/)
 {
     Q_ASSERT(0);
 }
 
-void Qtr3dPcShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
+void Qtr3dPcShader::drawBuffer_PhongLight(const Qtr3dMesh &/*mesh*/, const QMatrix4x4 &/*modelView*/, const QVector<QMatrix4x4> &/*meshSkeleton*/, const Qtr3dCamera &/*camera*/, const Qtr3dLightSource &/*light*/)
 {
     Q_ASSERT(0);
 }

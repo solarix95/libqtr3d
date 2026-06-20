@@ -32,7 +32,7 @@ void Qtr3dTexturedShader::onProgramChange()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton,
+void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &/*meshSkeleton*/,
                                              const Qtr3dCamera &camera)
 {
     const auto worldMatrix = camera.worldView(!originRebasing());
@@ -44,7 +44,7 @@ void Qtr3dTexturedShader::drawBuffer_NoLight(const Qtr3dMesh &mesh, const QMatri
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton,
+void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &/*meshSkeleton*/,
                                                const Qtr3dCamera &camera,const Qtr3dLightSource &light)
 {
     const auto worldMatrix = camera.worldView(!originRebasing());
@@ -64,7 +64,7 @@ void Qtr3dTexturedShader::drawBuffer_FlatLight(const Qtr3dMesh &mesh, const QMat
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
+void Qtr3dTexturedShader::drawBuffer_PhongLight(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &/*meshSkeleton*/, const Qtr3dCamera &camera, const Qtr3dLightSource &light)
 {
     currentProgram()->setUniformValue(mProjectionMatrix,camera.projection());
 

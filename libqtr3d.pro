@@ -49,6 +49,7 @@ HEADERS += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.h \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.h \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3djsonloader.h \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfreecameracontroller.h \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfirstpersoncameracontroller.h \
@@ -105,6 +106,7 @@ SOURCES += \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dbinreader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3d3dsloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/loader/qtr3dglbloader.cc \
+    $$LIBQTR3D_PATH/libqtr3d/loader/qtr3djsonloader.cc \
     $$LIBQTR3D_PATH/libqtr3d/utils/qtr3dutils.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfreecameracontroller.cc \
     $$LIBQTR3D_PATH/libqtr3d/extras/qtr3dfirstpersoncameracontroller.cc \

@@ -31,7 +31,7 @@ public:
     static void frustumMatrix(Qtr3dDblMatrix4x4 &matrix, double left, double right, double bottom, double top, double nearPlane, double farPlane);
     static void perspectiveMatrix(Qtr3dDblMatrix4x4 &matrix, double angle, double aspect, double nearPlane, double farPlane);
 
-    friend Qtr3dDblVector3D operator*(const Qtr3dDblMatrix4x4& matrix, const Qtr3dDblVector3D& vector);
+    friend Qtr3dDblVector3D operator*(const Qtr3dDblMatrix4x4& /*matrix*/, const Qtr3dDblVector3D& /*vector*/);
     friend Qtr3dDblVector3D operator*(const Qtr3dDblVector3D& vector, const Qtr3dDblMatrix4x4& matrix);
 
 private:
@@ -115,7 +115,7 @@ inline Qtr3dDblMatrix4x4 operator*(const Qtr3dDblMatrix4x4& m1, const Qtr3dDblMa
     return m;
 }
 
-inline Qtr3dDblVector3D operator*(const Qtr3dDblMatrix4x4& matrix, const Qtr3dDblVector3D& vector)
+inline Qtr3dDblVector3D operator*(const Qtr3dDblMatrix4x4& /*matrix*/, const Qtr3dDblVector3D& /*vector*/)
 {
     Q_ASSERT(0);
     return Qtr3dDblVector3D();

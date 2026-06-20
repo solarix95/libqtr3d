@@ -429,7 +429,7 @@ void Qtr3dMesh::selectShader()
 }
 
 //-------------------------------------------------------------------------------------------------
-void Qtr3dMesh::calculateNormal(int vertexIndex)
+void Qtr3dMesh::calculateNormal(int /*vertexIndex*/)
 {
     Q_ASSERT(mMeshType == Qtr3d::Triangle || mMeshType == Qtr3d::Quad);
 

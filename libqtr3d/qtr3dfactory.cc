@@ -20,6 +20,7 @@
 #include "loader/qtr3de57loader.h"
 #include "loader/qtr3d3dsloader.h"
 #include "loader/qtr3dglbloader.h"
+#include "loader/qtr3djsonloader.h"
 #include "utils/qtr3dutils.h"
 
 #ifdef WITH_LIBASSIMP
@@ -54,6 +55,159 @@ static QVariant sLoadJson(const QString &filename) {
     return ret;
 }
 
+
+//-------------------------------------------------------------------------------------------------
+static float sJsonFloat(const QVariantMap &map, const QString &name, float defaultValue)
+{
+    return map.contains(name) ? map.value(name).toFloat() : defaultValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+static int sJsonInt(const QVariantMap &map, const QString &name, int defaultValue)
+{
+    return map.contains(name) ? map.value(name).toInt() : defaultValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+static bool sJsonBool(const QVariantMap &map, const QString &name, bool defaultValue)
+{
+    if (!map.contains(name))
+        return defaultValue;
+
+    QVariant value = map.value(name);
+    if (value.type() == QVariant::String) {
+        QString s = value.toString().toLower();
+        if (s == "true" || s == "yes" || s == "1")
+            return true;
+        if (s == "false" || s == "no" || s == "0")
+            return false;
+    }
+    return value.toBool();
+}
+
+//-------------------------------------------------------------------------------------------------
+static QColor sJsonColor(const QVariantMap &map, const QColor &defaultColor = Qt::white)
+{
+    QString colorName = map.value("color", map.value("defaultColor")).toString();
+    if (colorName.isEmpty())
+        return defaultColor;
+
+    QColor color(colorName);
+    return color.isValid() ? color : defaultColor;
+}
+
+//-------------------------------------------------------------------------------------------------
+static QVector3D sJsonVector3(const QVariantMap &map, const QString &name, const QVector3D &defaultValue)
+{
+    QVariant value = map.value(name);
+    QVariantList list = value.toList();
+    if (list.count() == 3)
+        return {list[0].toFloat(), list[1].toFloat(), list[2].toFloat()};
+
+    if (value.canConvert<float>()) {
+        float f = value.toFloat();
+        return {f,f,f};
+    }
+
+    return defaultValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+static bool sMeshByJsonShape(Qtr3dMesh &mesh, const QVariantMap &map, const QString &sourceFilenameOrPath)
+{
+    QString shape = map.value("shape").toString().toLower();
+    if (shape.isEmpty())
+        return false;
+
+    QColor color = sJsonColor(map);
+    QString textureName = map.value("texture").toString();
+    QImage texture;
+    if (!textureName.isEmpty())
+        texture = Qtr3d::textureByPath(sourceFilenameOrPath, textureName);
+
+    if (shape == "box" || shape == "cube") {
+        if (!texture.isNull())
+            mesh.setTexture(texture);
+        return Qtr3d::meshByBox(mesh, sJsonVector3(map, "size", {1,1,1}), color);
+    }
+
+    if (shape == "plane" || shape == "quad") {
+        float width = sJsonFloat(map, "width", sJsonFloat(map, "size", 1.0f));
+        float depth = sJsonFloat(map, "depth", sJsonFloat(map, "height", width));
+        if (!texture.isNull())
+            mesh.setTexture(texture);
+        return Qtr3d::meshByPlane(mesh, width, depth, color);
+    }
+
+    if (shape == "sphere") {
+        int sectors = sJsonInt(map, "sectors", 32);
+        int rings = sJsonInt(map, "rings", sectors);
+        float radius = sJsonFloat(map, "radius", 1.0f);
+        bool renderOutside = sJsonBool(map, "renderOutside", true);
+        if (!texture.isNull())
+            return Qtr3d::meshBySphere(mesh, sectors, rings, radius, renderOutside, texture, true);
+
+        QImage colorMap(1,1,QImage::Format_ARGB32);
+        colorMap.fill(color);
+        return Qtr3d::meshBySphere(mesh, sectors, rings, radius, renderOutside, colorMap, false);
+    }
+
+    if (shape == "cylinder") {
+        return Qtr3d::meshByCylinder(mesh,
+                                     sJsonInt(map, "sectors", 32),
+                                     sJsonFloat(map, "radius", 1.0f),
+                                     sJsonFloat(map, "height", 1.0f),
+                                     sJsonBool(map, "topClosed", true),
+                                     sJsonBool(map, "bottomClosed", true),
+                                     color);
+    }
+
+    if (shape == "tube") {
+        return Qtr3d::meshByTube(mesh,
+                                 sJsonInt(map, "sectors", 32),
+                                 sJsonFloat(map, "radius", 1.0f),
+                                 sJsonFloat(map, "height", 1.0f),
+                                 color);
+    }
+
+    if (shape == "cone") {
+        return Qtr3d::meshByCone(mesh,
+                                 sJsonInt(map, "sectors", 32),
+                                 sJsonFloat(map, "radius", 1.0f),
+                                 sJsonFloat(map, "height", 1.0f),
+                                 sJsonBool(map, "bottomClosed", true),
+                                 color);
+    }
+
+    if (shape == "disc" || shape == "disk" || shape == "cycle" || shape == "circle")
+        return Qtr3d::meshByCycle(mesh, sJsonInt(map, "sectors", 32), color);
+
+    if (shape == "starsky" || shape == "stars")
+        return Qtr3d::meshByStarsky(mesh,
+                                    sJsonFloat(map, "radius", 1000.0f),
+                                    sJsonInt(map, "count", sJsonInt(map, "starCount", 1000)),
+                                    color);
+
+    if (shape == "texture") {
+        float width = sJsonFloat(map, "width", -1.0f);
+        float height = sJsonFloat(map, "height", -1.0f);
+        return !texture.isNull() && Qtr3d::meshByTexture(mesh, texture, width, height);
+    }
+
+    if (shape == "chessboard") {
+        QColor color1(map.value("color1", "#ffffff").toString());
+        QColor color2(map.value("color2", "#000000").toString());
+        return Qtr3d::meshByChessboard(mesh,
+                                       sJsonInt(map, "tilesPerRow", 8),
+                                       sJsonFloat(map, "size", 1.0f),
+                                       color1,
+                                       color2);
+    }
+
+    qWarning() << "Qtr3d::meshByJson: unsupported shape" << shape;
+    return false;
+}
+
 //-------------------------------------------------------------------------------------------------
 bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QString &filename)
 {
@@ -69,6 +223,8 @@ bool Qtr3d::meshByJson(Qtr3dMesh &mesh, const QVariant &json, const QString &sou
 
     map = map["mesh"].toMap();
 
+    if (map.contains("shape"))
+        return sMeshByJsonShape(mesh, map, sourceFilenameOrPath);
 
     // Mesh Type Processing
     QString      meshTypeString = map.value("type").toString();
@@ -302,43 +458,157 @@ bool Qtr3d::meshByXyzAxis(Qtr3dMesh &mesh, float length)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
+bool Qtr3d::meshByBox(Qtr3dMesh &mesh, const QVector3D &size, const QColor &color)
 {
-    Q_UNUSED(topClosed);
-    Q_UNUSED(bottomClosed);
-
-    if (sectors < 3)
+    if (size.x() <= 0 || size.y() <= 0 || size.z() <= 0 || !color.isValid())
         return false;
 
-    QVector3D pointer(1,0,0);
+    float x = size.x()/2.0f;
+    float y = size.y()/2.0f;
+    float z = size.z()/2.0f;
+
+    mesh.startMesh(Qtr3d::Quad, Qtr3d::CounterClockWise);
+    mesh.setDefaultColor(color);
+
+    mesh.addQuad({-x, y, z}, { x, y, z}, { x, y,-z}, {-x, y,-z}, QVector3D(0,1,0));
+    mesh.addQuad({-x, y,-z}, { x, y,-z}, { x,-y,-z}, {-x,-y,-z}, QVector3D(0,0,-1));
+    mesh.addQuad({ x,-y, z}, { x,-y,-z}, { x, y,-z}, { x, y, z}, QVector3D(1,0,0));
+    mesh.addQuad({-x,-y, z}, { x,-y, z}, { x, y, z}, {-x, y, z}, QVector3D(0,0,1));
+    mesh.addQuad({-x, y, z}, {-x, y,-z}, {-x,-y,-z}, {-x,-y, z}, QVector3D(-1,0,0));
+    mesh.addQuad({-x,-y,-z}, { x,-y,-z}, { x,-y, z}, {-x,-y, z}, QVector3D(0,-1,0));
+
+    mesh.endMesh(true);
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByPlane(Qtr3dMesh &mesh, float width, float depth, const QColor &color)
+{
+    if (width <= 0 || depth <= 0 || !color.isValid())
+        return false;
+
+    float x = width/2.0f;
+    float z = depth/2.0f;
+
+    mesh.startMesh(Qtr3d::Quad, Qtr3d::ClockWise);
+    mesh.setDefaultColor(color);
+    mesh.addQuad({-x,0, z}, {-x,0,-z}, { x,0,-z}, { x,0, z}, QVector3D(0,1,0));
+    mesh.endMesh(true);
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bottomClosed, const QColor &color)
+{
+    return meshByCylinder(mesh, sectors, 1.0f, 1.0f, topClosed, bottomClosed, color);
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, float radius, float height, bool topClosed, bool bottomClosed, const QColor &color)
+{
+    if (sectors < 3 || radius <= 0 || height <= 0 || !color.isValid())
+        return false;
+
+    QVector3D pointer(radius,0,0);
     QMatrix4x4 rotation;
-    rotation.rotate(360.f/sectors,{0,1,0});
+    rotation.rotate(360.f/sectors,QVector3D(0,1,0));
+    float y = height/2.0f;
+
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setDefaultColor(color);
+    mesh.setFaceOrientation(Qtr3d::ClockWise);
+
+    for (int i=0; i<sectors; i++) {
+        QVector3D next = rotation.map(pointer);
+        QVector3D normal1 = pointer.normalized();
+        QVector3D normal2 = next.normalized();
+
+        int first = mesh.verticesCount();
+        mesh.addVertex(pointer + QVector3D(0,-y,0), normal1);
+        mesh.addVertex(pointer + QVector3D(0, y,0), normal1);
+        mesh.addVertex(next    + QVector3D(0, y,0), normal2);
+        mesh.addVertex(next    + QVector3D(0,-y,0), normal2);
+
+        mesh.addIndex(first + 0);
+        mesh.addIndex(first + 1);
+        mesh.addIndex(first + 2);
+
+        mesh.addIndex(first + 2);
+        mesh.addIndex(first + 3);
+        mesh.addIndex(first + 0);
+
+        pointer = next;
+    }
+
+    if (topClosed) {
+        int topCenter = mesh.verticesCount();
+        mesh.addVertex(QVector3D(0,y,0), QVector3D(0,1,0));
+        pointer = {radius,0,0};
+        int firstTop = mesh.verticesCount();
+        for (int i=0; i<sectors; i++) {
+            mesh.addVertex(pointer + QVector3D(0,y,0), QVector3D(0,1,0));
+            pointer = rotation.map(pointer);
+        }
+        for (int i=0; i<sectors; i++) {
+            mesh.addIndex(topCenter);
+            mesh.addIndex(firstTop + (i == sectors-1 ? 0 : i+1));
+            mesh.addIndex(firstTop + i);
+        }
+    }
+
+    if (bottomClosed) {
+        int bottomCenter = mesh.verticesCount();
+        mesh.addVertex(QVector3D(0,-y,0), QVector3D(0,-1,0));
+        pointer = {radius,0,0};
+        int firstBottom = mesh.verticesCount();
+        for (int i=0; i<sectors; i++) {
+            mesh.addVertex(pointer + QVector3D(0,-y,0), QVector3D(0,-1,0));
+            pointer = rotation.map(pointer);
+        }
+        for (int i=0; i<sectors; i++) {
+            mesh.addIndex(bottomCenter);
+            mesh.addIndex(firstBottom + i);
+            mesh.addIndex(firstBottom + (i == sectors-1 ? 0 : i+1));
+        }
+    }
+
+    mesh.endMesh();
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByTube(Qtr3dMesh &mesh, int sectors, float radius, float height, const QColor &color)
+{
+    if (sectors < 3 || radius <= 0 || height <= 0 || !color.isValid())
+        return false;
+
+    QVector3D pointer(radius,0,0);
+    QMatrix4x4 rotation;
+    rotation.rotate(360.f/sectors,QVector3D(0,1,0));
+    float y = height/2.0f;
 
     mesh.startMesh(Qtr3d::Triangle);
     mesh.setDefaultColor(color);
     mesh.setFaceOrientation(Qtr3d::CounterClockWise);
+
     for (int i=0; i<sectors; i++) {
-        mesh.addVertex(pointer + QVector3D(0, 0.5,0),pointer); // Top Cycle
-        mesh.addVertex(pointer + QVector3D(0,-0.5,0),pointer); // Bottom Cycle
+        QVector3D normal = -pointer.normalized();
+        mesh.addVertex(pointer + QVector3D(0, y,0), normal);
+        mesh.addVertex(pointer + QVector3D(0,-y,0), normal);
 
         int currentTop    = (i*2)+0;
         int currentBottom = (i*2)+1;
         int nextTop       = i == sectors-1 ? 0 : (i+1)*2+0;
         int nextBottom    = i == sectors-1 ? 1 : (i+1)*2+1;
 
-        // add triangle 1
         mesh.addIndex(currentBottom);
         mesh.addIndex(currentTop);
         mesh.addIndex(nextTop);
 
-        // add triangle 2
         mesh.addIndex(nextTop);
         mesh.addIndex(nextBottom);
         mesh.addIndex(currentBottom);
 
-        // mesh.addIndex(i == sectors - 1 ? 0 : (i+1)*2); // to next top
-
-        // pointer = pointer*rotation;
         pointer = rotation.map(pointer);
     }
 
@@ -347,7 +617,67 @@ bool Qtr3d::meshByCylinder(Qtr3dMesh &mesh, int sectors, bool topClosed, bool bo
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap, bool asTexture){
+bool Qtr3d::meshByCone(Qtr3dMesh &mesh, int sectors, bool bottomClosed, const QColor &color)
+{
+    return meshByCone(mesh, sectors, 1.0f, 1.0f, bottomClosed, color);
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshByCone(Qtr3dMesh &mesh, int sectors, float radius, float height, bool bottomClosed, const QColor &color)
+{
+    if (sectors < 3 || radius <= 0 || height <= 0 || !color.isValid())
+        return false;
+
+    QVector3D pointer(radius,0,0);
+    QMatrix4x4 rotation;
+    rotation.rotate(360.f/sectors,QVector3D(0,1,0));
+    float y = height/2.0f;
+
+    mesh.startMesh(Qtr3d::Triangle);
+    mesh.setDefaultColor(color);
+    mesh.setFaceOrientation(Qtr3d::ClockWise);
+
+    for (int i=0; i<sectors; i++) {
+        QVector3D next = rotation.map(pointer);
+        QVector3D normal1(pointer.x(), radius/height, pointer.z());
+        QVector3D normal2(next.x(), radius/height, next.z());
+        normal1.normalize();
+        normal2.normalize();
+
+        int base1 = mesh.verticesCount();
+        mesh.addVertex(pointer + QVector3D(0,-y,0), normal1);
+        mesh.addVertex(QVector3D(0,y,0), QVector3D(0,1,0));
+        mesh.addVertex(next + QVector3D(0,-y,0), normal2);
+
+        mesh.addIndex(base1);
+        mesh.addIndex(base1+1);
+        mesh.addIndex(base1+2);
+
+        pointer = next;
+    }
+
+    if (bottomClosed) {
+        int bottomCenter = mesh.verticesCount();
+        mesh.addVertex(QVector3D(0,-y,0), QVector3D(0,-1,0));
+        pointer = {radius,0,0};
+        int firstBottom = mesh.verticesCount();
+        for (int i=0; i<sectors; i++) {
+            mesh.addVertex(pointer + QVector3D(0,-y,0), QVector3D(0,-1,0));
+            pointer = rotation.map(pointer);
+        }
+        for (int i=0; i<sectors; i++) {
+            mesh.addIndex(bottomCenter);
+            mesh.addIndex(firstBottom + (i == sectors-1 ? 0 : i+1));
+            mesh.addIndex(firstBottom + i);
+        }
+    }
+
+    mesh.endMesh();
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3d::meshBySphere(Qtr3dMesh &mesh, int sectors, const QImage &colorMap, bool /*asTexture*/){
     return meshBySphere(mesh,sectors,sectors,1,true,colorMap);
 }
 #if 0
@@ -514,6 +844,9 @@ bool Qtr3d::modelByFile(Qtr3dModel &model, const QString &filename, Qtr3dModelLo
 
     if (Qtr3dGlbLoader::supportsFile(filename))
         return Qtr3dGlbLoader::loadFile(model,filename);
+
+    if (Qtr3dJsonLoader::supportsFile(filename))
+        return Qtr3dJsonLoader::loadFile(model,filename);
     return false;
 }
 
@@ -1042,6 +1375,9 @@ bool Qtr3d::modelByFileBuffer(Qtr3dModel &model, const QString &filename, const 
 
     if (Qtr3dGlbLoader::supportsFile(filename))
         return Qtr3dGlbLoader::loadFile(model,fileBuffer);
+
+    if (Qtr3dJsonLoader::supportsFile(filename))
+        return Qtr3dJsonLoader::loadFile(model,fileBuffer);
     return false;
 
 }
