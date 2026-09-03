@@ -14,6 +14,7 @@
 #include <libqtr3d/qtr3dgeometrystate.h>
 #include <libqtr3d/qtr3dlightsource.h>
 #include <libqtr3d/extras/qtr3dthirdpersoncameracontroller.h>
+#include <libqtr3d/extras/qtr3dchasecameracontroller.h>
 
 
 class CameraModeKeys : public QObject
@@ -32,6 +33,8 @@ public:
     {
         if (auto *thirdPerson = qobject_cast<Qtr3dThirdPersonCameraController*>(mViewer->cameraController()))
             thirdPerson->setTargetDirection(direction);
+        if (auto *chase = qobject_cast<Qtr3dChaseCameraController*>(mViewer->cameraController()))
+            chase->setTargetDirection(direction);
     }
 
 protected:
@@ -42,7 +45,7 @@ protected:
             return false;
 
         auto *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->key() >= Qt::Key_1 && keyEvent->key() <= Qt::Key_6) {
+        if (keyEvent->key() >= Qt::Key_1 && keyEvent->key() <= Qt::Key_7) {
             setMode(keyEvent->key() - Qt::Key_0);
             return true;
         }
@@ -70,6 +73,9 @@ private:
             mViewer->setCameraController(Qtr3d::chaseCamera(mTarget, 16, 5));
             break;
         case 6:
+            mViewer->setCameraController(Qtr3d::orientedChaseCamera(mTarget, 16, 5));
+            break;
+        case 7:
             mViewer->setCameraController(Qtr3d::topDownCamera(mTarget, 35));
             break;
         default:
@@ -95,8 +101,9 @@ int main(int argc, char *argv[])
                   "2  Orbit target\n"
                   "3  First person\n"
                   "4  Third person\n"
-                  "5  Chase camera\n"
-                  "6  Top down");
+                  "5  Chase camera, world up\n"
+                  "6  Chase camera, target up\n"
+                  "7  Top down");
     help->setStyleSheet("QLabel { background: rgba(0,0,0,155); color: rgb(225,230,240); "
                         "padding: 10px 14px; border-radius: 6px; font-size: 9pt; }");
     help->move(12,12);

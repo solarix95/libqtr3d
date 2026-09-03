@@ -49,6 +49,7 @@ public:
     Qtr3dAssets                *assets();
     Qtr3dLightSource           *primaryLightSource();
     QObject                    *cameraController() const;
+    void                        clearCameraController();
     QObject                    *setCameraController(const Qtr3dCameraController &controller);
 
     // Factories

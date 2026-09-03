@@ -966,7 +966,7 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QImage &highmapImage, const QIm
 
     mesh.startMesh(Qtr3d::Triangle, Qtr3d::ClockWise);
 
-    //mesh.setTexture(texture.mirrored());
+    mesh.setTexture(texture.mirrored());
 
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
@@ -988,8 +988,8 @@ bool Qtr3d::meshByHighmap(Qtr3dMesh &mesh, const QImage &highmapImage, const QIm
             }
 
             // mesh.addVertex({fx,fy,fz},normal, y/(float)h, x/(float)w);
-            // mesh.addVertex({fx,fy,fz},normal, x/(float)w, y/(float)h);
-             mesh.addVertex({fx,fy,fz},normal,texture.pixel(x,y));
+            mesh.addVertex({fx,fy,fz},normal, x/(float)w, y/(float)h);
+             // mesh.addVertex({fx,fy,fz},normal,texture.pixel(x,y));
         }
     }
 

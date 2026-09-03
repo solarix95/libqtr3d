@@ -18,6 +18,11 @@ public:
         TopDownCamera
     };
 
+    enum ChaseOrientationMode {
+        ChaseWorldUp,
+        ChaseTargetUp
+    };
+
     explicit Qtr3dCameraController(Type type);
 
     Type type() const;
@@ -29,6 +34,10 @@ public:
     float height() const;
     QVector3D lookAtPos() const;
     bool hasLookAtPos() const;
+    ChaseOrientationMode chaseOrientationMode() const;
+    float chasePositionSmoothing() const;
+    float chaseLookAtSmoothing() const;
+    float chaseSnapDistance() const;
 
     void setTargetState(Qtr3dGeometryState *targetState);
     void setTargetPos(const QVector3D &targetPos);
@@ -36,6 +45,8 @@ public:
     void setOffset(float offset);
     void setHeight(float height);
     void setLookAtPos(const QVector3D &lookAtPos);
+    void setChaseOrientationMode(ChaseOrientationMode mode);
+    void setChaseSmoothing(float positionSmoothing, float lookAtSmoothing, float snapDistance = 80.0f);
 
 private:
     Type mType;
@@ -47,6 +58,10 @@ private:
     float mHeight;
     QVector3D mLookAtPos;
     bool mHasLookAtPos;
+    ChaseOrientationMode mChaseOrientationMode;
+    float mChasePositionSmoothing;
+    float mChaseLookAtSmoothing;
+    float mChaseSnapDistance;
 };
 
 namespace Qtr3d {
@@ -57,7 +72,9 @@ Qtr3dCameraController orbitCamera(const QVector3D &center = QVector3D(0,0,0), fl
 Qtr3dCameraController orbitCamera(Qtr3dGeometryState *targetState, float distance = -1);
 Qtr3dCameraController followCamera(Qtr3dGeometryState *targetState, float distance = -1, float offset = 0);
 Qtr3dCameraController thirdPersonCamera(Qtr3dGeometryState *targetState, float distance = 10, float height = 3);
-Qtr3dCameraController chaseCamera(Qtr3dGeometryState *targetState, float distance = 10, float height = 3);
+Qtr3dCameraController chaseCamera(Qtr3dGeometryState *targetState, float distance = 10, float height = 3,
+                                    Qtr3dCameraController::ChaseOrientationMode mode = Qtr3dCameraController::ChaseWorldUp);
+Qtr3dCameraController orientedChaseCamera(Qtr3dGeometryState *targetState, float distance = 10, float height = 3);
 Qtr3dCameraController topDownCamera(const QVector3D &center = QVector3D(0,0,0), float height = 100);
 Qtr3dCameraController topDownCamera(Qtr3dGeometryState *targetState, float height = 100);
 

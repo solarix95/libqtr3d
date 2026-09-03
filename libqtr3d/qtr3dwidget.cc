@@ -156,13 +156,20 @@ QObject *Qtr3dWidget::cameraController() const
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::clearCameraController()
+{
+    if (!mCameraController)
+        return;
+
+    removeEventFilter(mCameraController);
+    mCameraController->deleteLater();
+    mCameraController = nullptr;
+}
+
+//-------------------------------------------------------------------------------------------------
 QObject *Qtr3dWidget::setCameraController(const Qtr3dCameraController &controller)
 {
-    if (mCameraController) {
-        removeEventFilter(mCameraController);
-        mCameraController->deleteLater();
-        mCameraController = nullptr;
-    }
+    clearCameraController();
 
     switch (controller.type()) {
     case Qtr3dCameraController::FreeFlyCamera:
@@ -195,10 +202,17 @@ QObject *Qtr3dWidget::setCameraController(const Qtr3dCameraController &controlle
         Q_ASSERT(controller.targetState());
         mCameraController = new Qtr3dThirdPersonCameraController(this, controller.targetState(), controller.distance(), controller.height());
         break;
-    case Qtr3dCameraController::ChaseCamera:
+    case Qtr3dCameraController::ChaseCamera: {
         Q_ASSERT(controller.targetState());
-        mCameraController = new Qtr3dChaseCameraController(this, controller.targetState(), controller.distance(), controller.height());
-        break;
+        const auto mode = controller.chaseOrientationMode() == Qtr3dCameraController::ChaseTargetUp
+                          ? Qtr3dChaseCameraController::TargetUp
+                          : Qtr3dChaseCameraController::WorldUp;
+        mCameraController = new Qtr3dChaseCameraController(this, controller.targetState(),
+                                                           controller.distance(), controller.height(), mode,
+                                                           controller.chasePositionSmoothing(),
+                                                           controller.chaseLookAtSmoothing(),
+                                                           controller.chaseSnapDistance());
+    } break;
     case Qtr3dCameraController::TopDownCamera:
         if (controller.targetState())
             mCameraController = new Qtr3dTopDownCameraController(this, controller.targetState(), controller.height());
@@ -381,10 +395,8 @@ void Qtr3dWidget::paintGeometries()
         Qtr3dShader *shader = nullptr;
         switch (geometry->shader()) {
         case Qtr3d::PlainShader:
-            qDebug() << "Plain";
             shader = mPlainShader; break;
         case Qtr3d::ColoredShader:
-            qDebug() << "Colored";
             shader = mVertexMeshShader; break;
         case Qtr3d::TexturedShader:
             shader = mTexturedMeshShader; break;
@@ -394,7 +406,6 @@ void Qtr3dWidget::paintGeometries()
         if (!shader)
             continue;
 
-        qDebug() << "Render shader" << shader;
         // Background-Option overrides all others. Blending is not possible. Usecase: Skybox
         if (geometry->renderOptions().testFlag(Qtr3d::BackgroundOption)) {
             frontList << geometry;

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMatrix4x4>
+#include <QQuaternion>
 #include <QList>
 #include "math3d/qtr3ddblmatrix.h"
 #include "math3d/qtr3ddblvector.h"
@@ -36,6 +37,24 @@ public:
     void setScale(float xyzScale);
     void setRotation(const QVector3D &rotationAngles);
     inline const QVector3D        &rot() const     { return mRot; }
+
+    void setOrientation(const QQuaternion &orientation);
+    inline const QQuaternion      &orientation() const { return mOrientation; }
+    void setModelOrientation(const QQuaternion &orientation);
+    inline const QQuaternion      &modelOrientation() const { return mModelOrientation; }
+    void setModelRotation(const QVector3D &rotationAngles);
+    void rotateLocal(const QVector3D &axis, float angleDegrees);
+    void setPitch(float angleDegrees);
+    void setYaw(float angleDegrees);
+    void setRoll(float angleDegrees);
+    QVector3D forward() const;
+    QVector3D right() const;
+    QVector3D up() const;
+    void setMotionDirection(const QVector3D &direction);
+    QVector3D motionDirection() const;
+    bool hasMotionDirection() const;
+    void clearMotionDirection();
+
     void setModelView(const QMatrix4x4 &modelView); // override pos, rotation, scale, ... calculate everything from outside.
 
     float radius() const;            // scaled buffer radius
@@ -54,6 +73,7 @@ signals:
 
 private:
     void updateMatrix();
+    void updateOrientationFromRotation();
 
     Qtr3dGeometry    &mBuffer;
     bool              mEnabled;
@@ -67,8 +87,9 @@ private:
     Q_DECLARE_FLAGS(ModelViewFlags, ModelViewFlag);
 
     enum ModelViewMode {
-        DefaultModelViewMode, // ModelView calculated by Scale + Rotation
-        CustomMatrixViewMode  // ModelView created/set by external controller
+        DefaultModelViewMode,    // ModelView calculated by Scale + Rotation
+        OrientationModelViewMode, // ModelView calculated by quaternion orientation + scale
+        CustomMatrixViewMode     // ModelView created/set by external controller
     };
 
     ModelViewFlags    mModelViewFlags;
@@ -79,6 +100,10 @@ private:
     // DefaultModelViewMode
     QVector3D         mRot;
     QVector3D         mScale;
+    QQuaternion       mOrientation;
+    QQuaternion       mModelOrientation;
+    QVector3D         mMotionDirection;
+    bool              mHasMotionDirection;
 
     // CustomMatrixViewMode
     QMatrix4x4        mModelView;

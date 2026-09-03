@@ -1,4 +1,5 @@
 #include "qtr3dcameracontroller.h"
+#include <QtGlobal>
 
 Qtr3dCameraController::Qtr3dCameraController(Type type)
     : mType(type)
@@ -10,6 +11,10 @@ Qtr3dCameraController::Qtr3dCameraController(Type type)
     , mHeight(0)
     , mLookAtPos(0,0,0)
     , mHasLookAtPos(false)
+    , mChaseOrientationMode(ChaseWorldUp)
+    , mChasePositionSmoothing(8.0f)
+    , mChaseLookAtSmoothing(12.0f)
+    , mChaseSnapDistance(80.0f)
 {
 }
 
@@ -58,6 +63,26 @@ bool Qtr3dCameraController::hasLookAtPos() const
     return mHasLookAtPos;
 }
 
+Qtr3dCameraController::ChaseOrientationMode Qtr3dCameraController::chaseOrientationMode() const
+{
+    return mChaseOrientationMode;
+}
+
+float Qtr3dCameraController::chasePositionSmoothing() const
+{
+    return mChasePositionSmoothing;
+}
+
+float Qtr3dCameraController::chaseLookAtSmoothing() const
+{
+    return mChaseLookAtSmoothing;
+}
+
+float Qtr3dCameraController::chaseSnapDistance() const
+{
+    return mChaseSnapDistance;
+}
+
 void Qtr3dCameraController::setTargetState(Qtr3dGeometryState *targetState)
 {
     mTargetState = targetState;
@@ -88,6 +113,18 @@ void Qtr3dCameraController::setLookAtPos(const QVector3D &lookAtPos)
 {
     mLookAtPos = lookAtPos;
     mHasLookAtPos = true;
+}
+
+void Qtr3dCameraController::setChaseOrientationMode(ChaseOrientationMode mode)
+{
+    mChaseOrientationMode = mode;
+}
+
+void Qtr3dCameraController::setChaseSmoothing(float positionSmoothing, float lookAtSmoothing, float snapDistance)
+{
+    mChasePositionSmoothing = qMax(0.0f, positionSmoothing);
+    mChaseLookAtSmoothing = qMax(0.0f, lookAtSmoothing);
+    mChaseSnapDistance = qMax(0.0f, snapDistance);
 }
 
 Qtr3dCameraController Qtr3d::freeFlyCamera()
@@ -137,13 +174,20 @@ Qtr3dCameraController Qtr3d::thirdPersonCamera(Qtr3dGeometryState *targetState, 
     return ret;
 }
 
-Qtr3dCameraController Qtr3d::chaseCamera(Qtr3dGeometryState *targetState, float distance, float height)
+Qtr3dCameraController Qtr3d::chaseCamera(Qtr3dGeometryState *targetState, float distance, float height,
+                                             Qtr3dCameraController::ChaseOrientationMode mode)
 {
     Qtr3dCameraController ret(Qtr3dCameraController::ChaseCamera);
     ret.setTargetState(targetState);
     ret.setDistance(distance);
     ret.setHeight(height);
+    ret.setChaseOrientationMode(mode);
     return ret;
+}
+
+Qtr3dCameraController Qtr3d::orientedChaseCamera(Qtr3dGeometryState *targetState, float distance, float height)
+{
+    return chaseCamera(targetState, distance, height, Qtr3dCameraController::ChaseTargetUp);
 }
 
 Qtr3dCameraController Qtr3d::topDownCamera(const QVector3D &center, float height)
