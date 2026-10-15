@@ -2,6 +2,7 @@
 #define LIB_QTR3D_WIDGET
 
 #include <QOpenGLWidget>
+#include <QList>
 #include "qtr3dtypes.h"
 #include "qtr3dmodel.h"
 #include "qtr3dcameracontroller.h"
@@ -48,6 +49,12 @@ public:
     Qtr3dTextureFactory        *textures();
     Qtr3dAssets                *assets();
     Qtr3dLightSource           *primaryLightSource();
+    Qtr3dLightSource           *createLightSource();
+    bool                        removeLightSource(Qtr3dLightSource *light);
+    const QList<Qtr3dLightSource*> &lightSources() const;
+    QList<Qtr3dLightSource*>    relevantLightSources(const Qtr3dGeometryState &state, int maximum = -1) const;
+    void                        setMaximumLightsPerGeometry(int maximum);
+    int                         maximumLightsPerGeometry() const;
     QObject                    *cameraController() const;
     void                        clearCameraController();
     QObject                    *setCameraController(const Qtr3dCameraController &controller);
@@ -93,6 +100,8 @@ private:
     Qtr3dCamera             *mCamera;
     Qtr3dTextureFactory     *mTextures;
     Qtr3dLightSource        *mLightSource;
+    QList<Qtr3dLightSource*> mLightSources;
+    int                       mMaximumLightsPerGeometry;
 
     Qtr3dAssets            *mContext;
     QObject                *mCameraController;

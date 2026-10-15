@@ -50,6 +50,9 @@ public:
     // logical time: real duration is duration()/ticksPerSec()
     float   duration() const;
     int     ticksPerSec() const;
+    // The first playback starts at zero; subsequent cycles restart here.
+    float   loopStart() const;
+    void    setLoopStart(float time);
 
     void    addChannel(const Channel &channel);
 
@@ -60,6 +63,7 @@ private:
     QString               mName;
     float                 mDuration;
     int                   mTicksPerSec;
+    float                 mLoopStart;
     QMap<QString,Channel> mChannels;
 };
 

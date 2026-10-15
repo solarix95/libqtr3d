@@ -49,6 +49,7 @@ Qtr3dWidget::Qtr3dWidget(Options ops, QWidget *parent)
     , mOptions(ops)
     , mCamera(nullptr)
     , mLightSource(nullptr)
+    , mMaximumLightsPerGeometry(5)
     , mContext(nullptr)
     , mCameraController(nullptr)
     , mPlainShader(nullptr)
@@ -63,6 +64,7 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
     , mOptions(NoOption)
     , mCamera(nullptr)
     , mLightSource(nullptr)
+    , mMaximumLightsPerGeometry(5)
     , mContext(nullptr)
     , mCameraController(nullptr)
     , mPlainShader(nullptr)
@@ -74,6 +76,13 @@ Qtr3dWidget::Qtr3dWidget(QWidget *parent)
 //-------------------------------------------------------------------------------------------------
 Qtr3dWidget::~Qtr3dWidget()
 {
+    const auto lights = mLightSources;
+    mLightSources.clear();
+    mLightSource = nullptr;
+    for (auto *light: lights)
+        disconnect(light, nullptr, this, nullptr);
+    qDeleteAll(lights);
+
     if (mContext && (mContext->parent() == this)) {
         makeCurrent();
         mContext->reset();
@@ -145,8 +154,67 @@ Qtr3dTextureFactory *Qtr3dWidget::textures()
 Qtr3dLightSource *Qtr3dWidget::primaryLightSource()
 {
     if (!mLightSource)
-        mLightSource = new Qtr3dLightSource({0,0,0},Qt::white);
+        mLightSource = createLightSource();
     return mLightSource;
+}
+
+//-------------------------------------------------------------------------------------------------
+Qtr3dLightSource *Qtr3dWidget::createLightSource()
+{
+    auto *light = new Qtr3dLightSource(this);
+    mLightSources.append(light);
+    connect(light, &Qtr3dLightSource::changed, this, &Qtr3dWidget::updateRequested);
+    connect(light, &QObject::destroyed, this, [this, light]() {
+        mLightSources.removeOne(light);
+        if (mLightSource == light) mLightSource = nullptr;
+    });
+    return light;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dWidget::removeLightSource(Qtr3dLightSource *light)
+{
+    if (!light || !mLightSources.contains(light)) return false;
+    mLightSources.removeOne(light);
+    if (mLightSource == light) mLightSource = nullptr;
+    delete light;
+    updateRequested();
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+const QList<Qtr3dLightSource*> &Qtr3dWidget::lightSources() const
+{
+    return mLightSources;
+}
+
+//-------------------------------------------------------------------------------------------------
+QList<Qtr3dLightSource*> Qtr3dWidget::relevantLightSources(const Qtr3dGeometryState &state, int maximum) const
+{
+    QList<Qtr3dLightSource*> result;
+    for (auto *light: mLightSources)
+        if (light->influenceAt(state.center(), state.radius()) > 0.0f) result.append(light);
+
+    std::sort(result.begin(), result.end(), [&state](Qtr3dLightSource *a, Qtr3dLightSource *b) {
+        return a->influenceAt(state.center(), state.radius()) > b->influenceAt(state.center(), state.radius());
+    });
+
+    if (maximum < 0) maximum = mMaximumLightsPerGeometry;
+    maximum = qMin(maximum, Qtr3d::MaximumLightsPerGeometry);
+    while (result.size() > maximum) result.removeLast();
+    return result;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dWidget::setMaximumLightsPerGeometry(int maximum)
+{
+    mMaximumLightsPerGeometry = qBound(0, maximum, Qtr3d::MaximumLightsPerGeometry);
+}
+
+//-------------------------------------------------------------------------------------------------
+int Qtr3dWidget::maximumLightsPerGeometry() const
+{
+    return mMaximumLightsPerGeometry;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -377,6 +445,9 @@ void Qtr3dWidget::preInitializing()
     if (!mContext)
         mContext = new Qtr3dAssets(this);
 
+    // Preserve the historic implicit white light even if an application never
+    // calls primaryLightSource() explicitly.
+    primaryLightSource();
     setOptions(mOptions);
 }
 
@@ -468,7 +539,7 @@ void Qtr3dWidget::paintGeometries()
             nextLightingTyp = shader->defaultLighting();
         shader->render(*mesh,zInfo.state->modelView(originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0}),
                        QVector<QMatrix4x4>(), *camera(),
-                       nextLightingTyp,*primaryLightSource(), assets()->environment());
+                       nextLightingTyp,relevantLightSources(*zInfo.state), assets()->environment());
     }
 }
 
@@ -651,7 +722,7 @@ void Qtr3dWidget::renderGeometry(Qtr3dGeometry *buffer)
         switch(buffer->pipeLine()) {
         case Qtr3dGeometry::MeshPipeline:
             shader->render(*(Qtr3dMesh*)buffer,state->modelView(originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0}),QVector<QMatrix4x4>(), *camera(),
-                           nextLightingTyp,*primaryLightSource(), assets()->environment());
+                           nextLightingTyp,relevantLightSources(*state), assets()->environment());
             break;
         case Qtr3dGeometry::PointCloudPipeline:
             mPointCloudShader->setProgram(Qtr3d::NoLighting);
@@ -700,7 +771,7 @@ void Qtr3dWidget::renderStaticModel(const Qtr3dModel &model, Qtr3dGeometryState 
             //    qDebug() << i << mesh->vertex(i).p.toQVector();
             //}
             shader->render(*mesh,state->modelView((originRebasing ? camera()->pos() : Qtr3dDblVector3D{0,0,0})) * node->translation(), QVector<QMatrix4x4>(),*camera(),
-                           nextLightingTyp,*primaryLightSource(), assets()->environment());
+                           nextLightingTyp,relevantLightSources(*state), assets()->environment());
         }
     }
 }
@@ -755,7 +826,7 @@ void Qtr3dWidget::renderAnimatedModel(const Qtr3dModel &model, Qtr3dGeometryStat
             if (skeletonUpdates <= 0)
                 modelView *= qtr3dAnimatedNodeTransform(node, state->animator());
 
-            shader->render(*mesh,modelView, skeleton,*camera(),nextLightingTyp,*primaryLightSource(), assets()->environment());
+            shader->render(*mesh,modelView, skeleton,*camera(),nextLightingTyp,relevantLightSources(*state), assets()->environment());
         }
     }
 }

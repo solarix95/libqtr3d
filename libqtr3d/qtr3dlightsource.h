@@ -20,12 +20,19 @@ public:
     QVector3D colorf() const;
     QVector3D ambientColor() const;
     QVector3D strengthAmbient() const;   // Support: Qtr3d::NoLighting + FlatLighting + PhongLighting
+    float     intensity() const;
+    float     range() const;
+    bool      enabled() const;
+    float     influenceAt(const Qtr3dDblVector3D &point, float objectRadius = 0.0f) const;
 
 public slots:
     void      setColor(QColor c);
     void      setPos(const Qtr3dDblVector3D &p);
     void      setAmbientStrength(float kAmbient);
     void      setAmbientStrength(const QVector3D &ambient);
+    void      setIntensity(float intensity);
+    void      setRange(float range);
+    void      setEnabled(bool enabled);
 
 signals:
     void changed(Qtr3dLightSource *light);
@@ -35,6 +42,9 @@ private:
     QColor    mColor;
 
     QVector3D mAmbientFactor;
+    float     mIntensity;
+    float     mRange;
+    bool      mEnabled;
 };
 
 #endif // QTR3DLIGHTSOURCE_H

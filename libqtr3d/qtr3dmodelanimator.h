@@ -21,9 +21,10 @@ public:
     void       setLoop(bool loop);
     bool       transform(const QString &nodeName, QMatrix4x4 &nodeTransform) const;
     void       setTicksPerSecond(int tps);
+    float      animationTime() const;
 
 private:
-    float locicalAnimationTime() const;
+    float logicalAnimationTime() const;
 
     Qtr3dModelAnimation *mAnimation;
     QElapsedTimer        mAnimationTimer;

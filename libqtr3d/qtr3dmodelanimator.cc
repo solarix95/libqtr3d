@@ -53,7 +53,7 @@ bool Qtr3dModelAnimator::transform(const QString &nodeName, QMatrix4x4 &nodeTran
 {
     if (nodeName.isEmpty() || !mIsEnabled)
         return false;
-    return mAnimation->tranformNode(nodeName,locicalAnimationTime(), nodeTransform);
+    return mAnimation->tranformNode(nodeName,logicalAnimationTime(), nodeTransform);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -63,7 +63,13 @@ void Qtr3dModelAnimator::setTicksPerSecond(int tps)
 }
 
 //-------------------------------------------------------------------------------------------------
-float Qtr3dModelAnimator::locicalAnimationTime() const
+float Qtr3dModelAnimator::animationTime() const
+{
+    return logicalAnimationTime();
+}
+
+//-------------------------------------------------------------------------------------------------
+float Qtr3dModelAnimator::logicalAnimationTime() const
 {
     if (!mAnimationTimer.isValid())
         return 0.0f;
@@ -76,8 +82,14 @@ float Qtr3dModelAnimator::locicalAnimationTime() const
     float curTimeTicks = curTimeSecs * float(tps);
     const float duration = mAnimation->duration();
 
-    if (mLoop && duration > 0.0f)
-        curTimeTicks = std::fmod(curTimeTicks, duration);
+    if (mLoop && duration > 0.0f && curTimeTicks >= duration) {
+        const float loopStart = mAnimation->loopStart();
+        const float loopDuration = duration - loopStart;
+        if (loopDuration > 0.0f)
+            curTimeTicks = loopStart + std::fmod(curTimeTicks - duration, loopDuration);
+        else
+            curTimeTicks = duration;
+    }
     else if (duration > 0.0f && curTimeTicks > duration)
         curTimeTicks = duration;
 

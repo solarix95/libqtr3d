@@ -14,6 +14,8 @@ typedef QOpenGLTexture Qtr3dTexture;
 namespace Qtr3d
 {
 
+static const int MaximumLightsPerGeometry = 8;
+
 enum ShaderType {
     PlainShader,    // One Color per Mesh
     ColoredShader,  // One Color per Vertex

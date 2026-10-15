@@ -7,11 +7,16 @@ struct Material {
     float shininess;  // Phong only
 };
 
+const int MAX_LIGHTS = 8;
 struct Light {
-    vec3  pos;        // = WorldMatrix * LightPosition
+    vec3  pos;        // camera-space position
     vec3  color;
     vec3  ambient;
+    float intensity;
+    float range;      // negative means unlimited
 };
+uniform Light lights[MAX_LIGHTS];
+uniform int   numLights;
 
 struct Fog {
     vec4  color;
@@ -27,7 +32,6 @@ uniform Texture texture;
 
 uniform Fog      fog;
 uniform Material material;
-uniform Light    light;
 
 // Parameters from the vertex shader
 #QTR3d_SHADER_PASS
@@ -210,28 +214,32 @@ vec4 interpolatedTextureColor(sampler2D id, vec2 coords) {
 
 //-------------------------------------------------------------------------------------------------
 void main() {
-        // fog shortcut
-        float distance = length(fragPos);
-        if (fog.distance > 0.0 && distance > fog.distance)
-            discard;
+    float fogDistance = length(fragPos);
+    if (fog.distance > 0.0 && fogDistance > fog.distance)
+        discard;
 
-        // easy ambient color calculation
-        vec4  inColor  = #QTR3D_FRAGMENT_COLOR
-        vec3  ambient  = (light.ambient * light.color * inColor.rgb) + (material.ambient * inColor.rgb);
+    vec4 inColor = #QTR3D_FRAGMENT_COLOR
+    vec3 norm = normalize(fragNormal);
+    vec3 finalColor = material.ambient * inColor.rgb;
 
-        // diffuse color
-        vec3  norm     = normalize(fragNormal);
-        vec3  lightDir = normalize(light.pos - fragPos.xyz);
-        float diff     = max(dot(norm, lightDir), 0.0);
-        vec3  diffuse  = diff * material.diffuse * inColor.rgb * light.color;
+    for (int i = 0; i < MAX_LIGHTS; ++i) {
+        if (i >= numLights) break;
+        vec3 lightVector = lights[i].pos - fragPos.xyz;
+        float lightDistance = length(lightVector);
+        vec3 lightDir = normalize(lightVector);
+        float attenuation = lights[i].intensity;
+        if (lights[i].range >= 0.0) {
+            float remaining = clamp(1.0 - lightDistance / max(lights[i].range, 0.0001), 0.0, 1.0);
+            attenuation *= remaining * remaining;
+        }
+        float diffuseFactor = max(dot(norm, lightDir), 0.0);
+        finalColor += attenuation * lights[i].ambient * lights[i].color * inColor.rgb;
+        finalColor += attenuation * diffuseFactor * material.diffuse * inColor.rgb * lights[i].color;
+    }
 
-        vec3  finalColor = (ambient + diffuse);
+    if (fog.distance > 0.0)
+        finalColor = mix(finalColor, fog.color.rgb, fogDistance/fog.distance);
 
-        // fog color mixer
-        if (fog.distance > 0.0)
-            finalColor = mix(finalColor, fog.color.rgb, distance/fog.distance);
-
-        // Final output
-        gl_FragColor.rgb = finalColor;
-        gl_FragColor.a   = inColor.a;
+    gl_FragColor.rgb = min(finalColor, vec3(1.0));
+    gl_FragColor.a = inColor.a;
 }

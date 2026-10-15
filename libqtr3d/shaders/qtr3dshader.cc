@@ -101,32 +101,58 @@ void Qtr3dShader::setProgram(Qtr3d::LightingType lightType)
 
 //-------------------------------------------------------------------------------------------------
 void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera,
-                         Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
+                         Qtr3d::LightingType lighting, const QList<Qtr3dLightSource*> &lights, const Qtr3dEnvironment &env)
 {
-    if (mesh.meshType() < Qtr3d::Triangle) // No Lighing for dots and lines... otherwise you can't see basic shapes in complex models...
+    if (mesh.meshType() < Qtr3d::Triangle)
         lighting = Qtr3d::NoLighting;
 
     setProgram(lighting);
+    currentProgram()->setUniformValue("fog.color", env.clearColor4f());
+    currentProgram()->setUniformValue("fog.distance", env.fogDistance());
+    currentProgram()->setUniformValue("pushToBack", GLint(mesh.renderOptions().testFlag(Qtr3d::BackgroundOption) ? 1:0));
+    uploadLights(lights, camera);
 
-    currentProgram()->setUniformValue("fog.color",     env.clearColor4f());
-    currentProgram()->setUniformValue("fog.distance",  env.fogDistance());
-    currentProgram()->setUniformValue("pushToBack",    GLint(mesh.renderOptions().testFlag(Qtr3d::BackgroundOption) ? 1:0));
-
-    // Rebase Test:
-    //qDebug() << "MODEL AT" << modelView.map({0,0,0});
-    //qDebug() << "WORLD AT" << worldView.map({0,0,0});
-
+    Qtr3dLightSource fallbackLight;
+    const Qtr3dLightSource &legacyLight = lights.isEmpty() ? fallbackLight : *lights.first();
     switch(lighting) {
     case Qtr3d::NoLighting:
         drawBuffer_NoLight(mesh, modelView, meshSkeleton, camera);
         break;
     case Qtr3d::FlatLighting:
-        drawBuffer_FlatLight(mesh, modelView, meshSkeleton, camera, light);
+        drawBuffer_FlatLight(mesh, modelView, meshSkeleton, camera, legacyLight);
         break;
     case Qtr3d::PhongLighting:
-        drawBuffer_PhongLight(mesh, modelView, meshSkeleton, camera, light);
+        drawBuffer_PhongLight(mesh, modelView, meshSkeleton, camera, legacyLight);
         break;
-    default:break;
+    default: break;
+    }
+}
+
+// Compatibility overload for callers that still provide one light.
+void Qtr3dShader::render(const Qtr3dMesh &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera,
+                         Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env)
+{
+    QList<Qtr3dLightSource*> lights;
+    lights.append(const_cast<Qtr3dLightSource*>(&light));
+    render(mesh, modelView, meshSkeleton, camera, lighting, lights, env);
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dShader::uploadLights(const QList<Qtr3dLightSource*> &lights, const Qtr3dCamera &camera)
+{
+    const int count = qMin(lights.size(), Qtr3d::MaximumLightsPerGeometry);
+    currentProgram()->setUniformValue("numLights", count);
+    const QMatrix4x4 worldMatrix = camera.worldView(!originRebasing());
+
+    for (int i = 0; i < count; ++i) {
+        const auto *light = lights.at(i);
+        const Qtr3dDblVector3D relativePos = originRebasing() ? light->pos() - camera.pos() : light->pos();
+        const QString prefix = QString("lights[%1].").arg(i);
+        currentProgram()->setUniformValue((prefix + "pos").toLatin1().constData(), worldMatrix.map(relativePos));
+        currentProgram()->setUniformValue((prefix + "color").toLatin1().constData(), light->colorf());
+        currentProgram()->setUniformValue((prefix + "ambient").toLatin1().constData(), light->strengthAmbient());
+        currentProgram()->setUniformValue((prefix + "intensity").toLatin1().constData(), light->intensity());
+        currentProgram()->setUniformValue((prefix + "range").toLatin1().constData(), light->range());
     }
 }
 

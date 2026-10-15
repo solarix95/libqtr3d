@@ -8,6 +8,7 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QMap>
+#include <QList>
 
 #include "../qtr3dtypes.h"
 
@@ -34,6 +35,8 @@ public:
     void setProgram(Qtr3d::LightingType lightType);
 
     void render(const Qtr3dMesh  &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera,
+                Qtr3d::LightingType lighting, const QList<Qtr3dLightSource*> &lights, const Qtr3dEnvironment &env);
+    void render(const Qtr3dMesh  &mesh, const QMatrix4x4 &modelView, const QVector<QMatrix4x4> &meshSkeleton, const Qtr3dCamera &camera,
                 Qtr3d::LightingType lighting, const Qtr3dLightSource &light, const Qtr3dEnvironment &env);
 
     void render(const Qtr3dPointCloud &cloud, const QMatrix4x4 &modelView, const Qtr3dCamera &camera, const Qtr3dEnvironment &env);
@@ -53,6 +56,7 @@ protected:
 
 private:
     void initShader(Qtr3d::LightingType lightType, const QString &extension, const QString &fragVaryingCode, const QString &fragColorCode);
+    void uploadLights(const QList<Qtr3dLightSource*> &lights, const Qtr3dCamera &camera);
     bool compileShader(QOpenGLShader *vShader, QOpenGLShader *fShader, QOpenGLShaderProgram *program, const QByteArray &vCode, const QByteArray &fCode);
     static QByteArray shaderCode(const QString &name);
 

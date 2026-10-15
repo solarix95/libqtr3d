@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <cmath>
 #include "qtr3dmodelanimation.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -6,6 +7,7 @@ Qtr3dModelAnimation::Qtr3dModelAnimation(const QString &name, float duration, in
     : mName(name)
     , mDuration(duration)
     , mTicksPerSec(ticksPerSec)
+    , mLoopStart(0.0f)
 {
 }
 
@@ -25,6 +27,24 @@ float Qtr3dModelAnimation::duration() const
 int Qtr3dModelAnimation::ticksPerSec() const
 {
     return mTicksPerSec;
+}
+
+//-------------------------------------------------------------------------------------------------
+float Qtr3dModelAnimation::loopStart() const
+{
+    return mLoopStart;
+}
+
+//-------------------------------------------------------------------------------------------------
+void Qtr3dModelAnimation::setLoopStart(float time)
+{
+    if (!std::isfinite(time))
+        time = 0.0f;
+    if (time < 0.0f)
+        time = 0.0f;
+    if (time > mDuration)
+        time = mDuration;
+    mLoopStart = time;
 }
 
 //-------------------------------------------------------------------------------------------------
