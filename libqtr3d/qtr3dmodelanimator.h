@@ -5,9 +5,10 @@
 #include <QElapsedTimer>
 #include <QStringList>
 #include <QMatrix4x4>
+#include <QMap>
 #include <QVector3D>
+#include "qtr3dmodelanimation.h"
 
-class Qtr3dModelAnimation;
 class Qtr3dModelAnimator : public QObject
 {
 public:
@@ -19,6 +20,10 @@ public:
     void       setEnabled(bool enabled);
 
     void       setLoop(bool loop);
+    // Freeze the source animator's current pose and blend it into this
+    // animator. The duration is expressed in this animation's ticks.
+    void       transitionFrom(const Qtr3dModelAnimator *sourceAnimator, float durationTicks);
+    bool       transitionActive() const;
     bool       transform(const QString &nodeName, QMatrix4x4 &nodeTransform) const;
     void       setTicksPerSecond(int tps);
     float      animationTime() const;
@@ -31,6 +36,8 @@ private:
     int                  mOverrideTickesPerSecond;
     bool                 mIsEnabled;
     bool                 mLoop;
+    QMap<QString,Qtr3dModelAnimation::NodeTransform> mTransitionSourcePose;
+    float                mTransitionDurationTicks;
 };
 
 #endif // QTR3DMODELANIMATOR_H

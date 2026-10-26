@@ -12,6 +12,18 @@
 class Qtr3dModelAnimation : public QObject
 {
 public:
+    struct NodeTransform {
+        QVector3D   position;
+        QQuaternion rotation;
+        QVector3D   scale;
+
+        NodeTransform()
+            : position()
+            , rotation(1.0f, 0.0f, 0.0f, 0.0f)
+            , scale(1.0f, 1.0f, 1.0f)
+        {}
+    };
+
     // TODO: Template-Type?
     struct PositionKey {
         float     mTime;
@@ -57,7 +69,8 @@ public:
     void    addChannel(const Channel &channel);
 
     QStringList animatedNodes() const;
-    bool        tranformNode(const QString &nodeName, float time, QMatrix4x4 &nodeTransform) const;
+    bool        nodeTransform(const QString &nodeName, float time, NodeTransform &transform) const;
+    bool        tranformNode(const QString &nodeName, float time, QMatrix4x4 &matrix) const;
 
 private:
     QString               mName;

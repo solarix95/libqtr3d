@@ -9,6 +9,7 @@ Qtr3dModelAnimator::Qtr3dModelAnimator(Qtr3dModelAnimation *animation)
     , mOverrideTickesPerSecond(-1)
     , mIsEnabled(false)
     , mLoop(false)
+    , mTransitionDurationTicks(0.0f)
 {
     Q_ASSERT(mAnimation);
 }
@@ -49,11 +50,74 @@ void Qtr3dModelAnimator::setLoop(bool loop)
 }
 
 //-------------------------------------------------------------------------------------------------
+void Qtr3dModelAnimator::transitionFrom(const Qtr3dModelAnimator *sourceAnimator,
+                                        float durationTicks)
+{
+    mTransitionSourcePose.clear();
+    mTransitionDurationTicks = 0.0f;
+
+    if (!sourceAnimator || sourceAnimator == this || !sourceAnimator->mIsEnabled
+            || !std::isfinite(durationTicks) || durationTicks <= 0.0f)
+        return;
+
+    QStringList nodeNames = mAnimation->animatedNodes();
+    for (const QString &nodeName: sourceAnimator->mAnimation->animatedNodes()) {
+        if (!nodeNames.contains(nodeName))
+            nodeNames << nodeName;
+    }
+
+    const float sourceTime = sourceAnimator->logicalAnimationTime();
+    for (const QString &nodeName: nodeNames) {
+        Qtr3dModelAnimation::NodeTransform sourceTransform;
+        sourceAnimator->mAnimation->nodeTransform(nodeName, sourceTime, sourceTransform);
+        mTransitionSourcePose.insert(nodeName, sourceTransform);
+    }
+    mTransitionDurationTicks = durationTicks;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelAnimator::transitionActive() const
+{
+    return mIsEnabled && mTransitionDurationTicks > 0.0f
+            && logicalAnimationTime() < mTransitionDurationTicks;
+}
+
+//-------------------------------------------------------------------------------------------------
 bool Qtr3dModelAnimator::transform(const QString &nodeName, QMatrix4x4 &nodeTransform) const
 {
     if (nodeName.isEmpty() || !mIsEnabled)
         return false;
-    return mAnimation->tranformNode(nodeName,logicalAnimationTime(), nodeTransform);
+
+    const float animationTime = logicalAnimationTime();
+    Qtr3dModelAnimation::NodeTransform targetTransform;
+    const bool hasTarget = mAnimation->nodeTransform(nodeName, animationTime, targetTransform);
+
+    const auto source = mTransitionSourcePose.constFind(nodeName);
+    if (source != mTransitionSourcePose.constEnd()
+            && mTransitionDurationTicks > 0.0f
+            && animationTime < mTransitionDurationTicks) {
+        const float factor = qBound(0.0f, animationTime/mTransitionDurationTicks, 1.0f);
+        const Qtr3dModelAnimation::NodeTransform &sourceTransform = source.value();
+        targetTransform.position = sourceTransform.position
+                + factor*(targetTransform.position-sourceTransform.position);
+        targetTransform.rotation = QQuaternion::nlerp(sourceTransform.rotation,
+                                                       targetTransform.rotation,
+                                                       factor).normalized();
+        targetTransform.scale = sourceTransform.scale
+                + factor*(targetTransform.scale-sourceTransform.scale);
+
+        nodeTransform.translate(targetTransform.position);
+        nodeTransform.rotate(targetTransform.rotation);
+        nodeTransform.scale(targetTransform.scale);
+        return true;
+    }
+
+    if (!hasTarget)
+        return false;
+    nodeTransform.translate(targetTransform.position);
+    nodeTransform.rotate(targetTransform.rotation);
+    nodeTransform.scale(targetTransform.scale);
+    return true;
 }
 
 //-------------------------------------------------------------------------------------------------

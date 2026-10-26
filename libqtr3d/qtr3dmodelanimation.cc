@@ -134,7 +134,21 @@ static Qtr3dModelAnimation::ScaleKey scaleKeyAt(const QList<Qtr3dModelAnimation:
 }
 
 //-------------------------------------------------------------------------------------------------
-bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMatrix4x4 &nodeTransform) const
+bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMatrix4x4 &matrix) const
+{
+    NodeTransform transform;
+    if (!nodeTransform(nodeName, time, transform))
+        return false;
+
+    matrix.translate(transform.position);
+    matrix.rotate(transform.rotation);
+    matrix.scale(transform.scale);
+    return true;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool Qtr3dModelAnimation::nodeTransform(const QString &nodeName, float time,
+                                        NodeTransform &transform) const
 {
     if (!mChannels.contains(nodeName))
         return false;
@@ -152,12 +166,13 @@ bool Qtr3dModelAnimation::tranformNode(const QString &nodeName, float time, QMat
     if (!position.isValid() && !rotation.isValid() && !scale.isValid())
         return false;
 
+    transform = NodeTransform();
     if (position.isValid())
-        nodeTransform.translate(position.mValue);
+        transform.position = position.mValue;
     if (rotation.isValid())
-        nodeTransform.rotate(rotation.mValue.normalized());
+        transform.rotation = rotation.mValue.normalized();
     if (scale.isValid())
-        nodeTransform.scale(scale.mValue);
+        transform.scale = scale.mValue;
 
     return true;
 }
